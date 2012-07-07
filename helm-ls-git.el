@@ -117,7 +117,9 @@
     (persistent-action . helm-ls-git-diff)
     (persistent-help . "Diff")
     (action . (("Find file" . find-file)
-               ("Diff" . helm-ls-git-diff)))))
+               ("Diff" . helm-ls-git-diff)
+               ("Vc dir" . (lambda (_candidate)
+                             (vc-dir helm-ls-git-root-directory)))))))
                
 (defun helm-ls-git-diff (candidate)
   (with-current-buffer (find-file-noselect candidate)
