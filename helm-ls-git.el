@@ -140,11 +140,6 @@
                                    . (lambda (_candidate)
                                        (let ((marked (helm-marked-candidates)))
                                          (vc-checkin marked 'Git)))))))
-          ((string-match "^A  " disp)
-           (append actions (list '("Commit file(s)"
-                                   . (lambda (_candidate)
-                                       (let ((marked (helm-marked-candidates)))
-                                         (vc-checkin marked 'Git)))))))
           (t actions))))
 
 (defun helm-ls-git-diff (candidate)
