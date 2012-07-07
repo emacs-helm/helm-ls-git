@@ -81,11 +81,54 @@
     (action-transformer helm-c-transform-file-load-el)
     (action . ,(cdr (helm-get-actions-from-type helm-c-source-locate)))))
 
+(defun helm-ls-git-status ()
+  (when (file-exists-p helm-ls-git-log-file)
+    (delete-file helm-ls-git-log-file))
+  (with-output-to-string
+      (with-current-buffer standard-output
+        (apply #'process-file
+               "git"
+               nil (list t helm-ls-git-log-file) nil
+               (list "status" "--porcelain")))))
+
+(defun helm-ls-git-status-transformer (candidates source)
+  (loop with root = (let ((default-directory
+                           (or helm-ls-git-root-directory
+                               (with-helm-current-buffer
+                                 default-directory))))
+                      (helm-ls-git-root-dir))
+        for i in candidates
+        collect
+        (cond ((string-match "^\\( M \\)\\(.*\\)" i)
+               (cons (propertize i 'face '((:foreground "yellow")))
+                     (expand-file-name (match-string 2 i) root)))
+               ((string-match "^\\([?]\\{2\\} \\)\\(.*\\)" i)
+                (cons (propertize i 'face '((:foreground "red")))
+                      (expand-file-name (match-string 2 i) root))))))
+
+(defvar helm-c-source-ls-git-status
+  '((name . "Git status")
+    (init . (lambda ()
+              (helm-init-candidates-in-buffer
+               "*hgit status*"
+               (helm-ls-git-status))))
+    (candidates-in-buffer)
+    (filtered-candidate-transformer . helm-ls-git-status-transformer)
+    (persistent-action . helm-ls-git-diff)
+    (persistent-help . "Diff")
+    (action . (("Find file" . find-file)
+               ("Diff" . helm-ls-git-diff)))))
+               
+(defun helm-ls-git-diff (candidate)
+  (with-current-buffer (find-file-noselect candidate)
+    (call-interactively #'vc-diff)))
+
 ;;;###autoload
 (defun helm-ls-git-ls ()
   (interactive)
   (unwind-protect
-       (helm :sources 'helm-c-source-ls-git 
+       (helm :sources '(helm-c-source-ls-git-status
+                        helm-c-source-ls-git)
              :buffer "*helm lsgit*")
     (setq helm-ls-git-root-directory nil)))
 
