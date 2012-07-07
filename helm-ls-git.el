@@ -136,7 +136,23 @@
                                        (let ((default-directory
                                               (file-name-directory candidate))
                                              (marked (helm-marked-candidates)))
-                                         (vc-call-backend 'Git 'register marked)))))))
+                                         (vc-call-backend 'Git 'register marked))))
+                                 '("Copy to .gitignore" . (lambda (candidate)
+                                                            (let ((default-directory
+                                                                   (file-name-directory candidate))
+                                                                  (marked (helm-marked-candidates)))
+                                                              (with-current-buffer (find-file-noselect
+                                                                                    (expand-file-name ".gitignore"
+                                                                                                      (helm-ls-git-root-dir)))
+                                                                (goto-char (point-max))
+                                                                (loop with last-bname =
+                                                                      (helm-c-basename (car marked))
+                                                                      for f in marked
+                                                                      for bname = (helm-c-basename f)
+                                                                      unless (string= bname last-bname)
+                                                                      do (insert (concat bname "\n"))
+                                                                      do (setq last-bname bname))
+                                                                (save-buffer))))))))
           ((string-match "^ M " disp)
            (append actions (list '("Diff file" . helm-ls-git-diff)
                                  '("Commit file(s)"
