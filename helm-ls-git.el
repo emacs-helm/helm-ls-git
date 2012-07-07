@@ -23,6 +23,7 @@
 (defvar helm-ls-git-log-file "/tmp/ls-git.log")
 ;; Internal flag
 (defvar helm-ls-git-root-directory nil)
+(defvar helm-ls-git-status-command 'vc-dir)
 
 (defun helm-ls-git-list-files ()
   (when (file-exists-p helm-ls-git-log-file)
@@ -125,8 +126,9 @@
     (persistent-help . "Diff")
     (action-transformer . helm-ls-git-status-action-transformer)
     (action . (("Find file" . helm-find-many-files)
-               ("Vc dir" . (lambda (_candidate)
-                             (vc-dir helm-ls-git-root-directory)))))))
+               ("Status" . (lambda (_candidate)
+                             (funcall helm-ls-git-status-command
+                                      helm-ls-git-root-directory)))))))
 
 (defun helm-ls-git-status-action-transformer (actions candidate)
   (let ((disp (helm-get-selection nil t)))
@@ -173,6 +175,7 @@
 ;;;###autoload
 (defun helm-ls-git-ls ()
   (interactive)
+  (setq helm-ls-git-root-directory default-directory)
   (unwind-protect
        (helm :sources '(helm-c-source-ls-git-status
                         helm-c-source-ls-git)
@@ -183,7 +186,6 @@
 ;;
 (defun helm-ff-ls-git-find-files (candidate)
   (let ((default-directory helm-ff-default-directory))
-    (setq helm-ls-git-root-directory default-directory)
     (helm-run-after-quit
      #'(lambda (d)
          (let ((default-directory d))
