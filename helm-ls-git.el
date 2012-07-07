@@ -131,28 +131,31 @@
 (defun helm-ls-git-status-action-transformer (actions candidate)
   (let ((disp (helm-get-selection nil t)))
     (cond ((string-match "^[?]\\{2\\}" disp)
-           (append actions (list '("Add file(s)"
-                                   . (lambda (candidate)
-                                       (let ((default-directory
-                                              (file-name-directory candidate))
-                                             (marked (helm-marked-candidates)))
-                                         (vc-call-backend 'Git 'register marked))))
-                                 '("Copy to .gitignore" . (lambda (candidate)
-                                                            (let ((default-directory
-                                                                   (file-name-directory candidate))
-                                                                  (marked (helm-marked-candidates)))
-                                                              (with-current-buffer (find-file-noselect
-                                                                                    (expand-file-name ".gitignore"
-                                                                                                      (helm-ls-git-root-dir)))
-                                                                (goto-char (point-max))
-                                                                (loop with last-bname =
-                                                                      (helm-c-basename (car marked))
-                                                                      for f in marked
-                                                                      for bname = (helm-c-basename f)
-                                                                      unless (string= bname last-bname)
-                                                                      do (insert (concat bname "\n"))
-                                                                      do (setq last-bname bname))
-                                                                (save-buffer))))))))
+           (append actions
+                   (list '("Add file(s)"
+                           . (lambda (candidate)
+                               (let ((default-directory
+                                      (file-name-directory candidate))
+                                     (marked (helm-marked-candidates)))
+                                 (vc-call-backend 'Git 'register marked))))
+                         '("Copy to .gitignore"
+                           . (lambda (candidate)
+                               (let ((default-directory
+                                      (file-name-directory candidate))
+                                     (marked (helm-marked-candidates)))
+                                 (with-current-buffer (find-file-noselect
+                                                       (expand-file-name
+                                                        ".gitignore"
+                                                        (helm-ls-git-root-dir)))
+                                   (goto-char (point-max))
+                                   (loop with last-bname =
+                                         (helm-c-basename (car marked))
+                                         for f in marked
+                                         for bname = (helm-c-basename f)
+                                         unless (string= bname last-bname)
+                                         do (insert (concat bname "\n"))
+                                         do (setq last-bname bname))
+                                   (save-buffer))))))))
           ((string-match "^ M " disp)
            (append actions (list '("Diff file" . helm-ls-git-diff)
                                  '("Commit file(s)"
