@@ -124,7 +124,7 @@
     (persistent-action . helm-ls-git-diff)
     (persistent-help . "Diff")
     (action-transformer . helm-ls-git-status-action-transformer)
-    (action . (("Find file" . find-file)
+    (action . (("Find file" . helm-find-many-files)
                ("Vc dir" . (lambda (_candidate)
                              (vc-dir helm-ls-git-root-directory)))))))
 
