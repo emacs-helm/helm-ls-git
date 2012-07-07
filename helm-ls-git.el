@@ -148,8 +148,7 @@
                                                         ".gitignore"
                                                         (helm-ls-git-root-dir)))
                                    (goto-char (point-max))
-                                   (loop with last-bname =
-                                         (helm-c-basename (car marked))
+                                   (loop with last-bname 
                                          for f in marked
                                          for bname = (helm-c-basename f)
                                          unless (string= bname last-bname)
