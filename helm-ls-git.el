@@ -104,7 +104,11 @@
                      (expand-file-name (match-string 2 i) root)))
                ((string-match "^\\([?]\\{2\\} \\)\\(.*\\)" i)
                 (cons (propertize i 'face '((:foreground "red")))
-                      (expand-file-name (match-string 2 i) root))))))
+                      (expand-file-name (match-string 2 i) root)))
+               ((string-match "^\\([A]  \\)\\(.*\\)" i)
+                (cons (propertize i 'face '((:foreground "green")))
+                      (expand-file-name (match-string 2 i) root)))
+               (t i))))
 
 (defvar helm-c-source-ls-git-status
   '((name . "Git status")
@@ -116,14 +120,33 @@
     (filtered-candidate-transformer . helm-ls-git-status-transformer)
     (persistent-action . helm-ls-git-diff)
     (persistent-help . "Diff")
+    (action-transformer . helm-ls-git-status-action-transformer)
     (action . (("Find file" . find-file)
-               ("Diff file" . helm-ls-git-diff)
-               ("Commit file(s)" . (lambda (_candidate)
-                                     (let ((marked (helm-marked-candidates)))
-                                       (vc-checkin marked 'Git))))
                ("Vc dir" . (lambda (_candidate)
                              (vc-dir helm-ls-git-root-directory)))))))
-               
+
+(defun helm-ls-git-status-action-transformer (actions candidate)
+  (let ((disp (helm-get-selection nil t)))
+    (cond ((string-match "^[?]\\{2\\}" disp)
+           (append actions (list '("Add file(s)"
+                                   . (lambda (candidate)
+                                       (let ((default-directory
+                                              (file-name-directory candidate))
+                                             (marked (helm-marked-candidates)))
+                                         (vc-call-backend 'Git 'register marked)))))))
+          ((string-match "^ M " disp)
+           (append actions (list '("Diff file" . helm-ls-git-diff)
+                                 '("Commit file(s)"
+                                   . (lambda (_candidate)
+                                       (let ((marked (helm-marked-candidates)))
+                                         (vc-checkin marked 'Git)))))))
+          ((string-match "^A  " disp)
+           (append actions (list '("Commit file(s)"
+                                   . (lambda (_candidate)
+                                       (let ((marked (helm-marked-candidates)))
+                                         (vc-checkin marked 'Git)))))))
+          (t actions))))
+
 (defun helm-ls-git-diff (candidate)
   (with-current-buffer (find-file-noselect candidate)
     (call-interactively #'vc-diff)))
