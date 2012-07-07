@@ -118,6 +118,9 @@
     (persistent-help . "Diff")
     (action . (("Find file" . find-file)
                ("Diff" . helm-ls-git-diff)
+               ("Commit" . (lambda (_candidate)
+                             (let ((marked (helm-marked-candidates)))
+                               (vc-checkin marked 'Git))))
                ("Vc dir" . (lambda (_candidate)
                              (vc-dir helm-ls-git-root-directory)))))))
                
