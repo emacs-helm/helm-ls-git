@@ -105,8 +105,11 @@
                ((string-match "^\\([?]\\{2\\} \\)\\(.*\\)" i)
                 (cons (propertize i 'face '((:foreground "red")))
                       (expand-file-name (match-string 2 i) root)))
-               ((string-match "^\\([A]  \\)\\(.*\\)" i)
+               ((string-match "^\\([ARC] +\\)\\(.*\\)" i)
                 (cons (propertize i 'face '((:foreground "green")))
+                      (expand-file-name (match-string 2 i) root)))
+               ((string-match "^\\( [D] \\)\\(.*\\)" i)
+                (cons (propertize i 'face '((:foreground "Darkgoldenrod3")))
                       (expand-file-name (match-string 2 i) root)))
                (t i))))
 
@@ -139,7 +142,10 @@
                                  '("Commit file(s)"
                                    . (lambda (_candidate)
                                        (let ((marked (helm-marked-candidates)))
-                                         (vc-checkin marked 'Git)))))))
+                                         (vc-checkin marked 'Git))))
+                                 '("Revert file" . vc-git-revert))))
+          ((string-match "^ D " disp)
+           (append actions (list '("Git delete" . vc-git-delete-file))))
           (t actions))))
 
 (defun helm-ls-git-diff (candidate)
