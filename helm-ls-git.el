@@ -112,6 +112,9 @@
                ((string-match "^\\( [D] \\)\\(.*\\)" i)
                 (cons (propertize i 'face '((:foreground "Darkgoldenrod3")))
                       (expand-file-name (match-string 2 i) root)))
+               ((string-match "^\\([D] \\)\\(.*\\)" i)
+                (cons (propertize i 'face '((:foreground "DimGray")))
+                      (expand-file-name (match-string 2 i) root)))
                (t i))))
 
 (defvar helm-c-source-ls-git-status
@@ -126,9 +129,9 @@
     (persistent-help . "Diff")
     (action-transformer . helm-ls-git-status-action-transformer)
     (action . (("Find file" . helm-find-many-files)
-               ("Status" . (lambda (_candidate)
-                             (funcall helm-ls-git-status-command
-                                      helm-ls-git-root-directory)))))))
+               ("Git status" . (lambda (_candidate)
+                                 (funcall helm-ls-git-status-command
+                                          helm-ls-git-root-directory)))))))
 
 (defun helm-ls-git-status-action-transformer (actions candidate)
   (let ((disp (helm-get-selection nil t)))
@@ -140,7 +143,7 @@
                                       (file-name-directory candidate))
                                      (marked (helm-marked-candidates)))
                                  (vc-call-backend 'Git 'register marked))))
-                         '("Copy to .gitignore"
+                         '("Copy bnames to .gitignore"
                            . (lambda (candidate)
                                (let ((default-directory
                                       (file-name-directory candidate))
