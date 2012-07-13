@@ -33,7 +33,8 @@
         (apply #'process-file
                "git"
                nil (list t helm-ls-git-log-file) nil
-               (list "ls-files" "--full-name" "--")))))
+               (list "ls-files" "--full-name" "--"
+                     (helm-ls-git-root-dir))))))
 
 (defun helm-ls-git-root-dir ()
   (let ((result
