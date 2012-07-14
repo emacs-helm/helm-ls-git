@@ -83,6 +83,19 @@
     (action-transformer helm-c-transform-file-load-el)
     (action . ,(cdr (helm-get-actions-from-type helm-c-source-locate)))))
 
+(defun helm-ls-git-grep (candidate)
+  (let* ((helm-c-grep-default-command "git-grep -nHi --full-name -e %p %f")
+         (exts (helm-c-grep-guess-extensions (helm-marked-candidates)))
+         (globs (format "'%s'" (mapconcat 'identity exts " ")))
+         (files (if helm-current-prefix-arg
+                    (list "--" (read-string "OnlyExt(*.[ext]): " globs))
+                    '("--")))
+         (helm-c-grep-default-directory-fn 'helm-ls-git-root-dir))
+    (helm-do-grep-1 files)))
+
+(helm-add-action-to-source
+ "git grep" 'helm-ls-git-grep helm-c-source-ls-git 3)
+
 (defun helm-ls-git-status ()
   (when (file-exists-p helm-ls-git-log-file)
     (delete-file helm-ls-git-log-file))
