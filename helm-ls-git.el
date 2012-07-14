@@ -84,7 +84,7 @@
     (action . ,(cdr (helm-get-actions-from-type helm-c-source-locate)))))
 
 (defun helm-ls-git-grep (candidate)
-  (let* ((helm-c-grep-default-command "git-grep -nHi --full-name -e %p %f")
+  (let* ((helm-c-grep-default-command "git grep -nHi --full-name -e %p %f")
          (exts (helm-c-grep-guess-extensions (helm-marked-candidates)))
          (globs (format "'%s'" (mapconcat 'identity exts " ")))
          (files (cond ((equal helm-current-prefix-arg '(4))
@@ -92,12 +92,33 @@
                       ((equal helm-current-prefix-arg '(16))
                        '("--"))
                       (t (helm-marked-candidates))))
+         ;; Expand filename of each candidate with the git root dir.
+         ;; The filename will be in the help-echo prop.
          (helm-c-grep-default-directory-fn 'helm-ls-git-root-dir))
     (helm-do-grep-1 files)))
 
 (helm-add-action-to-source
- "Git grep (`C-u' only, `C-u C-u' all)"
+ "Git grep files (`C-u' only, `C-u C-u' all)"
  'helm-ls-git-grep helm-c-source-ls-git 3)
+
+(helm-add-action-to-source
+ "Search in Git log (C-u show patch)"
+ 'helm-ls-git-search-log
+ helm-c-source-ls-git 4)
+
+(defun helm-ls-git-search-log (_candidate)
+  (let* ((query (read-string "Search log: "))
+         (coms (if helm-current-prefix-arg
+                   (list "log" "-p" "--grep" query)
+                   (list "log" "--grep" query))))
+    (with-current-buffer (get-buffer-create "*helm ls log*")
+      (set (make-local-variable 'buffer-read-only) nil)
+      (erase-buffer)
+      (apply #'process-file "git" nil (list t nil) nil coms)))
+  (pop-to-buffer "*helm ls log*")
+  (goto-char (point-min))
+  (diff-mode)
+  (set (make-local-variable 'buffer-read-only) t))
 
 (defun helm-ls-git-status ()
   (when (file-exists-p helm-ls-git-log-file)
