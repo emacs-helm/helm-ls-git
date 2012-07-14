@@ -94,7 +94,7 @@
     (helm-do-grep-1 files)))
 
 (helm-add-action-to-source
- "git grep" 'helm-ls-git-grep helm-c-source-ls-git 3)
+ "Git grep" 'helm-ls-git-grep helm-c-source-ls-git 3)
 
 (defun helm-ls-git-status ()
   (when (file-exists-p helm-ls-git-log-file)
