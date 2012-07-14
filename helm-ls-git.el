@@ -87,14 +87,17 @@
   (let* ((helm-c-grep-default-command "git-grep -nHi --full-name -e %p %f")
          (exts (helm-c-grep-guess-extensions (helm-marked-candidates)))
          (globs (format "'%s'" (mapconcat 'identity exts " ")))
-         (files (if helm-current-prefix-arg
-                    (list "--" (read-string "OnlyExt(*.[ext]): " globs))
-                    '("--")))
+         (files (cond ((equal helm-current-prefix-arg '(4))
+                       (list "--" (read-string "OnlyExt(*.[ext]): " globs)))
+                      ((equal helm-current-prefix-arg '(16))
+                       '("--"))
+                      (t (helm-marked-candidates))))
          (helm-c-grep-default-directory-fn 'helm-ls-git-root-dir))
     (helm-do-grep-1 files)))
 
 (helm-add-action-to-source
- "Git grep" 'helm-ls-git-grep helm-c-source-ls-git 3)
+ "Git grep (`C-u' only, `C-u C-u' all)"
+ 'helm-ls-git-grep helm-c-source-ls-git 3)
 
 (defun helm-ls-git-status ()
   (when (file-exists-p helm-ls-git-log-file)
