@@ -94,7 +94,11 @@
                       (t (helm-marked-candidates))))
          ;; Expand filename of each candidate with the git root dir.
          ;; The filename will be in the help-echo prop.
-         (helm-c-grep-default-directory-fn 'helm-ls-git-root-dir))
+         (helm-c-grep-default-directory-fn 'helm-ls-git-root-dir)
+         ;; `helm-c-grep-init' initialize `default-directory' to this value,
+         ;; So set this value (i.e `helm-ff-default-directory') to
+         ;; something else.
+         (helm-ff-default-directory (file-name-directory candidate)))
     (helm-do-grep-1 files)))
 
 (helm-add-action-to-source
