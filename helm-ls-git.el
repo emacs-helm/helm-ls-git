@@ -205,8 +205,10 @@
           ((string-match "^ M " disp)
            (append actions (list '("Diff file" . helm-ls-git-diff)
                                  '("Commit file(s)"
-                                   . (lambda (_candidate)
-                                       (let ((marked (helm-marked-candidates)))
+                                   . (lambda (candidate)
+                                       (let* ((marked (helm-marked-candidates))
+                                              (default-directory
+                                               (file-name-directory (car marked))))
                                          (vc-checkin marked 'Git))))
                                  '("Revert file" . vc-git-revert))))
           ((string-match "^ D " disp)
