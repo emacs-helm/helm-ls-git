@@ -47,6 +47,11 @@
        (expand-file-name
         ".." (replace-regexp-in-string "\n" "" result))))))
 
+(defun helm-ls-git-not-inside-git-repo ()
+  (if (not (helm-ls-git-root-dir))
+      t
+    nil))
+
 (defun helm-ls-git-transformer (candidates source)
   (loop with root = (let ((default-directory
                            (or helm-ls-git-root-directory
@@ -62,17 +67,19 @@
         (cons (propertize disp 'face 'helm-ff-file) abs)))
 
 (defun helm-ls-git-init ()
-  (let ((data (helm-ls-git-list-files)))
-    (when (string= data "")
-      (setq data
-            (with-current-buffer
-                (find-file-noselect helm-ls-git-log-file)
-              (prog1
-                  (buffer-substring-no-properties
-                   (point-min) (point-max))
-                (kill-buffer)))))
-    (helm-init-candidates-in-buffer
-     "*lsgit*" data)))
+  (if (helm-ls-git-not-inside-git-repo)
+      (helm-init-candidates-in-buffer "*lsgit*" "")
+    (let ((data (helm-ls-git-list-files)))
+      (when (string= data "")
+        (setq data
+              (with-current-buffer
+                  (find-file-noselect helm-ls-git-log-file)
+                (prog1
+                    (buffer-substring-no-properties
+                     (point-min) (point-max))
+                  (kill-buffer)))))
+      (helm-init-candidates-in-buffer
+       "*lsgit*" data))))
 
 (defvar helm-c-source-ls-git
   `((name . "Git files")
@@ -223,7 +230,7 @@
 ;;;###autoload
 (defun helm-ls-git-ls ()
   (interactive)
-  (when (not (helm-ls-git-root-dir))
+  (when (helm-ls-git-not-inside-git-repo)
     (error "You have to be inside Git repository to make use of helm-ls-git-ls."))
   (setq helm-ls-git-root-directory default-directory)
   (unwind-protect
