@@ -223,6 +223,8 @@
 ;;;###autoload
 (defun helm-ls-git-ls ()
   (interactive)
+  (when (not (helm-ls-git-root-dir))
+    (error "You have to be inside Git repository to make use of helm-ls-git-ls."))
   (setq helm-ls-git-root-directory default-directory)
   (unwind-protect
        (helm :sources '(helm-c-source-ls-git-status
