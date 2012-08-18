@@ -150,8 +150,11 @@
                       (helm-ls-git-root-dir))
         for i in candidates
         collect
-        (cond ((string-match "^\\( M \\)\\(.*\\)" i)
+        (cond ((string-match "^\\( M \\)\\(.*\\)" i) ; modified.
                (cons (propertize i 'face '((:foreground "yellow")))
+                     (expand-file-name (match-string 2 i) root)))
+              ((string-match "^\\(M *\\)\\(.*\\)" i) ; modified and staged.
+               (cons (propertize i 'face '((:foreground "Gold")))
                      (expand-file-name (match-string 2 i) root)))
                ((string-match "^\\([?]\\{2\\} \\)\\(.*\\)" i)
                 (cons (propertize i 'face '((:foreground "red")))
