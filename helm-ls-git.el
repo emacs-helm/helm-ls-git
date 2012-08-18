@@ -213,7 +213,7 @@
                                          do (insert (concat bname "\n"))
                                          do (setq last-bname bname))
                                    (save-buffer))))))))
-          ((string-match "^ M " disp)
+          ((string-match "^ ?M+ *" disp)
            (append actions (list '("Diff file" . helm-ls-git-diff)
                                  '("Commit file(s)"
                                    . (lambda (candidate)
