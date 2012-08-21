@@ -91,7 +91,7 @@
     (action . ,(cdr (helm-get-actions-from-type helm-c-source-locate)))))
 
 (defun helm-ls-git-grep (candidate)
-  (let* ((helm-c-grep-default-command "git grep -nHi --full-name -e %p %f")
+  (let* ((helm-c-grep-default-command "git grep -n%cH --full-name -e %p %f")
          helm-c-grep-default-recurse-command
          (exts (helm-c-grep-guess-extensions (helm-marked-candidates)))
          (globs (format "'%s'" (mapconcat 'identity exts " ")))
