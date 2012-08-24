@@ -236,11 +236,14 @@
   (when (helm-ls-git-not-inside-git-repo)
     (error "You have to be inside Git repository to make use of helm-ls-git-ls."))
   (setq helm-ls-git-root-directory default-directory)
-  (unwind-protect
-       (helm :sources '(helm-c-source-ls-git-status
-                        helm-c-source-ls-git)
-             :buffer "*helm lsgit*")
-    (setq helm-ls-git-root-directory nil)))
+  ;; Some commands like `helm-ff-etags-select'
+  ;; use `helm-ff-default-directory' as a starting point, bind it. 
+  (let ((helm-ff-default-directory helm-ls-git-root-directory))
+    (unwind-protect
+         (helm :sources '(helm-c-source-ls-git-status
+                          helm-c-source-ls-git)
+               :buffer "*helm lsgit*")
+      (setq helm-ls-git-root-directory nil))))
 
 ;;; Helm-find-files integration.
 ;;
