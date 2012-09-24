@@ -20,13 +20,14 @@
 (require 'helm-locate)
 (require 'helm-files)
 
-(defvar helm-ls-git-log-file "/tmp/ls-git.log")
+(defvar helm-ls-git-log-file nil)
 ;; Internal flag
 (defvar helm-ls-git-root-directory nil)
 (defvar helm-ls-git-status-command 'vc-dir)
 
 (defun helm-ls-git-list-files ()
-  (when (file-exists-p helm-ls-git-log-file)
+  (when (and helm-ls-git-log-file
+             (file-exists-p helm-ls-git-log-file))
     (delete-file helm-ls-git-log-file))
   (with-output-to-string
       (with-current-buffer standard-output
@@ -49,9 +50,7 @@
         ".." (replace-regexp-in-string "\n" "" result))))))
 
 (defun helm-ls-git-not-inside-git-repo ()
-  (if (not (helm-ls-git-root-dir))
-      t
-    nil))
+  (not (helm-ls-git-root-dir)))
 
 (defun helm-ls-git-transformer (candidates source)
   (loop with root = (let ((default-directory
@@ -71,12 +70,14 @@
   (let ((data (helm-ls-git-list-files)))
     (when (string= data "")
       (setq data
-            (with-current-buffer
-                (find-file-noselect helm-ls-git-log-file)
-              (prog1
-                  (buffer-substring-no-properties
-                   (point-min) (point-max))
-                (kill-buffer)))))
+            (if helm-ls-git-log-file
+                (with-current-buffer
+                    (find-file-noselect helm-ls-git-log-file)
+                  (prog1
+                      (buffer-substring-no-properties
+                       (point-min) (point-max))
+                    (kill-buffer)))
+                data)))
     (helm-init-candidates-in-buffer
      "*lsgit*" data)))
 
@@ -132,7 +133,8 @@
   (set (make-local-variable 'buffer-read-only) t))
 
 (defun helm-ls-git-status ()
-  (when (file-exists-p helm-ls-git-log-file)
+  (when (and helm-ls-git-log-file
+             (file-exists-p helm-ls-git-log-file))
     (delete-file helm-ls-git-log-file))
   (with-output-to-string
       (with-current-buffer standard-output
