@@ -184,8 +184,9 @@
     (action-transformer . helm-ls-git-status-action-transformer)
     (action . (("Find file" . helm-find-many-files)
                ("Git status" . (lambda (_candidate)
-                                 (funcall helm-ls-git-status-command
-                                          helm-ls-git-root-directory)))))))
+                                 (with-current-buffer helm-buffer
+                                   (funcall helm-ls-git-status-command
+                                            helm-ls-git-root-directory))))))))
 
 (defun helm-ls-git-status-action-transformer (actions candidate)
   (let ((disp (helm-get-selection nil t)))
@@ -234,12 +235,10 @@
 ;;;###autoload
 (defun helm-ls-git-ls ()
   (interactive)
-  (setq helm-ls-git-root-directory default-directory)
-  (unwind-protect
-       (helm :sources '(helm-c-source-ls-git-status
-                        helm-c-source-ls-git)
-             :buffer "*helm lsgit*")
-    (setq helm-ls-git-root-directory nil)))
+  (helm :sources '(helm-c-source-ls-git-status
+                   helm-c-source-ls-git)
+        :ls-git-root-directory default-directory
+        :buffer "*helm lsgit*"))
 
 ;;; Helm-find-files integration.
 ;;
