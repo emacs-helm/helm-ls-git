@@ -62,7 +62,7 @@
         for abs = (expand-file-name i root)
         for disp = (if (and helm-ff-transformer-show-only-basename
                             (not (string-match "[.]\\{1,2\\}$" i)))
-                       (helm-c-basename i) abs)
+                       (helm-c-basename i) i)
         collect
         (cons (propertize disp 'face 'helm-ff-file) abs)))
 
