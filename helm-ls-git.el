@@ -20,11 +20,26 @@
 (require 'helm-locate)
 (require 'helm-files)
 
-(defvar helm-ls-git-log-file nil)
-;; Internal flag
+
+(defgroup helm-ls-git nil
+  "Helm completion for git repos."
+  :group 'helm)
+
+(defcustom helm-ls-git-show-abs-or-relative 'absolute
+  "Show full path or relative path to repo when using `helm-ff-toggle-basename'.
+Valid values are symbol 'abs (default) or 'relative."
+  :group 'helm-ls-git
+  :type  '(radio :tag "Show full path or relative path to Git repo when toggling"
+           (const :tag "Show full path" absolute)
+           (const :tag "Show relative path" relative)))
+
+
+(defvar helm-ls-git-log-file nil) ; Set it for debugging.
+;;; Internal
 (defvar helm-ls-git-root-directory nil)
 (defvar helm-ls-git-status-command 'vc-dir)
 
+
 (defun helm-ls-git-list-files ()
   (when (and helm-ls-git-log-file
              (file-exists-p helm-ls-git-log-file))
@@ -62,7 +77,9 @@
         for abs = (expand-file-name i root)
         for disp = (if (and helm-ff-transformer-show-only-basename
                             (not (string-match "[.]\\{1,2\\}$" i)))
-                       (helm-c-basename i) i)
+                       (helm-c-basename i) (case helm-ls-git-show-abs-or-relative
+                                             (absolute abs)
+                                             (relative i)))
         collect
         (cons (propertize disp 'face 'helm-ff-file) abs)))
 
@@ -90,6 +107,7 @@
     (action-transformer helm-c-transform-file-load-el)
     (action . ,(cdr (helm-get-actions-from-type helm-c-source-locate)))))
 
+
 (defun helm-ls-git-grep (candidate)
   (let* ((helm-c-grep-default-command "git grep -n%cH --full-name -e %p %f")
          helm-c-grep-default-recurse-command
@@ -118,6 +136,7 @@
  'helm-ls-git-search-log
  helm-c-source-ls-git 4)
 
+
 (defun helm-ls-git-search-log (_candidate)
   (let* ((query (read-string "Search log: "))
          (coms (if helm-current-prefix-arg
@@ -132,6 +151,7 @@
   (diff-mode)
   (set (make-local-variable 'buffer-read-only) t))
 
+
 (defun helm-ls-git-status ()
   (when (and helm-ls-git-log-file
              (file-exists-p helm-ls-git-log-file))
@@ -232,6 +252,7 @@
   (with-current-buffer (find-file-noselect candidate)
     (call-interactively #'vc-diff)))
 
+
 ;;;###autoload
 (defun helm-ls-git-ls ()
   (interactive)
@@ -240,6 +261,7 @@
         :ls-git-root-directory default-directory
         :buffer "*helm lsgit*"))
 
+
 ;;; Helm-find-files integration.
 ;;
 (defun helm-ff-ls-git-find-files (candidate)
