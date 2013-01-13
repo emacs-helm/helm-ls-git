@@ -29,14 +29,14 @@
   (when (and helm-ls-git-log-file
              (file-exists-p helm-ls-git-log-file))
     (delete-file helm-ls-git-log-file))
-  (with-output-to-string
-      (with-current-buffer standard-output
-        (apply #'process-file
-               "git"
-               nil (list t helm-ls-git-log-file) nil
-               (list "ls-files" "--full-name" "--"
-                     (or (helm-ls-git-root-dir)
-                         default-directory))))))
+  (with-helm-default-directory (or (helm-ls-git-root-dir)
+                                   default-directory)
+      (with-output-to-string
+          (with-current-buffer standard-output
+            (apply #'process-file
+                   "git"
+                   nil (list t helm-ls-git-log-file) nil
+                   (list "ls-files" "--full-name" "--"))))))
 
 (defun helm-ls-git-root-dir ()
   (let ((result
