@@ -33,6 +33,9 @@ Valid values are symbol 'abs (default) or 'relative."
            (const :tag "Show full path" absolute)
            (const :tag "Show relative path" relative)))
 
+;; Append visited files from `helm-c-source-ls-git' to `file-name-history'.
+(add-to-list 'helm-file-completion-sources "Git files")
+
 
 (defvar helm-ls-git-log-file nil) ; Set it for debugging.
 ;;; Internal
