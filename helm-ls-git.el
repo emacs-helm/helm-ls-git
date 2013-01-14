@@ -33,22 +33,25 @@ Valid values are symbol 'abs (default) or 'relative."
            (const :tag "Show full path" absolute)
            (const :tag "Show relative path" relative)))
 
+(defcustom helm-ls-git-status-command 'vc-dir
+  "Favorite git-status command for emacs."
+  :group 'helm-ls-git
+  :type 'symbol)
+
 ;; Append visited files from `helm-c-source-ls-git' to `file-name-history'.
 (add-to-list 'helm-file-completion-sources "Git files")
 
 
 (defvar helm-ls-git-log-file nil) ; Set it for debugging.
-;;; Internal
-(defvar helm-ls-git-root-directory nil)
-(defvar helm-ls-git-status-command 'vc-dir)
 
 
 (defun helm-ls-git-list-files ()
   (when (and helm-ls-git-log-file
              (file-exists-p helm-ls-git-log-file))
     (delete-file helm-ls-git-log-file))
-  (with-helm-default-directory (or (helm-ls-git-root-dir)
-                                   default-directory)
+  ;; `helm-resume' will use the value of `helm-default-directory'
+  ;; as value for `default-directory'.
+  (with-helm-default-directory (helm-ls-git-root-dir)
       (with-output-to-string
           (with-current-buffer standard-output
             (apply #'process-file
@@ -56,26 +59,15 @@ Valid values are symbol 'abs (default) or 'relative."
                    nil (list t helm-ls-git-log-file) nil
                    (list "ls-files" "--full-name" "--"))))))
 
-(defun helm-ls-git-root-dir ()
-  (let ((result
-         (with-output-to-string
-             (with-current-buffer standard-output
-               (process-file "git" nil (list t nil) nil
-                             "rev-parse" "--git-dir")))))
-    (unless (or (string= result "") (not result))
-      (file-name-as-directory
-       (expand-file-name
-        ".." (replace-regexp-in-string "\n" "" result))))))
+(defun* helm-ls-git-root-dir (&optional (directory default-directory))
+  (let ((root (locate-dominating-file directory ".git")))
+    (and root (file-name-as-directory root))))
 
 (defun helm-ls-git-not-inside-git-repo ()
   (not (helm-ls-git-root-dir)))
 
 (defun helm-ls-git-transformer (candidates source)
-  (loop with root = (let ((default-directory
-                           (or helm-ls-git-root-directory
-                               (with-helm-current-buffer
-                                 default-directory))))
-                      (helm-ls-git-root-dir))
+  (loop with root = (helm-ls-git-root-dir helm-default-directory)
         for i in candidates
         for abs = (expand-file-name i root)
         for disp = (if (and helm-ff-transformer-show-only-basename
@@ -167,11 +159,7 @@ Valid values are symbol 'abs (default) or 'relative."
                (list "status" "--porcelain")))))
 
 (defun helm-ls-git-status-transformer (candidates source)
-  (loop with root = (let ((default-directory
-                           (or helm-ls-git-root-directory
-                               (with-helm-current-buffer
-                                 default-directory))))
-                      (helm-ls-git-root-dir))
+  (loop with root = (helm-ls-git-root-dir helm-default-directory)
         for i in candidates
         collect
         (cond ((string-match "^\\( M \\)\\(.*\\)" i) ; modified.
@@ -209,7 +197,7 @@ Valid values are symbol 'abs (default) or 'relative."
                ("Git status" . (lambda (_candidate)
                                  (with-current-buffer helm-buffer
                                    (funcall helm-ls-git-status-command
-                                            helm-ls-git-root-directory))))))))
+                                            helm-default-directory))))))))
 
 (defun helm-ls-git-status-action-transformer (actions candidate)
   (let ((disp (helm-get-selection nil t)))
@@ -261,7 +249,12 @@ Valid values are symbol 'abs (default) or 'relative."
   (interactive)
   (helm :sources '(helm-c-source-ls-git-status
                    helm-c-source-ls-git)
-        :ls-git-root-directory default-directory
+        ;; When `helm-ls-git-ls' is called from lisp
+        ;; `default-directory' is normally let-bounded,
+        ;; to some other value;
+        ;; we now set this new let-bounded value local
+        ;; to `helm-default-directory'.
+        :default-directory default-directory
         :buffer "*helm lsgit*"))
 
 
@@ -275,20 +268,20 @@ Valid values are symbol 'abs (default) or 'relative."
            (helm-ls-git-ls)))
      default-directory)))
 
-(defun helm-ls-git-root-p (file)
+(defun helm-ls-git-ff-dir-git-p (file)
   (when (or (file-exists-p file)
             (file-directory-p file))
-    (let ((default-directory helm-ff-default-directory))
-      (stringp (condition-case nil
-                   (helm-ls-git-root-dir)
-                 (error nil))))))
+    (stringp (condition-case nil
+                 (helm-ls-git-root-dir
+                  helm-ff-default-directory)
+               (error nil)))))
 
 (when (require 'helm-files)
   (helm-add-action-to-source-if
    "Git ls-files"
    'helm-ff-ls-git-find-files
    helm-c-source-find-files
-   'helm-ls-git-root-p
+   'helm-ls-git-ff-dir-git-p
    4))
 
 (provide 'helm-ls-git)
