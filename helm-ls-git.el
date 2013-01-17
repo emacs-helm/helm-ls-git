@@ -51,13 +51,14 @@ Valid values are symbol 'abs (default) or 'relative."
     (delete-file helm-ls-git-log-file))
   ;; `helm-resume' will use the value of `helm-default-directory'
   ;; as value for `default-directory'.
-  (with-helm-default-directory (helm-ls-git-root-dir)
-      (with-output-to-string
-          (with-current-buffer standard-output
-            (apply #'process-file
-                   "git"
-                   nil (list t helm-ls-git-log-file) nil
-                   (list "ls-files" "--full-name" "--"))))))
+  (helm-aif (helm-ls-git-root-dir)
+      (with-helm-default-directory it
+          (with-output-to-string
+              (with-current-buffer standard-output
+                (apply #'process-file
+                       "git"
+                       nil (list t helm-ls-git-log-file) nil
+                       (list "ls-files" "--full-name" "--")))))))
 
 (defun* helm-ls-git-root-dir (&optional (directory default-directory))
   (let ((root (locate-dominating-file directory ".git")))
