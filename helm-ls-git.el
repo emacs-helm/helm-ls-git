@@ -91,8 +91,7 @@ Valid values are symbol 'abs (default) or 'relative."
                        (point-min) (point-max))
                     (kill-buffer)))
                 data)))
-    (helm-init-candidates-in-buffer
-     "*lsgit*" data)))
+    (helm-init-candidates-in-buffer 'global data)))
 
 (defvar helm-c-source-ls-git
   `((name . "Git files")
@@ -187,7 +186,7 @@ Valid values are symbol 'abs (default) or 'relative."
   '((name . "Git status")
     (init . (lambda ()
               (helm-init-candidates-in-buffer
-               "*hgit status*"
+               'global
                (helm-ls-git-status))))
     (candidates-in-buffer)
     (filtered-candidate-transformer . helm-ls-git-status-transformer)
