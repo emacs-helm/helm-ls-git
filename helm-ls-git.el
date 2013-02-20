@@ -240,8 +240,9 @@ Valid values are symbol 'abs (default) or 'relative."
           (t actions))))
 
 (defun helm-ls-git-diff (candidate)
-  (with-current-buffer (find-file-noselect candidate)
-    (call-interactively #'vc-diff)))
+  (let (helm-persistent-action-use-special-display)
+    (with-current-buffer (find-file-noselect candidate)
+      (call-interactively #'vc-diff))))
 
 
 ;;;###autoload
