@@ -20,6 +20,11 @@
 (require 'helm-locate)
 (require 'helm-files)
 
+(defvaralias 'helm-c-source-ls-git 'helm-source-ls-git)
+(make-obsolete-variable 'helm-c-source-ls-git 'helm-source-ls-git "1.5.1")
+(defvaralias 'helm-c-source-ls-git-status 'helm-source-ls-git-status)
+(make-obsolete-variable 'helm-c-source-ls-git-status 'helm-source-ls-git-status "1.5.1")
+
 
 (defgroup helm-ls-git nil
   "Helm completion for git repos."
@@ -38,7 +43,7 @@ Valid values are symbol 'abs (default) or 'relative."
   :group 'helm-ls-git
   :type 'symbol)
 
-;; Append visited files from `helm-c-source-ls-git' to `file-name-history'.
+;; Append visited files from `helm-source-ls-git' to `file-name-history'.
 (add-to-list 'helm-file-completion-sources "Git files")
 
 
@@ -73,7 +78,7 @@ Valid values are symbol 'abs (default) or 'relative."
         for abs = (expand-file-name i root)
         for disp = (if (and helm-ff-transformer-show-only-basename
                             (not (string-match "[.]\\{1,2\\}$" i)))
-                       (helm-c-basename i) (case helm-ls-git-show-abs-or-relative
+                       (helm-basename i) (case helm-ls-git-show-abs-or-relative
                                              (absolute abs)
                                              (relative i)))
         collect
@@ -93,20 +98,20 @@ Valid values are symbol 'abs (default) or 'relative."
                 data)))
     (helm-init-candidates-in-buffer 'global data)))
 
-(defvar helm-c-source-ls-git
+(defvar helm-source-ls-git
   `((name . "Git files")
     (init . helm-ls-git-init)
     (candidates-in-buffer)
     (keymap . ,helm-generic-files-map)
     (filtered-candidate-transformer . helm-ls-git-transformer)
-    (action-transformer helm-c-transform-file-load-el)
-    (action . ,(cdr (helm-get-actions-from-type helm-c-source-locate)))))
+    (action-transformer helm-transform-file-load-el)
+    (action . ,(cdr (helm-get-actions-from-type helm-source-locate)))))
 
 
 (defun helm-ls-git-grep (candidate)
-  (let* ((helm-c-grep-default-command "git grep -n%cH --full-name -e %p %f")
-         helm-c-grep-default-recurse-command
-         (exts (helm-c-grep-guess-extensions (helm-marked-candidates)))
+  (let* ((helm-grep-default-command "git grep -n%cH --full-name -e %p %f")
+         helm-grep-default-recurse-command
+         (exts (helm-grep-guess-extensions (helm-marked-candidates)))
          (globs (format "'%s'" (mapconcat 'identity exts " ")))
          (files (cond ((equal helm-current-prefix-arg '(4))
                        (list "--" (read-string "OnlyExt(*.[ext]): " globs)))
@@ -115,8 +120,8 @@ Valid values are symbol 'abs (default) or 'relative."
                       (t (helm-marked-candidates))))
          ;; Expand filename of each candidate with the git root dir.
          ;; The filename will be in the help-echo prop.
-         (helm-c-grep-default-directory-fn 'helm-ls-git-root-dir)
-         ;; `helm-c-grep-init' initialize `default-directory' to this value,
+         (helm-grep-default-directory-fn 'helm-ls-git-root-dir)
+         ;; `helm-grep-init' initialize `default-directory' to this value,
          ;; So set this value (i.e `helm-ff-default-directory') to
          ;; something else.
          (helm-ff-default-directory (file-name-directory candidate)))
@@ -124,12 +129,12 @@ Valid values are symbol 'abs (default) or 'relative."
 
 (helm-add-action-to-source
  "Git grep files (`C-u' only, `C-u C-u' all)"
- 'helm-ls-git-grep helm-c-source-ls-git 3)
+ 'helm-ls-git-grep helm-source-ls-git 3)
 
 (helm-add-action-to-source
  "Search in Git log (C-u show patch)"
  'helm-ls-git-search-log
- helm-c-source-ls-git 4)
+ helm-source-ls-git 4)
 
 
 (defun helm-ls-git-search-log (_candidate)
@@ -182,7 +187,7 @@ Valid values are symbol 'abs (default) or 'relative."
                       (expand-file-name (match-string 2 i) root)))
                (t i))))
 
-(defvar helm-c-source-ls-git-status
+(defvar helm-source-ls-git-status
   '((name . "Git status")
     (init . (lambda ()
               (helm-init-candidates-in-buffer
@@ -221,7 +226,7 @@ Valid values are symbol 'abs (default) or 'relative."
                                    (goto-char (point-max))
                                    (loop with last-bname 
                                          for f in marked
-                                         for bname = (helm-c-basename f)
+                                         for bname = (helm-basename f)
                                          unless (string= bname last-bname)
                                          do (insert (concat bname "\n"))
                                          do (setq last-bname bname))
@@ -248,8 +253,8 @@ Valid values are symbol 'abs (default) or 'relative."
 ;;;###autoload
 (defun helm-ls-git-ls ()
   (interactive)
-  (helm :sources '(helm-c-source-ls-git-status
-                   helm-c-source-ls-git)
+  (helm :sources '(helm-source-ls-git-status
+                   helm-source-ls-git)
         ;; When `helm-ls-git-ls' is called from lisp
         ;; `default-directory' is normally let-bounded,
         ;; to some other value;
@@ -281,7 +286,7 @@ Valid values are symbol 'abs (default) or 'relative."
   (helm-add-action-to-source-if
    "Git ls-files"
    'helm-ff-ls-git-find-files
-   helm-c-source-find-files
+   helm-source-find-files
    'helm-ls-git-ff-dir-git-p
    4))
 
