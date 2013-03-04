@@ -239,7 +239,14 @@ Valid values are symbol 'abs (default) or 'relative."
                                               (default-directory
                                                (file-name-directory (car marked))))
                                          (vc-checkin marked 'Git))))
-                                 '("Revert file" . vc-git-revert))))
+                                 '("Revert file" . (lambda (candidate)
+                                                     (let ((marked (helm-marked-candidates)))
+                                                       (loop for f in marked do
+                                                             (progn
+                                                               (vc-git-revert f)
+                                                               (helm-aif (get-file-buffer f)
+                                                                   (with-current-buffer it
+                                                                     (revert-buffer t t)))))))))))
           ((string-match "^ D " disp)
            (append actions (list '("Git delete" . vc-git-delete-file))))
           (t actions))))
