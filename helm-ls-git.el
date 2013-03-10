@@ -165,7 +165,7 @@ Valid values are symbol 'abs (default) or 'relative."
 
 (defface helm-ls-git-modified-not-staged-face
   '((t :foreground "yellow"))
-  "Files which are modified bot not yet staged."
+  "Files which are modified but not yet staged."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-modified-and-staged-face
