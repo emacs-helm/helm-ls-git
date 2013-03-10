@@ -163,27 +163,57 @@ Valid values are symbol 'abs (default) or 'relative."
                nil (list t helm-ls-git-log-file) nil
                (list "status" "--porcelain")))))
 
+(defface helm-ls-git-modified-not-staged-face
+  '((t :foreground "yellow"))
+  "Files which are modified bot not yet staged."
+  :group 'helm-ls-git)
+
+(defface helm-ls-git-modified-and-staged-face
+  '((t :foreground "Gold"))
+  "Files which are modified and already staged."
+  :group 'helm-ls-git)
+
+(defface helm-ls-git-untracked-face
+  '((t :foreground "red"))
+  "Files which are not yet tracked by git."
+  :group 'helm-ls-git)
+
+(defface helm-ls-git-added-renamed-copied-face
+  '((t :foreground "green"))
+  "Files which are newly added, renamed or copied."
+  :group 'helm-ls-git)
+
+(defface helm-ls-git-deleted-not-staged-face
+  '((t :foreground "Darkgoldenrod3"))
+  "Files which are deleted but not staged."
+  :group 'helm-ls-git)
+
+(defface helm-ls-git-deleted-and-staged-face
+  '((t :foreground "DimGray"))
+  "Files which are deleted and staged."
+  :group 'helm-ls-git)
+
 (defun helm-ls-git-status-transformer (candidates source)
   (loop with root = (helm-ls-git-root-dir helm-default-directory)
         for i in candidates
         collect
         (cond ((string-match "^\\( M \\)\\(.*\\)" i) ; modified.
-               (cons (propertize i 'face '((:foreground "yellow")))
+               (cons (propertize i 'face 'helm-ls-git-modified-not-staged-face)
                      (expand-file-name (match-string 2 i) root)))
               ((string-match "^\\(M+ *\\)\\(.*\\)" i) ; modified and staged.
-               (cons (propertize i 'face '((:foreground "Gold")))
+               (cons (propertize i 'face 'helm-ls-git-modified-and-staged-face)
                      (expand-file-name (match-string 2 i) root)))
                ((string-match "^\\([?]\\{2\\} \\)\\(.*\\)" i)
-                (cons (propertize i 'face '((:foreground "red")))
+                (cons (propertize i 'face 'helm-ls-git-untracked-face)
                       (expand-file-name (match-string 2 i) root)))
                ((string-match "^\\([ARC] +\\)\\(.*\\)" i)
-                (cons (propertize i 'face '((:foreground "green")))
+                (cons (propertize i 'face 'helm-ls-git-added-renamed-copied-face)
                       (expand-file-name (match-string 2 i) root)))
                ((string-match "^\\( [D] \\)\\(.*\\)" i)
-                (cons (propertize i 'face '((:foreground "Darkgoldenrod3")))
+                (cons (propertize i 'face 'helm-ls-git-deleted-not-staged-face)
                       (expand-file-name (match-string 2 i) root)))
                ((string-match "^\\([D] \\)\\(.*\\)" i)
-                (cons (propertize i 'face '((:foreground "DimGray")))
+                (cons (propertize i 'face 'helm-ls-git-deleted-and-staged-face)
                       (expand-file-name (match-string 2 i) root)))
                (t i))))
 
