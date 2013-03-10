@@ -43,6 +43,36 @@ Valid values are symbol 'abs (default) or 'relative."
   :group 'helm-ls-git
   :type 'symbol)
 
+(defface helm-ls-git-modified-not-staged-face
+  '((t :foreground "yellow"))
+  "Files which are modified but not yet staged."
+  :group 'helm-ls-git)
+
+(defface helm-ls-git-modified-and-staged-face
+  '((t :foreground "Gold"))
+  "Files which are modified and already staged."
+  :group 'helm-ls-git)
+
+(defface helm-ls-git-untracked-face
+  '((t :foreground "red"))
+  "Files which are not yet tracked by git."
+  :group 'helm-ls-git)
+
+(defface helm-ls-git-added-renamed-copied-face
+  '((t :foreground "green"))
+  "Files which are newly added, renamed or copied."
+  :group 'helm-ls-git)
+
+(defface helm-ls-git-deleted-not-staged-face
+  '((t :foreground "Darkgoldenrod3"))
+  "Files which are deleted but not staged."
+  :group 'helm-ls-git)
+
+(defface helm-ls-git-deleted-and-staged-face
+  '((t :foreground "DimGray"))
+  "Files which are deleted and staged."
+  :group 'helm-ls-git)
+
 ;; Append visited files from `helm-source-ls-git' to `file-name-history'.
 (add-to-list 'helm-file-completion-sources "Git files")
 
@@ -162,36 +192,6 @@ Valid values are symbol 'abs (default) or 'relative."
                "git"
                nil (list t helm-ls-git-log-file) nil
                (list "status" "--porcelain")))))
-
-(defface helm-ls-git-modified-not-staged-face
-  '((t :foreground "yellow"))
-  "Files which are modified but not yet staged."
-  :group 'helm-ls-git)
-
-(defface helm-ls-git-modified-and-staged-face
-  '((t :foreground "Gold"))
-  "Files which are modified and already staged."
-  :group 'helm-ls-git)
-
-(defface helm-ls-git-untracked-face
-  '((t :foreground "red"))
-  "Files which are not yet tracked by git."
-  :group 'helm-ls-git)
-
-(defface helm-ls-git-added-renamed-copied-face
-  '((t :foreground "green"))
-  "Files which are newly added, renamed or copied."
-  :group 'helm-ls-git)
-
-(defface helm-ls-git-deleted-not-staged-face
-  '((t :foreground "Darkgoldenrod3"))
-  "Files which are deleted but not staged."
-  :group 'helm-ls-git)
-
-(defface helm-ls-git-deleted-and-staged-face
-  '((t :foreground "DimGray"))
-  "Files which are deleted and staged."
-  :group 'helm-ls-git)
 
 (defun helm-ls-git-status-transformer (candidates source)
   (loop with root = (helm-ls-git-root-dir helm-default-directory)
