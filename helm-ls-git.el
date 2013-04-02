@@ -226,12 +226,13 @@ Valid values are symbol 'abs (default) or 'relative."
                (t i))))
 
 (defvar helm-source-ls-git-status
-  '((name . "Git status")
+  `((name . "Git status")
     (init . (lambda ()
               (helm-init-candidates-in-buffer
                'global
                (helm-ls-git-status))))
     (candidates-in-buffer)
+    (keymap . ,helm-generic-files-map)
     (filtered-candidate-transformer . helm-ls-git-status-transformer)
     (persistent-action . helm-ls-git-diff)
     (persistent-help . "Diff")
