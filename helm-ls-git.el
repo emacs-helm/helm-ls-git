@@ -53,14 +53,19 @@ Valid values are symbol 'abs (default) or 'relative."
   "Files which are modified and already staged."
   :group 'helm-ls-git)
 
+(defface helm-ls-git-renamed-modified-face
+  '((t :foreground "Gold"))
+  "Files which are renamed or renamed and modified."
+  :group 'helm-ls-git)
+
 (defface helm-ls-git-untracked-face
   '((t :foreground "red"))
   "Files which are not yet tracked by git."
   :group 'helm-ls-git)
 
-(defface helm-ls-git-added-renamed-copied-face
+(defface helm-ls-git-added-copied-face
   '((t :foreground "green"))
-  "Files which are newly added, renamed or copied."
+  "Files which are newly added or copied."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-deleted-not-staged-face
@@ -206,11 +211,14 @@ Valid values are symbol 'abs (default) or 'relative."
                ((string-match "^\\([?]\\{2\\} \\)\\(.*\\)" i)
                 (cons (propertize i 'face 'helm-ls-git-untracked-face)
                       (expand-file-name (match-string 2 i) root)))
-               ((string-match "^\\([ARC] +\\)\\(.*\\)" i)
-                (cons (propertize i 'face 'helm-ls-git-added-renamed-copied-face)
+               ((string-match "^\\([AC] +\\)\\(.*\\)" i)
+                (cons (propertize i 'face 'helm-ls-git-added-copied-face)
                       (expand-file-name (match-string 2 i) root)))
                ((string-match "^\\( [D] \\)\\(.*\\)" i)
                 (cons (propertize i 'face 'helm-ls-git-deleted-not-staged-face)
+                      (expand-file-name (match-string 2 i) root)))
+               ((string-match "^\\(RM?\\).* -> \\(.*\\)" i)
+                (cons (propertize i 'face 'helm-ls-git-renamed-modified-face)
                       (expand-file-name (match-string 2 i) root)))
                ((string-match "^\\([D] \\)\\(.*\\)" i)
                 (cons (propertize i 'face 'helm-ls-git-deleted-and-staged-face)
@@ -218,12 +226,13 @@ Valid values are symbol 'abs (default) or 'relative."
                (t i))))
 
 (defvar helm-source-ls-git-status
-  '((name . "Git status")
+  `((name . "Git status")
     (init . (lambda ()
               (helm-init-candidates-in-buffer
                'global
                (helm-ls-git-status))))
     (candidates-in-buffer)
+    (keymap . ,helm-generic-files-map)
     (filtered-candidate-transformer . helm-ls-git-status-transformer)
     (persistent-action . helm-ls-git-diff)
     (persistent-help . "Diff")
