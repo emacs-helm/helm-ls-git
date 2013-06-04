@@ -78,6 +78,11 @@ Valid values are symbol 'abs (default) or 'relative."
   "Files which are deleted and staged."
   :group 'helm-ls-git)
 
+(defface helm-ls-git-conflict-face
+  '((t :foreground "MediumVioletRed"))
+  "Files which contain rebase/merge conflicts."
+  :group 'helm-ls-git)
+
 ;; Append visited files from `helm-source-ls-git' to `file-name-history'.
 (add-to-list 'helm-file-completion-sources "Git files")
 
@@ -222,6 +227,9 @@ Valid values are symbol 'abs (default) or 'relative."
                       (expand-file-name (match-string 2 i) root)))
                ((string-match "^\\([D] \\)\\(.*\\)" i)
                 (cons (propertize i 'face 'helm-ls-git-deleted-and-staged-face)
+                      (expand-file-name (match-string 2 i) root)))
+               ((string-match "^\\(UU \\)\\(.*\\)" i)
+                (cons (propertize i 'face 'helm-ls-git-conflict-face)
                       (expand-file-name (match-string 2 i) root)))
                (t i))))
 
