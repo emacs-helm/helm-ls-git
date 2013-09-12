@@ -143,6 +143,8 @@ Valid values are symbol 'abs (default) or 'relative."
     (init . helm-ls-git-init)
     (candidates-in-buffer)
     (keymap . ,helm-generic-files-map)
+    (help-message . helm-generic-file-help-message)
+    (mode-line . helm-generic-file-mode-line-string)
     (filtered-candidate-transformer . helm-ls-git-transformer)
     (action-transformer helm-transform-file-load-el)
     (action . ,(cdr (helm-get-actions-from-type helm-source-locate)))))
