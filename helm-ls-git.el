@@ -18,6 +18,7 @@
 ;;; Code
 
 (require 'cl-lib)
+(require 'vc)
 (require 'helm-locate)
 (require 'helm-files)
 
@@ -119,7 +120,7 @@ Valid values are symbol 'abs (default) or 'relative."
            for abs = (expand-file-name i root)
            for disp = (if (and helm-ff-transformer-show-only-basename
                                (not (string-match "[.]\\{1,2\\}$" i)))
-                          (helm-basename i) (case helm-ls-git-show-abs-or-relative
+                          (helm-basename i) (cl-case helm-ls-git-show-abs-or-relative
                                               (absolute abs)
                                               (relative i)))
            collect
