@@ -106,7 +106,7 @@ Valid values are symbol 'abs (default) or 'relative."
                        nil (list t helm-ls-git-log-file) nil
                        (list "ls-files" "--full-name" "--")))))))
 
-(defun* helm-ls-git-root-dir (&optional (directory default-directory))
+(cl-defun helm-ls-git-root-dir (&optional (directory default-directory))
   (let ((root (locate-dominating-file directory ".git")))
     (and root (file-name-as-directory root))))
 
