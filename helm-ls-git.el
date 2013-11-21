@@ -17,6 +17,7 @@
 
 ;;; Code
 
+(require 'cl-lib)
 (require 'helm-locate)
 (require 'helm-files)
 
@@ -113,16 +114,16 @@ Valid values are symbol 'abs (default) or 'relative."
   (not (helm-ls-git-root-dir)))
 
 (defun helm-ls-git-transformer (candidates source)
-  (loop with root = (helm-ls-git-root-dir helm-default-directory)
-        for i in candidates
-        for abs = (expand-file-name i root)
-        for disp = (if (and helm-ff-transformer-show-only-basename
-                            (not (string-match "[.]\\{1,2\\}$" i)))
-                       (helm-basename i) (case helm-ls-git-show-abs-or-relative
-                                             (absolute abs)
-                                             (relative i)))
-        collect
-        (cons (propertize disp 'face 'helm-ff-file) abs)))
+  (cl-loop with root = (helm-ls-git-root-dir helm-default-directory)
+           for i in candidates
+           for abs = (expand-file-name i root)
+           for disp = (if (and helm-ff-transformer-show-only-basename
+                               (not (string-match "[.]\\{1,2\\}$" i)))
+                          (helm-basename i) (case helm-ls-git-show-abs-or-relative
+                                              (absolute abs)
+                                              (relative i)))
+           collect
+           (cons (propertize disp 'face 'helm-ff-file) abs)))
 
 (defun helm-ls-git-init ()
   (let ((data (helm-ls-git-list-files)))
@@ -213,34 +214,34 @@ Valid values are symbol 'abs (default) or 'relative."
                (list "status" "--porcelain")))))
 
 (defun helm-ls-git-status-transformer (candidates source)
-  (loop with root = (helm-ls-git-root-dir helm-default-directory)
-        for i in candidates
-        collect
-        (cond ((string-match "^\\( M \\)\\(.*\\)" i) ; modified.
-               (cons (propertize i 'face 'helm-ls-git-modified-not-staged-face)
-                     (expand-file-name (match-string 2 i) root)))
-              ((string-match "^\\(M+ *\\)\\(.*\\)" i) ; modified and staged.
-               (cons (propertize i 'face 'helm-ls-git-modified-and-staged-face)
-                     (expand-file-name (match-string 2 i) root)))
-               ((string-match "^\\([?]\\{2\\} \\)\\(.*\\)" i)
-                (cons (propertize i 'face 'helm-ls-git-untracked-face)
-                      (expand-file-name (match-string 2 i) root)))
-               ((string-match "^\\([AC] +\\)\\(.*\\)" i)
-                (cons (propertize i 'face 'helm-ls-git-added-copied-face)
-                      (expand-file-name (match-string 2 i) root)))
-               ((string-match "^\\( [D] \\)\\(.*\\)" i)
-                (cons (propertize i 'face 'helm-ls-git-deleted-not-staged-face)
-                      (expand-file-name (match-string 2 i) root)))
-               ((string-match "^\\(RM?\\).* -> \\(.*\\)" i)
-                (cons (propertize i 'face 'helm-ls-git-renamed-modified-face)
-                      (expand-file-name (match-string 2 i) root)))
-               ((string-match "^\\([D] \\)\\(.*\\)" i)
-                (cons (propertize i 'face 'helm-ls-git-deleted-and-staged-face)
-                      (expand-file-name (match-string 2 i) root)))
-               ((string-match "^\\(UU \\)\\(.*\\)" i)
-                (cons (propertize i 'face 'helm-ls-git-conflict-face)
-                      (expand-file-name (match-string 2 i) root)))
-               (t i))))
+  (cl-loop with root = (helm-ls-git-root-dir helm-default-directory)
+           for i in candidates
+           collect
+           (cond ((string-match "^\\( M \\)\\(.*\\)" i) ; modified.
+                  (cons (propertize i 'face 'helm-ls-git-modified-not-staged-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 ((string-match "^\\(M+ *\\)\\(.*\\)" i) ; modified and staged.
+                  (cons (propertize i 'face 'helm-ls-git-modified-and-staged-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 ((string-match "^\\([?]\\{2\\} \\)\\(.*\\)" i)
+                  (cons (propertize i 'face 'helm-ls-git-untracked-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 ((string-match "^\\([AC] +\\)\\(.*\\)" i)
+                  (cons (propertize i 'face 'helm-ls-git-added-copied-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 ((string-match "^\\( [D] \\)\\(.*\\)" i)
+                  (cons (propertize i 'face 'helm-ls-git-deleted-not-staged-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 ((string-match "^\\(RM?\\).* -> \\(.*\\)" i)
+                  (cons (propertize i 'face 'helm-ls-git-renamed-modified-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 ((string-match "^\\([D] \\)\\(.*\\)" i)
+                  (cons (propertize i 'face 'helm-ls-git-deleted-and-staged-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 ((string-match "^\\(UU \\)\\(.*\\)" i)
+                  (cons (propertize i 'face 'helm-ls-git-conflict-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 (t i))))
 
 (defvar helm-source-ls-git-status
   `((name . "Git status")
@@ -287,12 +288,12 @@ Valid values are symbol 'abs (default) or 'relative."
                                                         ".gitignore"
                                                         (helm-ls-git-root-dir)))
                                    (goto-char (point-max))
-                                   (loop with last-bname 
-                                         for f in marked
-                                         for bname = (helm-basename f)
-                                         unless (string= bname last-bname)
-                                         do (insert (concat bname "\n"))
-                                         do (setq last-bname bname))
+                                   (cl-loop with last-bname 
+                                            for f in marked
+                                            for bname = (helm-basename f)
+                                            unless (string= bname last-bname)
+                                            do (insert (concat bname "\n"))
+                                            do (setq last-bname bname))
                                    (save-buffer))))))))
           ((string-match "^ ?M+ *" disp)
            (append actions (list '("Diff file" . helm-ls-git-diff)
@@ -304,12 +305,12 @@ Valid values are symbol 'abs (default) or 'relative."
                                          (vc-checkin marked 'Git))))
                                  '("Revert file" . (lambda (candidate)
                                                      (let ((marked (helm-marked-candidates)))
-                                                       (loop for f in marked do
-                                                             (progn
-                                                               (vc-git-revert f)
-                                                               (helm-aif (get-file-buffer f)
-                                                                   (with-current-buffer it
-                                                                     (revert-buffer t t)))))))))))
+                                                       (cl-loop for f in marked do
+                                                                (progn
+                                                                  (vc-git-revert f)
+                                                                  (helm-aif (get-file-buffer f)
+                                                                      (with-current-buffer it
+                                                                        (revert-buffer t t)))))))))))
           ((string-match "^ D " disp)
            (append actions (list '("Git delete" . vc-git-delete-file))))
           (t actions))))
