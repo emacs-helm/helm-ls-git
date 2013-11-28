@@ -70,6 +70,11 @@ Valid values are symbol 'abs (default) or 'relative."
   "Files which are newly added or copied."
   :group 'helm-ls-git)
 
+(defface helm-ls-git-added-modified-face
+  '((t :foreground "blue"))
+  "Files which are newly added and have unstaged modifications."
+  :group 'helm-ls-git)
+
 (defface helm-ls-git-deleted-not-staged-face
   '((t :foreground "Darkgoldenrod3"))
   "Files which are deleted but not staged."
@@ -241,6 +246,9 @@ Valid values are symbol 'abs (default) or 'relative."
                         (expand-file-name (match-string 2 i) root)))
                  ((string-match "^\\(UU \\)\\(.*\\)" i)
                   (cons (propertize i 'face 'helm-ls-git-conflict-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 ((string-match "^\\(AM \\)\\(.*\\)" i)
+                  (cons (propertize i 'face 'helm-ls-git-added-modified-face)
                         (expand-file-name (match-string 2 i) root)))
                  (t i))))
 
