@@ -151,9 +151,9 @@ Valid values are symbol 'abs (default) or 'relative."
                      (format "%s (%s)"
                              name
                              (replace-regexp-in-string
-                              "\\* \\|\n" ""
+                              "\n" ""
                               (shell-command-to-string
-                               "git branch | grep ^\\*")))))
+                               "git rev-parse --abbrev-ref HEAD")))))
     (init . helm-ls-git-init)
     (candidates-in-buffer)
     (keymap . ,helm-generic-files-map)
