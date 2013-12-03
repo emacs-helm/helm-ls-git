@@ -287,6 +287,7 @@ Valid values are symbol 'abs (default) or 'relative."
                                       (file-name-directory candidate))
                                      (marked (helm-marked-candidates)))
                                  (vc-call-backend 'Git 'register marked))))
+                         '("Delete file(s)" . helm-delete-marked-files)
                          '("Copy bnames to .gitignore"
                            . (lambda (candidate)
                                (let ((default-directory
