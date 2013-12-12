@@ -119,7 +119,7 @@ Valid values are symbol 'abs (default) or 'relative."
 (defun helm-ls-git-not-inside-git-repo ()
   (not (helm-ls-git-root-dir)))
 
-(defun helm-ls-git-transformer (candidates source)
+(defun helm-ls-git-transformer (candidates)
   (cl-loop with root = (helm-ls-git-root-dir helm-default-directory)
            for i in candidates
            for abs = (expand-file-name i root)
@@ -159,7 +159,7 @@ Valid values are symbol 'abs (default) or 'relative."
     (keymap . ,helm-generic-files-map)
     (help-message . helm-generic-file-help-message)
     (mode-line . helm-generic-file-mode-line-string)
-    (filtered-candidate-transformer . helm-ls-git-transformer)
+    (candidate-transformer . helm-ls-git-transformer)
     (action-transformer helm-transform-file-load-el)
     (action . ,(cdr (helm-get-actions-from-type helm-source-locate)))))
 
@@ -219,7 +219,7 @@ Valid values are symbol 'abs (default) or 'relative."
                nil (list t helm-ls-git-log-file) nil
                (list "status" "--porcelain")))))
 
-(defun helm-ls-git-status-transformer (candidates source)
+(defun helm-ls-git-status-transformer (candidates _source)
   (cl-loop with root = (helm-ls-git-root-dir helm-default-directory)
            for i in candidates
            collect
