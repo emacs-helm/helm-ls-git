@@ -145,15 +145,17 @@ Valid values are symbol 'abs (default) or 'relative."
                 data)))
     (helm-init-candidates-in-buffer 'global data)))
 
+(defun helm-ls-git-header-name (name)
+  (format "%s (%s)"
+          name
+          (replace-regexp-in-string
+           "\n" ""
+           (shell-command-to-string
+            "git rev-parse --abbrev-ref HEAD"))))
+
 (defvar helm-source-ls-git
   `((name . "Git files")
-    (header-name . (lambda (name)
-                     (format "%s (%s)"
-                             name
-                             (replace-regexp-in-string
-                              "\n" ""
-                              (shell-command-to-string
-                               "git rev-parse --abbrev-ref HEAD")))))
+    (header-name . helm-ls-git-header-name)
     (init . helm-ls-git-init)
     (candidates-in-buffer)
     (keymap . ,helm-generic-files-map)
@@ -254,13 +256,7 @@ Valid values are symbol 'abs (default) or 'relative."
 
 (defvar helm-source-ls-git-status
   `((name . "Git status")
-    (header-name . (lambda (name)
-                     (format "%s (%s)"
-                             name
-                             (replace-regexp-in-string
-                              "\\* \\|\n" ""
-                              (shell-command-to-string
-                               "git branch | grep ^\\*")))))
+    (header-name . helm-ls-git-header-name)
     (init . (lambda ()
               (helm-init-candidates-in-buffer
                'global
