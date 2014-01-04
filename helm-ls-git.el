@@ -1,4 +1,4 @@
-;;; helm-ls-git.el --- list git files.
+;;; helm-ls-git.el --- list git files. -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2012 ~ 2013 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
@@ -273,7 +273,7 @@ Valid values are symbol 'abs (default) or 'relative."
                                    (funcall helm-ls-git-status-command
                                             helm-default-directory))))))))
 
-(defun helm-ls-git-status-action-transformer (actions candidate)
+(defun helm-ls-git-status-action-transformer (actions _candidate)
   (let ((disp (helm-get-selection nil t)))
     (cond ((string-match "^[?]\\{2\\}" disp)
            (append actions
@@ -343,7 +343,7 @@ Valid values are symbol 'abs (default) or 'relative."
 
 ;;; Helm-find-files integration.
 ;;
-(defun helm-ff-ls-git-find-files (candidate)
+(defun helm-ff-ls-git-find-files (_candidate)
   (let ((default-directory helm-ff-default-directory))
     (helm-run-after-quit
      #'(lambda (d)
