@@ -36,10 +36,11 @@ Yet another helm for listing the files in a git repo.
 * Otherwise, clone this repo and put `helm-ls-git.el` somewhere on the
   emacs `load-path`.
 
-* Finally, add to your `.emacs.d`:
+* Finally, add to your `.emacs.el`:
+
+Assuming you are already using helm and it is installed properly (See [Install helm](http://emacs-helm.github.io/helm/))
 
 ```elisp
-(require 'helm)
 (require 'helm-ls-git)
 ```
 
@@ -50,10 +51,22 @@ choice; for example:
 (global-set-key (kbd "C-<f6>") 'helm-ls-git-ls)
 ```
 
+Or even better use M-x `helm-browse-project` or bind it to a key, for example:
+
+```elisp
+(global-set-key (kbd "C-x C-d") 'helm-browse-project)
+```
+
+If you are using `helm-find-files` you will be able to browse any git repo unrelated
+to the `current-buffer`:
+M-x `helm-find-files`
+navigate to some git repo and hit `C-x C-d`
+
 ## Usage
 
-* By calling `helm-ls-git-ls` in any buffer that is a part of a git
-  repo, you will be presented with a corresponding helm buffer
+* By calling `helm-ls-git-ls` or `helm-browse-project` in any buffer that is a part of a git
+  repo (or if you have navigated to a git repo from `helm-find-files`),
+  you will be presented with a corresponding helm buffer
   containing a list of all the files currently in that same
   repository. In the usual `helm` style you can just type at the
   prompt in the minibuffer and see the results narrow according to the
