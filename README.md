@@ -1,16 +1,64 @@
-helm-ls-git
-===========
+# helm-ls-git
 
-Yet another helm to list git file.
+Yet another helm for listing the files in a git repo.
 
-Features:
+## Features:
 
-Similar to helm-git.el but with no dependency on magit.
+* Similar in scope to `helm-git.el` but has no dependency on magit.
 
-Allow toggling full path of files with C-]
+* Allows you to toggle the full path of files with `C-]`
 
-Inherit actions from helm locate.
+* Inherits actions from helm-locate.
 
-Signal error in helm-buffer when trying to use on a non git based repo.
+* Signals an error in helm-buffer when trying to use it in a non git
+  based repo.
 
-Action popup in action buffer of helm-find-files only when current directory is git based.
+* Action pop-up in action buffer of helm-find-files only when current
+  directory is git based.
+
+## Installation
+
+* We assume that you have `git` installed and that OSX users have
+  solved [any `$PATH` issues](https://gist.github.com/jhrr/8852178)
+  that prevent them being able to call `git` from emacs.
+
+* Ensure you are running at least >= Emacs-24.3.
+
+* Install `helm` according to the [instructions on its repo
+  page](https://github.com/emacs-helm/helm#getting-started)
+
+* If you are using the MELPA package manager then `M-x list-packages`
+  and install `helm-ls-git`.
+
+* Or, if you are using `el-get` then invoke `M-x el-get-install` and at
+  the `Install package:` prompt type `helm-ls-git` and hit enter.
+
+* Otherwise, clone this repo and put `helm-ls-git.el` somewhere on the
+  emacs `load-path`.
+
+* Finally, add to your `.emacs.d`:
+
+```elisp
+(require 'helm)
+(require 'helm-ls-git)
+```
+
+And then bind the command `helm-ls-git-ls` to a keybinding of your
+choice; for example:
+
+```elisp
+(global-set-key (kbd "C-<f6>") 'helm-ls-git-ls)
+```
+
+## Usage
+
+* By calling `helm-ls-git-ls` in any buffer that is a part of a git
+  repo, you will be presented with a corresponding helm buffer
+  containing a list of all the files currently in that same
+  repository. In the usual `helm` style you can just type at the
+  prompt in the minibuffer and see the results narrow according to the
+  input of your search pattern.
+
+* When the helm-buffer is active and displaying results, the user can
+  invoke `C-]` to toggle between showing filenames or full pathnames
+  for the data that helm is listing.
