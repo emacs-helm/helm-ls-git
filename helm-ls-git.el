@@ -146,12 +146,17 @@ Valid values are symbol 'abs (default) or 'relative."
     (helm-init-candidates-in-buffer 'global data)))
 
 (defun helm-ls-git-header-name (name)
-  (format "%s (%s)"
-          name
-          (replace-regexp-in-string
-           "\n" ""
-           (shell-command-to-string
-            "git rev-parse --abbrev-ref HEAD"))))
+  (let ((refs   (shell-command-to-string "git rev-parse --branches"))
+        (branch (shell-command-to-string
+                 "git rev-parse --abbrev-ref HEAD")))
+    (format "%s (%s)"
+            name
+            (replace-regexp-in-string
+             "\n" ""
+             ;; Check REFS to avoid message error in header
+             ;; when repo is just initialized and there is
+             ;; no branches yet.
+             (if (or (null refs) (string= refs "")) "--" branch)))))
 
 (defvar helm-source-ls-git
   `((name . "Git files")
