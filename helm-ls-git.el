@@ -125,11 +125,16 @@ Valid values are symbol 'abs (default) or 'relative."
            for abs = (expand-file-name i root)
            for disp = (if (and helm-ff-transformer-show-only-basename
                                (not (string-match "[.]\\{1,2\\}$" i)))
-                          (helm-basename i) (cl-case helm-ls-git-show-abs-or-relative
-                                              (absolute abs)
-                                              (relative i)))
+                          (helm-basename i)
+                        (cl-case helm-ls-git-show-abs-or-relative
+                          (absolute abs)
+                          (relative i)))
            collect
            (cons (propertize disp 'face 'helm-ff-file) abs)))
+
+(defun helm-ls-git-sort-fn (candidates)
+  "Transformer for sorting candidates."
+  (helm-ff-sort-candidates candidates nil))
 
 (defun helm-ls-git-init ()
   (let ((data (helm-ls-git-list-files)))
@@ -166,7 +171,8 @@ Valid values are symbol 'abs (default) or 'relative."
     (keymap . ,helm-generic-files-map)
     (help-message . helm-generic-file-help-message)
     (mode-line . helm-generic-file-mode-line-string)
-    (candidate-transformer . helm-ls-git-transformer)
+    (candidate-transformer . (helm-ls-git-sort-fn
+                              helm-ls-git-transformer))
     (action-transformer helm-transform-file-load-el)
     (action . ,(cdr (helm-get-actions-from-type helm-source-locate)))))
 
