@@ -46,47 +46,47 @@ Valid values are symbol 'abs (default) or 'relative."
   :type 'symbol)
 
 (defface helm-ls-git-modified-not-staged-face
-  '((t :foreground "yellow"))
+    '((t :foreground "yellow"))
   "Files which are modified but not yet staged."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-modified-and-staged-face
-  '((t :foreground "Gold"))
+    '((t :foreground "Gold"))
   "Files which are modified and already staged."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-renamed-modified-face
-  '((t :foreground "Gold"))
+    '((t :foreground "Gold"))
   "Files which are renamed or renamed and modified."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-untracked-face
-  '((t :foreground "red"))
+    '((t :foreground "red"))
   "Files which are not yet tracked by git."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-added-copied-face
-  '((t :foreground "green"))
+    '((t :foreground "green"))
   "Files which are newly added or copied."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-added-modified-face
-  '((t :foreground "blue"))
+    '((t :foreground "blue"))
   "Files which are newly added and have unstaged modifications."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-deleted-not-staged-face
-  '((t :foreground "Darkgoldenrod3"))
+    '((t :foreground "Darkgoldenrod3"))
   "Files which are deleted but not staged."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-deleted-and-staged-face
-  '((t :foreground "DimGray"))
+    '((t :foreground "DimGray"))
   "Files which are deleted and staged."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-conflict-face
-  '((t :foreground "MediumVioletRed"))
+    '((t :foreground "MediumVioletRed"))
   "Files which contain rebase/merge conflicts."
   :group 'helm-ls-git)
 
@@ -121,16 +121,16 @@ Valid values are symbol 'abs (default) or 'relative."
 
 (defun helm-ls-git-transformer (candidates)
   (cl-loop with root = (helm-ls-git-root-dir helm-default-directory)
-           for i in candidates
-           for abs = (expand-file-name i root)
-           for disp = (if (and helm-ff-transformer-show-only-basename
-                               (not (string-match "[.]\\{1,2\\}$" i)))
-                          (helm-basename i)
-                        (cl-case helm-ls-git-show-abs-or-relative
-                          (absolute abs)
-                          (relative i)))
-           collect
-           (cons (propertize disp 'face 'helm-ff-file) abs)))
+        for i in candidates
+        for abs = (expand-file-name i root)
+        for disp = (if (and helm-ff-transformer-show-only-basename
+                            (not (string-match "[.]\\{1,2\\}$" i)))
+                       (helm-basename i)
+                     (cl-case helm-ls-git-show-abs-or-relative
+                       (absolute abs)
+                       (relative i)))
+        collect
+        (cons (propertize disp 'face 'helm-ff-file) abs)))
 
 (defun helm-ls-git-sort-fn (candidates)
   "Transformer for sorting candidates."
@@ -147,7 +147,7 @@ Valid values are symbol 'abs (default) or 'relative."
                       (buffer-substring-no-properties
                        (point-min) (point-max))
                     (kill-buffer)))
-                data)))
+              data)))
     (helm-init-candidates-in-buffer 'global data)))
 
 (defun helm-ls-git-header-name (name)
@@ -171,9 +171,10 @@ Valid values are symbol 'abs (default) or 'relative."
     (keymap . ,helm-generic-files-map)
     (help-message . helm-generic-file-help-message)
     (mode-line . helm-generic-file-mode-line-string)
-    (match-part . (lambda (candidate) (if helm-ff-transformer-show-only-basename
-                                          (helm-basename candidate)
-                                          candidate)))
+    (match-part . (lambda (candidate)
+                    (if helm-ff-transformer-show-only-basename
+                        (helm-basename candidate)
+                      candidate)))
     (candidate-transformer . (helm-ls-git-transformer
                               helm-ls-git-sort-fn))
     (action-transformer helm-transform-file-load-el)
@@ -213,7 +214,7 @@ Valid values are symbol 'abs (default) or 'relative."
   (let* ((query (read-string "Search log: "))
          (coms (if helm-current-prefix-arg
                    (list "log" "-p" "--grep" query)
-                   (list "log" "--grep" query))))
+                 (list "log" "--grep" query))))
     (with-current-buffer (get-buffer-create "*helm ls log*")
       (set (make-local-variable 'buffer-read-only) nil)
       (erase-buffer)
@@ -237,44 +238,44 @@ Valid values are symbol 'abs (default) or 'relative."
 
 (defun helm-ls-git-status-transformer (candidates _source)
   (cl-loop with root = (helm-ls-git-root-dir helm-default-directory)
-           for i in candidates
-           collect
-           (cond ((string-match "^\\( M \\)\\(.*\\)" i) ; modified.
-                  (cons (propertize i 'face 'helm-ls-git-modified-not-staged-face)
-                        (expand-file-name (match-string 2 i) root)))
-                 ((string-match "^\\(M+ *\\)\\(.*\\)" i) ; modified and staged.
-                  (cons (propertize i 'face 'helm-ls-git-modified-and-staged-face)
-                        (expand-file-name (match-string 2 i) root)))
-                 ((string-match "^\\([?]\\{2\\} \\)\\(.*\\)" i)
-                  (cons (propertize i 'face 'helm-ls-git-untracked-face)
-                        (expand-file-name (match-string 2 i) root)))
-                 ((string-match "^\\([AC] +\\)\\(.*\\)" i)
-                  (cons (propertize i 'face 'helm-ls-git-added-copied-face)
-                        (expand-file-name (match-string 2 i) root)))
-                 ((string-match "^\\( [D] \\)\\(.*\\)" i)
-                  (cons (propertize i 'face 'helm-ls-git-deleted-not-staged-face)
-                        (expand-file-name (match-string 2 i) root)))
-                 ((string-match "^\\(RM?\\).* -> \\(.*\\)" i)
-                  (cons (propertize i 'face 'helm-ls-git-renamed-modified-face)
-                        (expand-file-name (match-string 2 i) root)))
-                 ((string-match "^\\([D] \\)\\(.*\\)" i)
-                  (cons (propertize i 'face 'helm-ls-git-deleted-and-staged-face)
-                        (expand-file-name (match-string 2 i) root)))
-                 ((string-match "^\\(UU \\)\\(.*\\)" i)
-                  (cons (propertize i 'face 'helm-ls-git-conflict-face)
-                        (expand-file-name (match-string 2 i) root)))
-                 ((string-match "^\\(AM \\)\\(.*\\)" i)
-                  (cons (propertize i 'face 'helm-ls-git-added-modified-face)
-                        (expand-file-name (match-string 2 i) root)))
-                 (t i))))
+        for i in candidates
+        collect
+        (cond ((string-match "^\\( M \\)\\(.*\\)" i) ; modified.
+               (cons (propertize i 'face 'helm-ls-git-modified-not-staged-face)
+                     (expand-file-name (match-string 2 i) root)))
+              ((string-match "^\\(M+ *\\)\\(.*\\)" i) ; modified and staged.
+               (cons (propertize i 'face 'helm-ls-git-modified-and-staged-face)
+                     (expand-file-name (match-string 2 i) root)))
+              ((string-match "^\\([?]\\{2\\} \\)\\(.*\\)" i)
+               (cons (propertize i 'face 'helm-ls-git-untracked-face)
+                     (expand-file-name (match-string 2 i) root)))
+              ((string-match "^\\([AC] +\\)\\(.*\\)" i)
+               (cons (propertize i 'face 'helm-ls-git-added-copied-face)
+                     (expand-file-name (match-string 2 i) root)))
+              ((string-match "^\\( [D] \\)\\(.*\\)" i)
+               (cons (propertize i 'face 'helm-ls-git-deleted-not-staged-face)
+                     (expand-file-name (match-string 2 i) root)))
+              ((string-match "^\\(RM?\\).* -> \\(.*\\)" i)
+               (cons (propertize i 'face 'helm-ls-git-renamed-modified-face)
+                     (expand-file-name (match-string 2 i) root)))
+              ((string-match "^\\([D] \\)\\(.*\\)" i)
+               (cons (propertize i 'face 'helm-ls-git-deleted-and-staged-face)
+                     (expand-file-name (match-string 2 i) root)))
+              ((string-match "^\\(UU \\)\\(.*\\)" i)
+               (cons (propertize i 'face 'helm-ls-git-conflict-face)
+                     (expand-file-name (match-string 2 i) root)))
+              ((string-match "^\\(AM \\)\\(.*\\)" i)
+               (cons (propertize i 'face 'helm-ls-git-added-modified-face)
+                     (expand-file-name (match-string 2 i) root)))
+              (t i))))
 
 (defvar helm-source-ls-git-status
   `((name . "Git status")
     (header-name . helm-ls-git-header-name)
     (init . (lambda ()
               (helm-init-candidates-in-buffer
-               'global
-               (helm-ls-git-status))))
+                  'global
+                (helm-ls-git-status))))
     (candidates-in-buffer)
     (keymap . ,helm-generic-files-map)
     (filtered-candidate-transformer . helm-ls-git-status-transformer)
@@ -309,11 +310,11 @@ Valid values are symbol 'abs (default) or 'relative."
                                                         (helm-ls-git-root-dir)))
                                    (goto-char (point-max))
                                    (cl-loop with last-bname 
-                                            for f in marked
-                                            for bname = (helm-basename f)
-                                            unless (string= bname last-bname)
-                                            do (insert (concat bname "\n"))
-                                            do (setq last-bname bname))
+                                         for f in marked
+                                         for bname = (helm-basename f)
+                                         unless (string= bname last-bname)
+                                         do (insert (concat bname "\n"))
+                                         do (setq last-bname bname))
                                    (save-buffer))))))))
           ((string-match "^ ?M+ *" disp)
            (append actions (list '("Diff file" . helm-ls-git-diff)
@@ -326,11 +327,11 @@ Valid values are symbol 'abs (default) or 'relative."
                                  '("Revert file" . (lambda (candidate)
                                                      (let ((marked (helm-marked-candidates)))
                                                        (cl-loop for f in marked do
-                                                                (progn
-                                                                  (vc-git-revert f)
-                                                                  (helm-aif (get-file-buffer f)
-                                                                      (with-current-buffer it
-                                                                        (revert-buffer t t)))))))))))
+                                                             (progn
+                                                               (vc-git-revert f)
+                                                               (helm-aif (get-file-buffer f)
+                                                                   (with-current-buffer it
+                                                                     (revert-buffer t t)))))))))))
           ((string-match "^ D " disp)
            (append actions (list '("Git delete" . vc-git-delete-file))))
           (t actions))))
