@@ -171,7 +171,9 @@ Valid values are symbol 'abs (default) or 'relative."
     (keymap . ,helm-generic-files-map)
     (help-message . helm-generic-file-help-message)
     (mode-line . helm-generic-file-mode-line-string)
-    (match-part . (lambda (candidate) (helm-basename candidate)))
+    (match-part . (lambda (candidate) (if helm-ff-transformer-show-only-basename
+                                          (helm-basename candidate)
+                                          candidate)))
     (candidate-transformer . (helm-ls-git-transformer
                               helm-ls-git-sort-fn))
     (action-transformer helm-transform-file-load-el)
