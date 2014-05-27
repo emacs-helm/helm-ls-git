@@ -339,6 +339,8 @@ Valid values are symbol 'abs (default) or 'relative."
 (defun helm-ls-git-diff (candidate)
   (let (helm-persistent-action-use-special-display)
     (with-current-buffer (find-file-noselect candidate)
+      (when (buffer-live-p (get-buffer "*vc-diff*"))
+        (kill-buffer "*vc-diff*"))
       (call-interactively #'vc-diff))))
 
 
