@@ -187,7 +187,7 @@ Valid values are symbol 'abs (default) or 'relative."
          (exts (helm-grep-guess-extensions (helm-marked-candidates)))
          (globs (format "'%s'" (mapconcat 'identity exts " ")))
          (files (cond ((equal helm-current-prefix-arg '(4))
-                       (list "--" (read-string "OnlyExt(*.[ext]): " globs)))
+                       (list "--" (helm-read-string "OnlyExt(*.[ext]): " globs)))
                       ((equal helm-current-prefix-arg '(16))
                        '("--"))
                       (t (helm-marked-candidates))))
@@ -211,7 +211,7 @@ Valid values are symbol 'abs (default) or 'relative."
 
 
 (defun helm-ls-git-search-log (_candidate)
-  (let* ((query (read-string "Search log: "))
+  (let* ((query (helm-read-string "Search log: "))
          (coms (if helm-current-prefix-arg
                    (list "log" "-p" "--grep" query)
                  (list "log" "--grep" query))))
