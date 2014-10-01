@@ -362,11 +362,11 @@ Valid values are symbol 'abs (default) or 'relative."
                   helm-ff-default-directory)
                (error nil)))))
 
-(when (require 'helm-files)
-  (helm-add-action-to-source-if
+(defmethod helm--setup-source :after ((source helm-source-ffiles))
+  (helm-source-add-action-to-source-if
    "Git ls-files"
    'helm-ff-ls-git-find-files
-   helm-source-find-files
+   source
    'helm-ls-git-ff-dir-git-p
    4))
 
