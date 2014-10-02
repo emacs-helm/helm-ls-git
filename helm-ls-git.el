@@ -152,17 +152,16 @@ Valid values are symbol 'abs (default) or 'relative."
     (helm-init-candidates-in-buffer 'global data)))
 
 (defun helm-ls-git-header-name (name)
-  (let ((refs   (shell-command-to-string "git rev-parse --branches"))
-        (branch (shell-command-to-string
-                 "git rev-parse --abbrev-ref HEAD")))
-    (format "%s (%s)"
-            name
-            (replace-regexp-in-string
-             "\n" ""
-             ;; Check REFS to avoid message error in header
-             ;; when repo is just initialized and there is
-             ;; no branches yet.
-             (if (or (null refs) (string= refs "")) "--" branch)))))
+  (format "%s (%s)"
+          name
+          (with-temp-buffer
+            (let ((ret (call-process-shell-command "git symbolic-ref --short HEAD" nil t)))
+              ;; Use sha of HEAD when branch name is missing.
+              (unless (zerop ret)
+                (erase-buffer)
+                (call-process-shell-command "git rev-parse --short HEAD" nil t)))
+            (buffer-substring-no-properties (goto-char (point-min))
+                                            (line-end-position)))))
 
 (defun helm-ls-git-actions-list ()
   (let ((actions (helm-actions-from-type-file)))
