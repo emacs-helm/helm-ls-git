@@ -92,7 +92,7 @@ Valid values are symbol 'abs (default) or 'relative."
   :group 'helm-ls-git)
 
 ;; Append visited files from `helm-source-ls-git' to `file-name-history'.
-(add-to-list 'helm-file-completion-sources "Git files")
+(add-to-list 'helm-files-save-history-extra-sources "Git files")
 
 
 (defvar helm-ls-git-log-file nil) ; Set it for debugging.
