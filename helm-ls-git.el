@@ -173,7 +173,25 @@ Valid values are symbol 'abs (default) or 'relative."
                         'helm-ls-git-search-log)
      3)))
 
+;; Define the sources.
+(defvar helm-source-ls-git-status nil)
 (defvar helm-source-ls-git nil)
+
+(defclass helm-ls-git-source (helm-source-in-buffer)
+  ((header-name :initform 'helm-ls-git-header-name)
+   (init :initform 'helm-ls-git-init)
+   (keymap :initform helm-generic-files-map)
+   (help-message :initform helm-generic-file-help-message)
+   (mode-line :initform helm-generic-file-mode-line-string)
+   (match-part :initform (lambda (candidate)
+                           (if helm-ff-transformer-show-only-basename
+                               (helm-basename candidate)
+                               candidate)))
+   (fuzzy-match :initform t)
+   (candidate-transformer :initform '(helm-ls-git-transformer
+                                      helm-ls-git-sort-fn))
+   (action-transformer :initform 'helm-transform-file-load-el)
+   (action :initform (helm-ls-git-actions-list))))
 
 
 (defun helm-ls-git-grep (candidate)
@@ -255,25 +273,6 @@ Valid values are symbol 'abs (default) or 'relative."
                      (expand-file-name (match-string 2 i) root)))
               (t i))))
 
-(defvar helm-source-ls-git-status
-  `((name . "Git status")
-    (header-name . helm-ls-git-header-name)
-    (init . (lambda ()
-              (helm-init-candidates-in-buffer
-                  'global
-                (helm-ls-git-status))))
-    (candidates-in-buffer)
-    (keymap . ,helm-generic-files-map)
-    (filtered-candidate-transformer . helm-ls-git-status-transformer)
-    (persistent-action . helm-ls-git-diff)
-    (persistent-help . "Diff")
-    (action-transformer . helm-ls-git-status-action-transformer)
-    (action . (("Find file" . helm-find-many-files)
-               ("Git status" . (lambda (_candidate)
-                                 (with-current-buffer helm-buffer
-                                   (funcall helm-ls-git-status-command
-                                            helm-default-directory))))))))
-
 (defun helm-ls-git-status-action-transformer (actions _candidate)
   (let ((disp (helm-get-selection nil t)))
     (cond ((string-match "^[?]\\{2\\}" disp)
@@ -334,23 +333,27 @@ Valid values are symbol 'abs (default) or 'relative."
 ;;;###autoload
 (defun helm-ls-git-ls ()
   (interactive)
-  (unless helm-source-ls-git
-    (setq helm-source-ls-git
-          (helm-build-in-buffer-source "Git files"
+  (unless (and helm-source-ls-git-status
+               helm-source-ls-git)
+    (setq helm-source-ls-git-status
+          (helm-build-in-buffer-source "Git status"
             :header-name 'helm-ls-git-header-name
-            :init 'helm-ls-git-init
+            :init (lambda ()
+                    (helm-init-candidates-in-buffer 'global
+                      (helm-ls-git-status)))
             :keymap helm-generic-files-map
-            :help-message helm-generic-file-help-message
-            :mode-line helm-generic-file-mode-line-string
-            :match-part (lambda (candidate)
-                          (if helm-ff-transformer-show-only-basename
-                              (helm-basename candidate)
-                              candidate))
-            :fuzzy-match t
-            :candidate-transformer '(helm-ls-git-transformer
-                                     helm-ls-git-sort-fn)
-            :action-transformer 'helm-transform-file-load-el
-            :action (helm-ls-git-actions-list))))
+            :filtered-candidate-transformer 'helm-ls-git-status-transformer
+            :persistent-action 'helm-ls-git-diff
+            :persistent-help "Diff"
+            :action-transformer 'helm-ls-git-status-action-transformer
+            :action (helm-make-actions
+                     "Find file" 'helm-find-many-files
+                     "Git status" (lambda (_candidate)
+                                    (with-current-buffer helm-buffer
+                                      (funcall helm-ls-git-status-command
+                                               helm-default-directory)))))
+          helm-source-ls-git
+          (helm-make-source "Git files" 'helm-ls-git-source)))
   (helm :sources '(helm-source-ls-git-status
                    helm-source-ls-git)
         ;; When `helm-ls-git-ls' is called from lisp
