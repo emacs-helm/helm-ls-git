@@ -173,22 +173,7 @@ Valid values are symbol 'abs (default) or 'relative."
                         'helm-ls-git-search-log)
      3)))
 
-(defvar helm-source-ls-git
-  `((name . "Git files")
-    (header-name . helm-ls-git-header-name)
-    (init . helm-ls-git-init)
-    (candidates-in-buffer)
-    (keymap . ,helm-generic-files-map)
-    (help-message . helm-generic-file-help-message)
-    (mode-line . helm-generic-file-mode-line-string)
-    (match-part . (lambda (candidate)
-                    (if helm-ff-transformer-show-only-basename
-                        (helm-basename candidate)
-                      candidate)))
-    (candidate-transformer . (helm-ls-git-transformer
-                              helm-ls-git-sort-fn))
-    (action-transformer helm-transform-file-load-el)
-    (action . ,(helm-ls-git-actions-list))))
+(defvar helm-source-ls-git nil)
 
 
 (defun helm-ls-git-grep (candidate)
@@ -349,6 +334,23 @@ Valid values are symbol 'abs (default) or 'relative."
 ;;;###autoload
 (defun helm-ls-git-ls ()
   (interactive)
+  (unless helm-source-ls-git
+    (setq helm-source-ls-git
+          (helm-build-in-buffer-source "Git files"
+            :header-name 'helm-ls-git-header-name
+            :init 'helm-ls-git-init
+            :keymap helm-generic-files-map
+            :help-message helm-generic-file-help-message
+            :mode-line helm-generic-file-mode-line-string
+            :match-part (lambda (candidate)
+                          (if helm-ff-transformer-show-only-basename
+                              (helm-basename candidate)
+                              candidate))
+            :fuzzy-match t
+            :candidate-transformer '(helm-ls-git-transformer
+                                     helm-ls-git-sort-fn)
+            :action-transformer 'helm-transform-file-load-el
+            :action (helm-ls-git-actions-list))))
   (helm :sources '(helm-source-ls-git-status
                    helm-source-ls-git)
         ;; When `helm-ls-git-ls' is called from lisp
