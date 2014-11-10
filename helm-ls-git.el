@@ -345,6 +345,7 @@ Valid values are symbol 'abs (default) or 'relative."
             :filtered-candidate-transformer 'helm-ls-git-status-transformer
             :persistent-action 'helm-ls-git-diff
             :persistent-help "Diff"
+            :fuzzy-match t
             :action-transformer 'helm-ls-git-status-action-transformer
             :action (helm-make-actions
                      "Find file" 'helm-find-many-files
