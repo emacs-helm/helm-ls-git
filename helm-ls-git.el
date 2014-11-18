@@ -192,6 +192,25 @@ Valid values are symbol 'abs (default) or 'relative."
    (action-transformer :initform 'helm-transform-file-load-el)
    (action :initform (helm-ls-git-actions-list))))
 
+(defclass helm-ls-git-status-source (helm-source-in-buffer)
+  ((header-name :initform 'helm-ls-git-header-name)
+   (init :initform
+         (lambda ()
+           (helm-init-candidates-in-buffer 'global
+             (helm-ls-git-status))))
+   (keymap :initform helm-generic-files-map)
+   (filtered-candidate-transformer :initform 'helm-ls-git-status-transformer)
+   (persistent-action :initform 'helm-ls-git-diff)
+   (persistent-help :initform "Diff")
+   (action-transformer :initform 'helm-ls-git-status-action-transformer)
+   (action :initform
+           (helm-make-actions
+            "Find file" 'helm-find-many-files
+            "Git status" (lambda (_candidate)
+                           (with-current-buffer helm-buffer
+                             (funcall helm-ls-git-status-command
+                                      helm-default-directory)))))))
+
 
 (defun helm-ls-git-grep (candidate)
   (let* ((helm-grep-default-command "git grep -n%cH --full-name -e %p %f")
@@ -335,22 +354,7 @@ Valid values are symbol 'abs (default) or 'relative."
   (unless (and helm-source-ls-git-status
                helm-source-ls-git)
     (setq helm-source-ls-git-status
-          (helm-build-in-buffer-source "Git status"
-            :header-name 'helm-ls-git-header-name
-            :init (lambda ()
-                    (helm-init-candidates-in-buffer 'global
-                      (helm-ls-git-status)))
-            :keymap helm-generic-files-map
-            :filtered-candidate-transformer 'helm-ls-git-status-transformer
-            :persistent-action 'helm-ls-git-diff
-            :persistent-help "Diff"
-            :action-transformer 'helm-ls-git-status-action-transformer
-            :action (helm-make-actions
-                     "Find file" 'helm-find-many-files
-                     "Git status" (lambda (_candidate)
-                                    (with-current-buffer helm-buffer
-                                      (funcall helm-ls-git-status-command
-                                               helm-default-directory)))))
+          (helm-make-source "Git status" 'helm-ls-git-status-source)
           helm-source-ls-git
           (helm-make-source "Git files" 'helm-ls-git-source)))
   (helm :sources '(helm-source-ls-git-status
