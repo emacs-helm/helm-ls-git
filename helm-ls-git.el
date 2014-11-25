@@ -167,7 +167,7 @@ Valid values are symbol 'abs (default) or 'relative."
   (let ((actions (helm-actions-from-type-file)))
     (helm-append-at-nth
      actions
-     (helm-make-actions "Git grep files (`C-u' only, `C-u C-u' all)"
+     (helm-make-actions "Git grep files (`C-u' only files with ext, `C-u C-u' all)"
                         'helm-ls-git-grep
                         "Search in Git log (C-u show patch)"
                         'helm-ls-git-search-log)
