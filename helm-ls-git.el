@@ -215,10 +215,13 @@ Valid values are symbol 'abs (default) or 'relative."
 (defun helm-ls-git-grep (candidate)
   (let* ((helm-grep-default-command "git grep -n%cH --full-name -e %p %f")
          helm-grep-default-recurse-command
-         (exts (helm-grep-guess-extensions (helm-marked-candidates)))
-         (globs (format "'%s'" (mapconcat 'identity exts " ")))
          (files (cond ((equal helm-current-prefix-arg '(4))
-                       (list "--" (helm-read-string "OnlyExt(*.[ext]): " globs)))
+                       (list "--"
+                             (format "'%s'" (mapconcat
+                                             'identity
+                                             (helm-grep-get-file-extensions
+                                             (helm-marked-candidates))
+                                             " "))))
                       ((equal helm-current-prefix-arg '(16))
                        '("--"))
                       (t (helm-marked-candidates))))
