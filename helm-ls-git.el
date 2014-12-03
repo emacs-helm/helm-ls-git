@@ -187,6 +187,7 @@ Valid values are symbol 'abs (default) or 'relative."
                            (if helm-ff-transformer-show-only-basename
                                (helm-basename candidate)
                                candidate)))
+   (fuzzy-match :initform t)
    (candidate-transformer :initform '(helm-ls-git-transformer
                                       helm-ls-git-sort-fn))
    (action-transformer :initform 'helm-transform-file-load-el)
@@ -199,6 +200,7 @@ Valid values are symbol 'abs (default) or 'relative."
            (helm-init-candidates-in-buffer 'global
              (helm-ls-git-status))))
    (keymap :initform helm-generic-files-map)
+   (fuzzy-match :initform t)
    (filtered-candidate-transformer :initform 'helm-ls-git-status-transformer)
    (persistent-action :initform 'helm-ls-git-diff)
    (persistent-help :initform "Diff")
