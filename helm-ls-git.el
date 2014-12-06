@@ -46,6 +46,12 @@ Valid values are symbol 'abs (default) or 'relative."
   :group 'helm-ls-git
   :type 'symbol)
 
+(defcustom helm-ls-git-fuzzy-match nil
+  "Enable fuzzy matching in `helm-source-ls-git-status' and `helm-source-ls-git'."
+  :group 'helm-ls-git
+  :type 'boolean)
+
+
 (defface helm-ls-git-modified-not-staged-face
     '((t :foreground "yellow"))
   "Files which are modified but not yet staged."
@@ -187,7 +193,6 @@ Valid values are symbol 'abs (default) or 'relative."
                            (if helm-ff-transformer-show-only-basename
                                (helm-basename candidate)
                                candidate)))
-   (fuzzy-match :initform t)
    (candidate-transformer :initform '(helm-ls-git-transformer
                                       helm-ls-git-sort-fn))
    (action-transformer :initform 'helm-transform-file-load-el)
@@ -200,7 +205,6 @@ Valid values are symbol 'abs (default) or 'relative."
            (helm-init-candidates-in-buffer 'global
              (helm-ls-git-status))))
    (keymap :initform helm-generic-files-map)
-   (fuzzy-match :initform t)
    (filtered-candidate-transformer :initform 'helm-ls-git-status-transformer)
    (persistent-action :initform 'helm-ls-git-diff)
    (persistent-help :initform "Diff")
@@ -359,9 +363,11 @@ Valid values are symbol 'abs (default) or 'relative."
   (unless (and helm-source-ls-git-status
                helm-source-ls-git)
     (setq helm-source-ls-git-status
-          (helm-make-source "Git status" 'helm-ls-git-status-source)
+          (helm-make-source "Git status" 'helm-ls-git-status-source
+            :fuzzy-match helm-ls-git-fuzzy-match)
           helm-source-ls-git
-          (helm-make-source "Git files" 'helm-ls-git-source)))
+          (helm-make-source "Git files" 'helm-ls-git-source
+            :fuzzy-match helm-ls-git-fuzzy-match)))
   (helm :sources '(helm-source-ls-git-status
                    helm-source-ls-git)
         ;; When `helm-ls-git-ls' is called from lisp
