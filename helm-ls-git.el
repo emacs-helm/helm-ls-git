@@ -183,6 +183,7 @@ Valid values are symbol 'abs (default) or 'relative."
 (defvar helm-source-ls-git-status nil)
 (defvar helm-source-ls-git nil)
 
+;;;###autoload
 (defclass helm-ls-git-source (helm-source-in-buffer)
   ((header-name :initform 'helm-ls-git-header-name)
    (init :initform 'helm-ls-git-init)
@@ -198,6 +199,7 @@ Valid values are symbol 'abs (default) or 'relative."
    (action-transformer :initform 'helm-transform-file-load-el)
    (action :initform (helm-ls-git-actions-list))))
 
+;;;###autoload
 (defclass helm-ls-git-status-source (helm-source-in-buffer)
   ((header-name :initform 'helm-ls-git-header-name)
    (init :initform
