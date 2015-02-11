@@ -97,6 +97,13 @@ Valid values are symbol 'abs (default) or 'relative."
   "Files which contain rebase/merge conflicts."
   :group 'helm-ls-git)
 
+
+(defvar helm-ls-git-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map helm-generic-files-map)
+    (define-key map (kbd "C-s") 'helm-ls-git-run-grep)
+    map))
+
 ;; Append visited files from `helm-source-ls-git' to `file-name-history'.
 (add-to-list 'helm-files-save-history-extra-sources "Git files")
 
@@ -187,7 +194,7 @@ Valid values are symbol 'abs (default) or 'relative."
 (defclass helm-ls-git-source (helm-source-in-buffer)
   ((header-name :initform 'helm-ls-git-header-name)
    (init :initform 'helm-ls-git-init)
-   (keymap :initform helm-generic-files-map)
+   (keymap :initform helm-ls-git-map)
    (help-message :initform helm-generic-file-help-message)
    (mode-line :initform helm-generic-file-mode-line-string)
    (match-part :initform (lambda (candidate)
@@ -206,7 +213,7 @@ Valid values are symbol 'abs (default) or 'relative."
          (lambda ()
            (helm-init-candidates-in-buffer 'global
              (helm-ls-git-status))))
-   (keymap :initform helm-generic-files-map)
+   (keymap :initform helm-ls-git-map)
    (filtered-candidate-transformer :initform 'helm-ls-git-status-transformer)
    (persistent-action :initform 'helm-ls-git-diff)
    (persistent-help :initform "Diff")
@@ -241,6 +248,12 @@ Valid values are symbol 'abs (default) or 'relative."
          ;; something else.
          (helm-ff-default-directory (file-name-directory candidate)))
     (helm-do-grep-1 files)))
+
+(defun helm-ls-git-run-grep ()
+  "Run Git Grep action from helm-ls-git."
+  (interactive)
+  (with-helm-alive-p
+    (helm-quit-and-execute-action 'helm-ls-git-grep)))
 
 
 (defun helm-ls-git-search-log (_candidate)
