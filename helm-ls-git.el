@@ -227,7 +227,7 @@ Valid values are symbol 'abs (default) or 'relative."
                                       helm-default-directory)))))))
 
 
-(defun helm-ls-git-grep (candidate)
+(defun helm-ls-git-grep (_candidate)
   (let* ((helm-grep-default-command "git grep -n%cH --full-name -e %p %f")
          helm-grep-default-recurse-command
          (files (cond ((equal helm-current-prefix-arg '(4))
@@ -243,10 +243,8 @@ Valid values are symbol 'abs (default) or 'relative."
          ;; Expand filename of each candidate with the git root dir.
          ;; The filename will be in the help-echo prop.
          (helm-grep-default-directory-fn 'helm-ls-git-root-dir)
-         ;; `helm-grep-init' initialize `default-directory' to this value,
-         ;; So set this value (i.e `helm-ff-default-directory') to
-         ;; something else.
-         (helm-ff-default-directory (file-name-directory candidate)))
+         ;; set `helm-ff-default-directory' to the root of project.
+         (helm-ff-default-directory (helm-ls-git-root-dir)))
     (helm-do-grep-1 files)))
 
 (defun helm-ls-git-run-grep ()
