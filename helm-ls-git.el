@@ -51,7 +51,7 @@ Valid values are symbol 'abs (default) or 'relative."
   :group 'helm-ls-git
   :type 'boolean)
 
-(defcustom helm-ls-git-grep-command "git grep -n%cH --color=always --full-name -e %p %f"
+(defcustom helm-ls-git-grep-command "git grep -n%cH --color=never --full-name -e %p %f"
   "The git grep default command line."
   :group 'helm-ls-git
   :type 'string)
