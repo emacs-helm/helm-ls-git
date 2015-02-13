@@ -51,6 +51,10 @@ Valid values are symbol 'abs (default) or 'relative."
   :group 'helm-ls-git
   :type 'boolean)
 
+(defcustom helm-ls-git-grep-command "git grep -n%cH --color=always --full-name -e %p %f"
+  "The git grep default command line."
+  :group 'helm-ls-git
+  :type 'string)
 
 (defface helm-ls-git-modified-not-staged-face
     '((t :foreground "yellow"))
@@ -228,7 +232,7 @@ Valid values are symbol 'abs (default) or 'relative."
 
 
 (defun helm-ls-git-grep (_candidate)
-  (let* ((helm-grep-default-command "git grep -n%cH --full-name -e %p %f")
+  (let* ((helm-grep-default-command helm-ls-git-grep-command)
          helm-grep-default-recurse-command
          (files (cond ((equal helm-current-prefix-arg '(4))
                        (list "--"
