@@ -192,9 +192,17 @@ The color of matched items can be customized in your .gitconfig."
                         'helm-ls-git-search-log)
      3)))
 
+(defun helm-ls-git-get-buffers ()
+  (cl-loop with rd = (helm-ls-git-root-dir)
+           for b in (helm-buffer-list)
+           for bf = (buffer-file-name (get-buffer b)) 
+           when (and bf (file-in-directory-p bf rd))
+           collect b))
+
 ;; Define the sources.
 (defvar helm-source-ls-git-status nil)
 (defvar helm-source-ls-git nil)
+(defvar helm-source-ls-git-buffers nil)
 
 ;;;###autoload
 (defclass helm-ls-git-source (helm-source-in-buffer)
@@ -380,14 +388,20 @@ The color of matched items can be customized in your .gitconfig."
 (defun helm-ls-git-ls ()
   (interactive)
   (unless (and helm-source-ls-git-status
-               helm-source-ls-git)
+               helm-source-ls-git
+               helm-source-ls-git-buffers)
     (setq helm-source-ls-git-status
           (helm-make-source "Git status" 'helm-ls-git-status-source
             :fuzzy-match helm-ls-git-fuzzy-match)
           helm-source-ls-git
           (helm-make-source "Git files" 'helm-ls-git-source
-            :fuzzy-match helm-ls-git-fuzzy-match)))
+            :fuzzy-match helm-ls-git-fuzzy-match)
+          helm-source-ls-git-buffers
+          (helm-make-source "Buffers in project" 'helm-source-buffers
+            :header-name #'helm-ls-git-header-name
+            :buffer-list #'helm-ls-git-get-buffers)))
   (helm :sources '(helm-source-ls-git-status
+                   helm-source-ls-git-buffers
                    helm-source-ls-git)
         ;; When `helm-ls-git-ls' is called from lisp
         ;; `default-directory' is normally let-bounded,
