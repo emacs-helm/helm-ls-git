@@ -140,7 +140,7 @@ The color of matched items can be customized in your .gitconfig."
   (not (helm-ls-git-root-dir)))
 
 (defun helm-ls-git-transformer (candidates)
-  (cl-loop with root = (helm-ls-git-root-dir helm-default-directory)
+  (cl-loop with root = (helm-ls-git-root-dir (helm-default-directory))
         for i in candidates
         for abs = (expand-file-name i root)
         for disp = (if (and helm-ff-transformer-show-only-basename
@@ -238,7 +238,7 @@ The color of matched items can be customized in your .gitconfig."
             "Git status" (lambda (_candidate)
                            (with-current-buffer helm-buffer
                              (funcall helm-ls-git-status-command
-                                      helm-default-directory)))))))
+                                      (helm-default-directory))))))))
 
 
 (defun helm-ls-git-grep (_candidate)
@@ -295,7 +295,7 @@ The color of matched items can be customized in your .gitconfig."
                (list "status" "--porcelain")))))
 
 (defun helm-ls-git-status-transformer (candidates _source)
-  (cl-loop with root = (helm-ls-git-root-dir helm-default-directory)
+  (cl-loop with root = (helm-ls-git-root-dir (helm-default-directory))
         for i in candidates
         collect
         (cond ((string-match "^\\( M \\)\\(.*\\)" i) ; modified.
