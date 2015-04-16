@@ -403,12 +403,6 @@ The color of matched items can be customized in your .gitconfig."
   (helm :sources '(helm-source-ls-git-status
                    helm-source-ls-git-buffers
                    helm-source-ls-git)
-        ;; When `helm-ls-git-ls' is called from lisp
-        ;; `default-directory' is normally let-bounded,
-        ;; to some other value;
-        ;; we now set this new let-bounded value local
-        ;; to `helm-default-directory'.
-        :default-directory default-directory
         :buffer "*helm lsgit*"))
 
 
