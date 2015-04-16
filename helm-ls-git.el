@@ -121,8 +121,8 @@ The color of matched items can be customized in your .gitconfig."
   (when (and helm-ls-git-log-file
              (file-exists-p helm-ls-git-log-file))
     (delete-file helm-ls-git-log-file))
-  ;; `helm-resume' will use the value of `helm-default-directory'
-  ;; as value for `default-directory'.
+  ;; `helm-resume' will use the local value of `default-directory'
+  ;; in `helm-buffer' as value for `default-directory'.
   (helm-aif (helm-ls-git-root-dir)
       (with-helm-default-directory it
           (with-output-to-string
