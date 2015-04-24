@@ -192,13 +192,6 @@ The color of matched items can be customized in your .gitconfig."
                         'helm-ls-git-search-log)
      3)))
 
-(defun helm-ls-git-get-buffers ()
-  (cl-loop with rd = (helm-ls-git-root-dir)
-           for b in (helm-buffer-list)
-           for bf = (buffer-file-name (get-buffer b)) 
-           when (and bf (file-in-directory-p bf rd))
-           collect b))
-
 ;; Define the sources.
 (defvar helm-source-ls-git-status nil)
 (defvar helm-source-ls-git nil)
@@ -399,7 +392,8 @@ The color of matched items can be customized in your .gitconfig."
           helm-source-ls-git-buffers
           (helm-make-source "Buffers in project" 'helm-source-buffers
             :header-name #'helm-ls-git-header-name
-            :buffer-list #'helm-ls-git-get-buffers)))
+            :buffer-list (lambda () (helm-browse-project-get-buffers
+                                     (helm-ls-git-root-dir))))))
   (helm :sources '(helm-source-ls-git-status
                    helm-source-ls-git-buffers
                    helm-source-ls-git)
