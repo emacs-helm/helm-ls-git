@@ -229,9 +229,8 @@ The color of matched items can be customized in your .gitconfig."
            (helm-make-actions
             "Find file" 'helm-find-many-files
             "Git status" (lambda (_candidate)
-                           (with-current-buffer helm-buffer
-                             (funcall helm-ls-git-status-command
-                                      (helm-default-directory))))))))
+                           (funcall helm-ls-git-status-command
+                                    (helm-default-directory)))))))
 
 
 (defun helm-ls-git-grep (_candidate)
