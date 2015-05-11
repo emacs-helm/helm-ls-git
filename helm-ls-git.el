@@ -230,7 +230,9 @@ The color of matched items can be customized in your .gitconfig."
             "Find file" 'helm-find-many-files
             "Git status" (lambda (_candidate)
                            (funcall helm-ls-git-status-command
-                                    (helm-default-directory)))))))
+                                    (helm-default-directory)))
+            "Copy file(s) `C-u to follow'" 'helm-find-files-copy
+            "Rename file(s) `C-u to follow'" 'helm-find-files-rename))))
 
 
 (defun helm-ls-git-grep (_candidate)
