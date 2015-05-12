@@ -27,6 +27,7 @@
 (make-obsolete-variable 'helm-c-source-ls-git 'helm-source-ls-git "1.5.1")
 (defvaralias 'helm-c-source-ls-git-status 'helm-source-ls-git-status)
 (make-obsolete-variable 'helm-c-source-ls-git-status 'helm-source-ls-git-status "1.5.1")
+(declare-function vc-git-revert "vc-git.el" (file &optional contents-done))
 
 
 (defgroup helm-ls-git nil
@@ -230,9 +231,7 @@ The color of matched items can be customized in your .gitconfig."
             "Find file" 'helm-find-many-files
             "Git status" (lambda (_candidate)
                            (funcall helm-ls-git-status-command
-                                    (helm-default-directory)))
-            "Copy file(s) `C-u to follow'" 'helm-find-files-copy
-            "Rename file(s) `C-u to follow'" 'helm-find-files-rename))))
+                                    (helm-default-directory)))))))
 
 
 (defun helm-ls-git-grep (_candidate)
@@ -350,21 +349,24 @@ The color of matched items can be customized in your .gitconfig."
                                          do (setq last-bname bname))
                                    (save-buffer))))))))
           ((string-match "^ ?M+ *" disp)
-           (append actions (list '("Diff file" . helm-ls-git-diff)
-                                 '("Commit file(s)"
-                                   . (lambda (candidate)
-                                       (let* ((marked (helm-marked-candidates))
-                                              (default-directory
-                                               (file-name-directory (car marked))))
-                                         (vc-checkin marked 'Git))))
-                                 '("Revert file(s)" . (lambda (candidate)
-                                                     (let ((marked (helm-marked-candidates)))
-                                                       (cl-loop for f in marked do
-                                                             (progn
-                                                               (vc-git-revert f)
-                                                               (helm-aif (get-file-buffer f)
-                                                                   (with-current-buffer it
-                                                                     (revert-buffer t t)))))))))))
+           (append actions (helm-make-actions "Diff file" 'helm-ls-git-diff
+                                              "Commit file(s)"
+                                              (lambda (_candidate)
+                                                (let* ((marked (helm-marked-candidates))
+                                                       (default-directory
+                                                        (file-name-directory (car marked))))
+                                                  (vc-checkin marked 'Git)))
+                                              "Revert file(s)"
+                                              (lambda (_candidate)
+                                                (let ((marked (helm-marked-candidates)))
+                                                  (cl-loop for f in marked do
+                                                           (progn
+                                                             (vc-git-revert f)
+                                                             (helm-aif (get-file-buffer f)
+                                                                 (with-current-buffer it
+                                                                   (revert-buffer t t)))))))
+                                              "Copy file(s) `C-u to follow'" 'helm-find-files-copy
+                                              "Rename file(s) `C-u to follow'" 'helm-find-files-rename)))
           ((string-match "^ D " disp)
            (append actions (list '("Git delete" . vc-git-delete-file))))
           (t actions))))
