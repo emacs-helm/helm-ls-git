@@ -21,6 +21,7 @@
 
 (require 'cl-lib)
 (require 'vc)
+(require 'vc-git)
 (require 'helm-files)
 
 (defvaralias 'helm-c-source-ls-git 'helm-source-ls-git)
@@ -28,6 +29,7 @@
 (defvaralias 'helm-c-source-ls-git-status 'helm-source-ls-git-status)
 (make-obsolete-variable 'helm-c-source-ls-git-status 'helm-source-ls-git-status "1.5.1")
 (declare-function vc-git-revert "vc-git.el" (file &optional contents-done))
+(declare-function vc-git-diff "vc-git.el" (files &optional rev1 rev2 buffer))
 
 
 (defgroup helm-ls-git nil
@@ -377,7 +379,9 @@ The color of matched items can be customized in your .gitconfig."
       (when (buffer-live-p (get-buffer "*vc-diff*"))
         (kill-buffer "*vc-diff*")
         (balance-windows))
-      (call-interactively #'vc-diff))))
+      (vc-git-diff (list candidate))
+      (pop-to-buffer "*vc-diff*")
+      (diff-mode))))
 
 
 ;;;###autoload
