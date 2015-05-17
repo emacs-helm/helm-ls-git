@@ -408,12 +408,11 @@ The color of matched items can be customized in your .gitconfig."
 ;;; Helm-find-files integration.
 ;;
 (defun helm-ff-ls-git-find-files (_candidate)
-  (let ((default-directory helm-ff-default-directory))
-    (helm-run-after-quit
-     #'(lambda (d)
-         (let ((default-directory d))
-           (helm-ls-git-ls)))
-     default-directory)))
+  (helm-run-after-quit
+   #'(lambda (d)
+       (let ((default-directory d))
+         (helm-ls-git-ls)))
+   helm-ff-default-directory))
 
 (defun helm-ls-git-ff-dir-git-p (file)
   (when (or (file-exists-p file)
