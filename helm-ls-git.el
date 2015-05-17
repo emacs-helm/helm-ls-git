@@ -116,6 +116,7 @@ The color of matched items can be customized in your .gitconfig."
 
 
 (defvar helm-ls-git-log-file nil) ; Set it for debugging.
+(defvar helm-ls-git--root-directory nil)
 
 
 (defun helm-ls-git-list-files ()
@@ -134,8 +135,9 @@ The color of matched items can be customized in your .gitconfig."
                        (list "ls-files" "--full-name" "--")))))))
 
 (cl-defun helm-ls-git-root-dir (&optional (directory default-directory))
-  (let ((root (locate-dominating-file directory ".git")))
-    (and root (file-name-as-directory root))))
+  (or helm-ls-git--root-directory
+      (let ((root (locate-dominating-file directory ".git")))
+        (and root (file-name-as-directory root)))))
 
 (defun helm-ls-git-not-inside-git-repo ()
   (not (helm-ls-git-root-dir)))
@@ -202,6 +204,9 @@ The color of matched items can be customized in your .gitconfig."
 (defclass helm-ls-git-source (helm-source-in-buffer)
   ((header-name :initform 'helm-ls-git-header-name)
    (init :initform 'helm-ls-git-init)
+   (update :initform (lambda ()
+                       (setq helm-ls-git--root-directory
+                             (helm-default-directory))))
    (keymap :initform helm-ls-git-map)
    (help-message :initform helm-generic-file-help-message)
    (mode-line :initform helm-generic-file-mode-line-string)
@@ -221,6 +226,9 @@ The color of matched items can be customized in your .gitconfig."
          (lambda ()
            (helm-init-candidates-in-buffer 'global
              (helm-ls-git-status))))
+   (update :initform (lambda ()
+                       (setq helm-ls-git--root-directory
+                             (helm-default-directory))))
    (keymap :initform helm-ls-git-map)
    (filtered-candidate-transformer :initform 'helm-ls-git-status-transformer)
    (persistent-action :initform 'helm-ls-git-diff)
@@ -280,12 +288,14 @@ The color of matched items can be customized in your .gitconfig."
   (when (and helm-ls-git-log-file
              (file-exists-p helm-ls-git-log-file))
     (delete-file helm-ls-git-log-file))
-  (with-output-to-string
-      (with-current-buffer standard-output
-        (apply #'process-file
-               "git"
-               nil (list t helm-ls-git-log-file) nil
-               (list "status" "--porcelain")))))
+  (helm-aif (helm-ls-git-root-dir)
+      (with-helm-default-directory it
+          (with-output-to-string
+              (with-current-buffer standard-output
+                (apply #'process-file
+                       "git"
+                       nil (list t helm-ls-git-log-file) nil
+                       (list "status" "--porcelain")))))))
 
 (defun helm-ls-git-status-transformer (candidates _source)
   (cl-loop with root = (helm-ls-git-root-dir (helm-default-directory))
@@ -397,12 +407,16 @@ The color of matched items can be customized in your .gitconfig."
           helm-source-ls-git-buffers
           (helm-make-source "Buffers in project" 'helm-source-buffers
             :header-name #'helm-ls-git-header-name
+            :update (lambda () (setq helm-ls-git--root-directory
+                                     (helm-default-directory)))
             :buffer-list (lambda () (helm-browse-project-get-buffers
                                      (helm-ls-git-root-dir))))))
-  (helm :sources '(helm-source-ls-git-status
-                   helm-source-ls-git-buffers
-                   helm-source-ls-git)
-        :buffer "*helm lsgit*"))
+  (unwind-protect
+       (helm :sources '(helm-source-ls-git-status
+                        helm-source-ls-git-buffers
+                        helm-source-ls-git)
+             :buffer "*helm lsgit*")
+    (setq helm-ls-git--root-directory nil)))
 
 
 ;;; Helm-find-files integration.
