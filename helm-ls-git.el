@@ -395,28 +395,29 @@ The color of matched items can be customized in your .gitconfig."
 ;;;###autoload
 (defun helm-ls-git-ls ()
   (interactive)
-  (unless (and helm-source-ls-git-status
-               helm-source-ls-git
-               helm-source-ls-git-buffers)
-    (setq helm-source-ls-git-status
-          (helm-make-source "Git status" 'helm-ls-git-status-source
-            :fuzzy-match helm-ls-git-fuzzy-match)
-          helm-source-ls-git
-          (helm-make-source "Git files" 'helm-ls-git-source
-            :fuzzy-match helm-ls-git-fuzzy-match)
-          helm-source-ls-git-buffers
-          (helm-make-source "Buffers in project" 'helm-source-buffers
-            :header-name #'helm-ls-git-header-name
-            :update (lambda () (setq helm-ls-git--root-directory
-                                     (helm-default-directory)))
-            :buffer-list (lambda () (helm-browse-project-get-buffers
-                                     (helm-ls-git-root-dir))))))
-  (unwind-protect
-       (helm :sources '(helm-source-ls-git-status
-                        helm-source-ls-git-buffers
-                        helm-source-ls-git)
-             :buffer "*helm lsgit*")
-    (setq helm-ls-git--root-directory nil)))
+  (let (helm-ff-transformer-show-only-basename)
+    (unless (and helm-source-ls-git-status
+                 helm-source-ls-git
+                 helm-source-ls-git-buffers)
+      (setq helm-source-ls-git-status
+            (helm-make-source "Git status" 'helm-ls-git-status-source
+              :fuzzy-match helm-ls-git-fuzzy-match)
+            helm-source-ls-git
+            (helm-make-source "Git files" 'helm-ls-git-source
+              :fuzzy-match helm-ls-git-fuzzy-match)
+            helm-source-ls-git-buffers
+            (helm-make-source "Buffers in project" 'helm-source-buffers
+              :header-name #'helm-ls-git-header-name
+              :update (lambda () (setq helm-ls-git--root-directory
+                                       (helm-default-directory)))
+              :buffer-list (lambda () (helm-browse-project-get-buffers
+                                       (helm-ls-git-root-dir))))))
+    (unwind-protect
+         (helm :sources '(helm-source-ls-git-status
+                          helm-source-ls-git-buffers
+                          helm-source-ls-git)
+               :buffer "*helm lsgit*")
+      (setq helm-ls-git--root-directory nil))))
 
 
 ;;; Helm-find-files integration.
