@@ -108,7 +108,8 @@ The color of matched items can be customized in your .gitconfig."
 (defvar helm-ls-git-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map helm-generic-files-map)
-    (define-key map (kbd "C-s") 'helm-ls-git-run-grep)
+    (define-key map (kbd "C-s")   'helm-ls-git-run-grep)
+    (define-key map (kbd "C-c g") 'helm-ff-run-gid)
     map))
 
 ;; Append visited files from `helm-source-ls-git' to `file-name-history'.
@@ -191,6 +192,7 @@ The color of matched items can be customized in your .gitconfig."
      actions
      (helm-make-actions "Git grep files (`C-u' only files with ext, `C-u C-u' all)"
                         'helm-ls-git-grep
+                        "Gid" 'helm-ff-gid
                         "Search in Git log (C-u show patch)"
                         'helm-ls-git-search-log)
      3)))
