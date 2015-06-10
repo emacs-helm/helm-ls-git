@@ -144,25 +144,24 @@ The color of matched items can be customized in your .gitconfig."
   (not (helm-ls-git-root-dir)))
 
 (defun helm-ls-git-transformer (candidates)
-  (cl-loop with root = (helm-ls-git-root-dir (helm-default-directory))
-        for i in candidates
-        for abs = (expand-file-name i root)
-        for disp = (if (and helm-ff-transformer-show-only-basename
-                            (not (string-match "[.]\\{1,2\\}$" i)))
-                       (helm-basename i)
-                     (cl-case helm-ls-git-show-abs-or-relative
-                       (absolute abs)
-                       (relative i)))
-        collect
-        (cons (propertize disp 'face 'helm-ff-file) abs)))
+  (cl-loop for i in candidates
+           for disp = (if helm-ff-transformer-show-only-basename
+                          (helm-basename i)
+                          (cl-case helm-ls-git-show-abs-or-relative
+                            (absolute i)
+                            (relative (file-relative-name i))))
+           collect
+           (cons (propertize disp 'face 'helm-ff-file) i)))
 
 (defun helm-ls-git-sort-fn (candidates)
   "Transformer for sorting candidates."
   (helm-ff-sort-candidates candidates nil))
 
 (defun helm-ls-git-init ()
-  (let ((data (helm-ls-git-list-files)))
-    (when (string= data "")
+  (let ((data (cl-loop with root = (helm-ls-git-root-dir)
+                       for c in (split-string (helm-ls-git-list-files) "\n" t)
+                       collect (expand-file-name c root))))
+    (when (null data)
       (setq data
             (if helm-ls-git-log-file
                 (with-current-buffer
@@ -202,6 +201,11 @@ The color of matched items can be customized in your .gitconfig."
 (defvar helm-source-ls-git nil)
 (defvar helm-source-ls-git-buffers nil)
 
+(defun helm-ls-git-match-part (candidate)
+  (if (with-helm-buffer helm-ff-transformer-show-only-basename)
+      (helm-basename candidate)
+      candidate))
+
 ;;;###autoload
 (defclass helm-ls-git-source (helm-source-in-buffer)
   ((header-name :initform 'helm-ls-git-header-name)
@@ -212,10 +216,7 @@ The color of matched items can be customized in your .gitconfig."
    (keymap :initform helm-ls-git-map)
    (help-message :initform helm-generic-file-help-message)
    (mode-line :initform helm-generic-file-mode-line-string)
-   (match-part :initform (lambda (candidate)
-                           (if helm-ff-transformer-show-only-basename
-                               (helm-basename candidate)
-                               candidate)))
+   (match-part :initform 'helm-ls-git-match-part)
    (candidate-transformer :initform '(helm-ls-git-transformer
                                       helm-ls-git-sort-fn))
    (action-transformer :initform 'helm-transform-file-load-el)
