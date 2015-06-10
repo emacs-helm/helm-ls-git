@@ -50,6 +50,9 @@ Valid values are symbol 'abs (default) or 'relative."
 (defcustom helm-ls-git-fuzzy-match nil
   "Enable fuzzy matching in `helm-source-ls-git-status' and `helm-source-ls-git'."
   :group 'helm-ls-git
+  :set (lambda (var val) (setq helm-source-ls-git nil
+                               helm-source-ls-git-status nil
+                               helm-source-ls-git-buffers nil))
   :type 'boolean)
 
 (defcustom helm-ls-git-grep-command "git grep -n%cH --color=never --full-name -e %p %f"
