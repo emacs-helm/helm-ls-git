@@ -29,6 +29,11 @@
 (defvaralias 'helm-c-source-ls-git-status 'helm-source-ls-git-status)
 (make-obsolete-variable 'helm-c-source-ls-git-status 'helm-source-ls-git-status "1.5.1")
 
+;; Define the sources.
+(defvar helm-source-ls-git-status nil)
+(defvar helm-source-ls-git nil)
+(defvar helm-source-ls-git-buffers nil)
+
 
 (defgroup helm-ls-git nil
   "Helm completion for git repos."
@@ -50,9 +55,11 @@ Valid values are symbol 'abs (default) or 'relative."
 (defcustom helm-ls-git-fuzzy-match nil
   "Enable fuzzy matching in `helm-source-ls-git-status' and `helm-source-ls-git'."
   :group 'helm-ls-git
-  :set (lambda (var val) (setq helm-source-ls-git nil
-                               helm-source-ls-git-status nil
-                               helm-source-ls-git-buffers nil))
+  :set (lambda (var val)
+         (set var val)
+         (setq helm-source-ls-git nil
+               helm-source-ls-git-status nil
+               helm-source-ls-git-buffers nil))
   :type 'boolean)
 
 (defcustom helm-ls-git-grep-command "git grep -n%cH --color=never --full-name -e %p %f"
@@ -198,11 +205,6 @@ The color of matched items can be customized in your .gitconfig."
                         "Search in Git log (C-u show patch)"
                         'helm-ls-git-search-log)
      3)))
-
-;; Define the sources.
-(defvar helm-source-ls-git-status nil)
-(defvar helm-source-ls-git nil)
-(defvar helm-source-ls-git-buffers nil)
 
 (defun helm-ls-git-match-part (candidate)
   (if (with-helm-buffer helm-ff-transformer-show-only-basename)
