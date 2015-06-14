@@ -401,10 +401,10 @@ The color of matched items can be customized in your .gitconfig."
 
 
 ;;;###autoload
-(defun helm-ls-git-ls ()
-  (interactive)
-  (when (helm-ls-git-not-inside-git-repo)
-    (user-error "Not inside a Git repository"))
+(defun helm-ls-git-ls (&optional arg)
+  (interactive "p")
+  (when (and arg (helm-ls-git-not-inside-git-repo))
+    (error "Not inside a Git repository"))
   (unless (and helm-source-ls-git-status
                helm-source-ls-git
                helm-source-ls-git-buffers)
