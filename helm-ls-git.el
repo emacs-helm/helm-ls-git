@@ -403,6 +403,7 @@ The color of matched items can be customized in your .gitconfig."
 ;;;###autoload
 (defun helm-ls-git-ls (&optional arg)
   (interactive "p")
+  (setq helm-ls-git--root-directory nil)
   (when (and arg (helm-ls-git-not-inside-git-repo))
     (error "Not inside a Git repository"))
   (unless (and helm-source-ls-git-status
