@@ -301,7 +301,7 @@ The color of matched items can be customized in your .gitconfig."
                        (list "status" "--porcelain")))))))
 
 (defun helm-ls-git-status-transformer (candidates _source)
-  (cl-loop with root = (helm-ls-git-root-dir (helm-default-directory))
+  (cl-loop with root = (helm-ls-git-root-dir)
         for i in candidates
         collect
         (cond ((string-match "^\\( M \\)\\(.*\\)" i) ; modified.
@@ -419,24 +419,6 @@ The color of matched items can be customized in your .gitconfig."
                    helm-source-ls-git)
         :ff-transformer-show-only-basename nil
         :buffer "*helm lsgit*"))
-
-
-;;; Helm-find-files integration.
-;;
-(defun helm-ff-ls-git-find-files (_candidate)
-  (helm-run-after-quit
-   #'(lambda (d)
-       (let ((default-directory d))
-         (helm-ls-git-ls)))
-   helm-ff-default-directory))
-
-(defun helm-ls-git-ff-dir-git-p (file)
-  (when (or (file-exists-p file)
-            (file-directory-p file))
-    (stringp (condition-case nil
-                 (helm-ls-git-root-dir
-                  helm-ff-default-directory)
-               (error nil)))))
 
 
 (provide 'helm-ls-git)
