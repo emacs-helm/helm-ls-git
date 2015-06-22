@@ -160,7 +160,7 @@ The color of matched items can be customized in your .gitconfig."
                            (helm-basename i)
                            (cl-case helm-ls-git-show-abs-or-relative
                              (absolute abs)
-                             (relative i)))
+                             (relative (file-relative-name i root))))
             collect
             (cons (propertize disp 'face 'helm-ff-file) abs)))
 
