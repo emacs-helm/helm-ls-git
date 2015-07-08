@@ -199,7 +199,7 @@ The color of matched items can be customized in your .gitconfig."
 (defun helm-ls-git-actions-list ()
   (let ((actions (helm-actions-from-type-file)))
     (helm-append-at-nth
-     actions
+     (helm-interpret-value actions nil 'ignorefn)
      (helm-make-actions "Git grep files (`C-u' only files with ext, `C-u C-u' all)"
                         'helm-ls-git-grep
                         "Gid" 'helm-ff-gid
