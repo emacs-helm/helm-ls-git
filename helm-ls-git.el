@@ -398,6 +398,19 @@ The color of matched items can be customized in your .gitconfig."
       (pop-to-buffer "*vc-diff*")
       (diff-mode))))
 
+;; Overhide the actions of helm-type-buffer.
+(defmethod helm--setup-source :after ((source helm-source-buffers))
+  (let ((name (oref source :name)))
+    (when (string= name "Buffers in project")
+      (set-slot-value
+       source 'action
+       (helm-append-at-nth
+        helm-type-buffer-actions
+        (helm-make-actions "Git status"
+                           (lambda (_candidate)
+                             (funcall helm-ls-git-status-command
+                                      (helm-default-directory))))
+        1)))))
 
 ;;;###autoload
 (defun helm-ls-git-ls (&optional arg)
