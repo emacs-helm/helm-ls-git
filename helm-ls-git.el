@@ -23,6 +23,7 @@
 (require 'vc)
 (require 'vc-git)
 (require 'helm-files)
+(require 'helm-types)
 
 (defvaralias 'helm-c-source-ls-git 'helm-source-ls-git)
 (make-obsolete-variable 'helm-c-source-ls-git 'helm-source-ls-git "1.5.1")
@@ -196,16 +197,19 @@ The color of matched items can be customized in your .gitconfig."
             (buffer-substring-no-properties (goto-char (point-min))
                                             (line-end-position)))))
 
-(defun helm-ls-git-actions-list ()
-  (let ((actions (helm-actions-from-type-file)))
-    (helm-append-at-nth
-     (helm-interpret-value actions nil 'ignorefn)
-     (helm-make-actions "Git grep files (`C-u' only files with ext, `C-u C-u' all)"
-                        'helm-ls-git-grep
-                        "Gid" 'helm-ff-gid
-                        "Search in Git log (C-u show patch)"
-                        'helm-ls-git-search-log)
-     3)))
+(defun helm-ls-git-actions-list (&optional actions)
+  (helm-append-at-nth
+   actions
+   (helm-make-actions "Git status"
+                      (lambda (_candidate)
+                        (funcall helm-ls-git-status-command
+                                 (helm-default-directory)))
+                      "Git grep files (`C-u' only files with ext, `C-u C-u' all)"
+                      'helm-ls-git-grep
+                      "Gid" 'helm-ff-gid
+                      "Search in Git log (C-u show patch)"
+                      'helm-ls-git-search-log)
+   1))
 
 (defun helm-ls-git-match-part (candidate)
   (if (with-helm-buffer helm-ff-transformer-show-only-basename)
@@ -223,7 +227,7 @@ The color of matched items can be customized in your .gitconfig."
    (candidate-transformer :initform '(helm-ls-git-transformer
                                       helm-ls-git-sort-fn))
    (action-transformer :initform 'helm-transform-file-load-el)
-   (action :initform (helm-ls-git-actions-list))))
+   (action :initform (helm-ls-git-actions-list helm-type-file-actions))))
 
 ;;;###autoload
 (defclass helm-ls-git-status-source (helm-source-in-buffer)
