@@ -222,7 +222,6 @@ The color of matched items can be customized in your .gitconfig."
    (init :initform 'helm-ls-git-init)
    (keymap :initform helm-ls-git-map)
    (help-message :initform helm-generic-file-help-message)
-   (mode-line :initform helm-generic-file-mode-line-string)
    (match-part :initform 'helm-ls-git-match-part)
    (candidate-transformer :initform '(helm-ls-git-transformer
                                       helm-ls-git-sort-fn))
