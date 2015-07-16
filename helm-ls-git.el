@@ -426,7 +426,7 @@ The color of matched items can be customized in your .gitconfig."
           (helm-make-source "Git files" 'helm-ls-git-source
             :fuzzy-match helm-ls-git-fuzzy-match)
           helm-source-ls-git-buffers
-          (helm-make-source "Buffers in project" 'helm-source-buffers
+          (helm-make-source "Buffers in git project" 'helm-source-buffers
             :header-name #'helm-ls-git-header-name
             :buffer-list (lambda () (helm-browse-project-get-buffers
                                      (helm-ls-git-root-dir))))))
