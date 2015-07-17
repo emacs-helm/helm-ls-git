@@ -8,17 +8,21 @@ Yet another helm for listing the files in a git repo.
 
 ## Features:
 
-* Similar in scope to `helm-git.el` but has no dependency on magit.
+* Display the open buffers in project.
 
-* Allows you to toggle the full path of files with `C-]`
+* Display a status source showing state of project (modified files etc...).
 
-* Inherits actions from helm-locate.
+* Display a list of all files in project under git control.
 
-* Signals an error in helm-buffer when trying to use it in a non git
-  based repo.
+* Allow looking quickly at diff on modified files.
 
-* Action pop-up in action buffer of helm-find-files only when current
-  directory is git based.
+* Allow switching to git status with your prefered frontend (vc-dir, magit,etc...)
+
+* Full integration of git-grep, allow also usage of helm-grep (you can use ack-grep instead of grep).
+
+* Full integration with helm-find-files, allow you to browse project unrelated to current-buffer.
+
+* In addition, all actions of type files and buffers are provided.
 
 ## Installation
 
