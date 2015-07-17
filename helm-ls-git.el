@@ -400,7 +400,7 @@ The color of matched items can be customized in your .gitconfig."
 ;; Overhide the actions of helm-type-buffer.
 (defmethod helm--setup-source :after ((source helm-source-buffers))
   (let ((name (oref source :name)))
-    (when (string= name "Buffers in project")
+    (when (string= name "Buffers in git project")
       (set-slot-value
        source 'action
        (helm-append-at-nth
