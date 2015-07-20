@@ -1,6 +1,6 @@
 ;;; helm-ls-git.el --- list git files. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2014 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; Package-Requires: ((helm "1.5"))
 
