@@ -272,7 +272,7 @@ The color of matched items can be customized in your .gitconfig."
   "Run Git Grep action from helm-ls-git."
   (interactive)
   (with-helm-alive-p
-    (helm-quit-and-execute-action 'helm-ls-git-grep)))
+    (helm-exit-and-execute-action 'helm-ls-git-grep)))
 
 
 (defun helm-ls-git-search-log (_candidate)
