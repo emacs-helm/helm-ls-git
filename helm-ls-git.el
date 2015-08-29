@@ -144,6 +144,8 @@ The color of matched items can be customized in your .gitconfig."
                        "git"
                        nil (list t helm-ls-git-log-file) nil
                        (list "ls-files" "--full-name" "--")))))
+    ;; Return empty string to give to `split-string'
+    ;; in `helm-ls-git-init'.
     ""))
 
 (cl-defun helm-ls-git-root-dir (&optional (directory default-directory))
