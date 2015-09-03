@@ -68,7 +68,13 @@ Valid values are symbol 'abs (default) or 'relative."
   "The git grep default command line.
 The option \"--color=always\" can be used safely.
 The color of matched items can be customized in your .gitconfig
-See `helm-grep-default-command' for more infos."
+See `helm-grep-default-command' for more infos.
+
+The \"--exclude-standard\" and \"--no-index\" switches allow
+skipping unwanted files specified in ~/.gitignore_global
+and searching files not already staged.
+You have also to enable this in global \".gitconfig\" with
+    \"git config --global core.excludesfile ~/.gitignore_global\"."
   :group 'helm-ls-git
   :type 'string)
 
