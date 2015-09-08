@@ -77,6 +77,14 @@ You have also to enable this in global \".gitconfig\" with
     \"git config --global core.excludesfile ~/.gitignore_global\"."
   :group 'helm-ls-git
   :type 'string)
+
+(defcustom helm-ls-git-default-sources '(helm-source-ls-git-status
+                                         helm-source-ls-git
+                                         helm-source-ls-git-buffers)
+  "Default sources for `helm-ls-git-ls'."
+  :group 'helm-ls-git
+  :type '(repeat symbol))
+
 
 (defface helm-ls-git-modified-not-staged-face
     '((t :foreground "yellow"))
@@ -431,19 +439,20 @@ You have also to enable this in global \".gitconfig\" with
                helm-source-ls-git
                helm-source-ls-git-buffers)
     (setq helm-source-ls-git-status
-          (helm-make-source "Git status" 'helm-ls-git-status-source
-            :fuzzy-match helm-ls-git-fuzzy-match)
+          (and (memq 'helm-source-ls-git-status helm-ls-git-default-sources)
+               (helm-make-source "Git status" 'helm-ls-git-status-source
+                 :fuzzy-match helm-ls-git-fuzzy-match))
           helm-source-ls-git
-          (helm-make-source "Git files" 'helm-ls-git-source
-            :fuzzy-match helm-ls-git-fuzzy-match)
+          (and (memq 'helm-source-ls-git helm-ls-git-default-sources)
+               (helm-make-source "Git files" 'helm-ls-git-source
+                 :fuzzy-match helm-ls-git-fuzzy-match))
           helm-source-ls-git-buffers
-          (helm-make-source "Buffers in git project" 'helm-source-buffers
-            :header-name #'helm-ls-git-header-name
-            :buffer-list (lambda () (helm-browse-project-get-buffers
-                                     (helm-ls-git-root-dir))))))
-  (helm :sources '(helm-source-ls-git-status
-                   helm-source-ls-git-buffers
-                   helm-source-ls-git)
+          (and (memq 'helm-source-ls-git-buffers helm-ls-git-default-sources)
+               (helm-make-source "Buffers in git project" 'helm-source-buffers
+                 :header-name #'helm-ls-git-header-name
+                 :buffer-list (lambda () (helm-browse-project-get-buffers
+                                          (helm-ls-git-root-dir)))))))
+  (helm :sources helm-ls-git-default-sources
         :ff-transformer-show-only-basename nil
         :buffer "*helm lsgit*"))
 
