@@ -435,9 +435,8 @@ You have also to enable this in global \".gitconfig\" with
   (interactive "p")
   (when (and arg (helm-ls-git-not-inside-git-repo))
     (error "Not inside a Git repository"))
-  (unless (and helm-source-ls-git-status
-               helm-source-ls-git
-               helm-source-ls-git-buffers)
+  (unless (cl-loop for s in helm-ls-git-default-sources
+                   always (symbol-value s))
     (setq helm-source-ls-git-status
           (and (memq 'helm-source-ls-git-status helm-ls-git-default-sources)
                (helm-make-source "Git status" 'helm-ls-git-status-source
