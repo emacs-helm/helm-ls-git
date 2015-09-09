@@ -79,8 +79,8 @@ You have also to enable this in global \".gitconfig\" with
   :type 'string)
 
 (defcustom helm-ls-git-default-sources '(helm-source-ls-git-status
-                                         helm-source-ls-git
-                                         helm-source-ls-git-buffers)
+                                         helm-source-ls-git-buffers
+                                         helm-source-ls-git)
   "Default sources for `helm-ls-git-ls'."
   :group 'helm-ls-git
   :type '(repeat symbol))
