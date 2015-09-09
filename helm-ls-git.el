@@ -204,17 +204,20 @@ You have also to enable this in global \".gitconfig\" with
               data)))
     (helm-init-candidates-in-buffer 'global data)))
 
+(defvar helm-ls-git--current-branch nil)
+(defun helm-ls-git--branch ()
+  (or helm-ls-git--current-branch
+      (with-temp-buffer
+        (let ((ret (call-process-shell-command "git symbolic-ref --short HEAD" nil t)))
+          ;; Use sha of HEAD when branch name is missing.
+          (unless (zerop ret)
+            (erase-buffer)
+            (call-process-shell-command "git rev-parse --short HEAD" nil t)))
+        (buffer-substring-no-properties (goto-char (point-min))
+                                        (line-end-position)))))
+
 (defun helm-ls-git-header-name (name)
-  (format "%s (%s)"
-          name
-          (with-temp-buffer
-            (let ((ret (call-process-shell-command "git symbolic-ref --short HEAD" nil t)))
-              ;; Use sha of HEAD when branch name is missing.
-              (unless (zerop ret)
-                (erase-buffer)
-                (call-process-shell-command "git rev-parse --short HEAD" nil t)))
-            (buffer-substring-no-properties (goto-char (point-min))
-                                            (line-end-position)))))
+  (format "%s (%s)" name (helm-ls-git--branch)))
 
 (defun helm-ls-git-actions-list (&optional actions)
   (helm-append-at-nth
@@ -451,6 +454,7 @@ You have also to enable this in global \".gitconfig\" with
                  :header-name #'helm-ls-git-header-name
                  :buffer-list (lambda () (helm-browse-project-get-buffers
                                           (helm-ls-git-root-dir)))))))
+  (helm-set-local-variable 'helm-ls-git--current-branch (helm-ls-git--branch))
   (helm :sources helm-ls-git-default-sources
         :ff-transformer-show-only-basename nil
         :buffer "*helm lsgit*"))
