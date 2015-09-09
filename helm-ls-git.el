@@ -208,11 +208,11 @@ You have also to enable this in global \".gitconfig\" with
 (defun helm-ls-git--branch ()
   (or helm-ls-git--current-branch
       (with-temp-buffer
-        (let ((ret (call-process-shell-command "git symbolic-ref --short HEAD" nil t)))
+        (let ((ret (call-process "git" nil t nil "symbolic-ref" "--short" "HEAD")))
           ;; Use sha of HEAD when branch name is missing.
           (unless (zerop ret)
             (erase-buffer)
-            (call-process-shell-command "git rev-parse --short HEAD" nil t)))
+            (call-process "git" nil t nil "rev-parse" "--short" "HEAD")))
         (buffer-substring-no-properties (goto-char (point-min))
                                         (line-end-position)))))
 
