@@ -242,6 +242,9 @@ You have also to enable this in global \".gitconfig\" with
 (defclass helm-ls-git-source (helm-source-in-buffer)
   ((header-name :initform 'helm-ls-git-header-name)
    (init :initform 'helm-ls-git-init)
+   (update :initform (lambda ()
+                       (helm-set-local-variable
+                        'helm-ls-git--current-branch nil)))
    (keymap :initform helm-ls-git-map)
    (help-message :initform helm-generic-file-help-message)
    (match-part :initform 'helm-ls-git-match-part)
