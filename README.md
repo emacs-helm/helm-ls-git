@@ -18,9 +18,11 @@ Yet another helm for listing the files in a git repo.
 
 * Allow switching to git status with your prefered frontend (vc-dir, magit,etc...)
 
-* Full integration of git-grep, allow also usage of helm-grep (you can use ack-grep instead of grep).
+* Full integration of `git-grep`, allow also usage of `helm-grep` (you can use `ack-grep` instead of `grep`).
 
-* Full integration with helm-find-files, allow you to browse project unrelated to current-buffer.
+* Integrate usage of `gid` from [id-utils](https://www.gnu.org/software/idutils/).
+
+* Full integration with `helm-find-files`, allow you to browse project unrelated to current-buffer.
 
 * In addition, all actions of type files and buffers are provided.
 
