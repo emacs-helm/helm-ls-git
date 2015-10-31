@@ -268,14 +268,13 @@ Valid values are symbol 'abs (default) or 'relative."
   (let* ((helm-grep-default-command helm-ls-git-grep-command)
          helm-grep-default-recurse-command
          (files (cond ((equal helm-current-prefix-arg '(4))
-                       (list "--"
-                             (format "'%s'" (mapconcat
+                       (list (format "'%s'" (mapconcat
                                              'identity
                                              (helm-grep-get-file-extensions
-                                             (helm-marked-candidates))
+                                              (helm-marked-candidates))
                                              " "))))
                       ((equal helm-current-prefix-arg '(16))
-                       '("--"))
+                       '(""))
                       (t (helm-marked-candidates))))
          ;; Expand filename of each candidate with the git root dir.
          ;; The filename will be in the help-echo prop.
