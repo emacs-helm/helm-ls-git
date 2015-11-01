@@ -129,6 +129,58 @@ Valid values are symbol 'abs (default) or 'relative."
     (define-key map (kbd "C-s")   'helm-ls-git-run-grep)
     (define-key map (kbd "C-c g") 'helm-ff-run-gid)
     map))
+
+(defvar helm-ls-git-help-message
+  "* Helm ls git
+
+** Tips
+
+*** Git grep usage
+
+**** With no prefix arg.
+
+Grep file at current selection or marked files if some.
+
+**** With one prefix arg.
+
+Grep all files in current repository with a specific extension,
+\(you will be prompted for choosing extension\).
+
+**** With two prefix args.
+
+Grep all files in current repository.
+
+**** Grep a subdirectory of current repository.
+
+Switch to `helm-find-files' with `C-x C-f', navigate to your directory
+and launch git-grep from there.
+
+** Commands
+\\<helm-ls-git-map>
+\\[helm-ls-git-run-grep]\t\tRun git-grep.
+\\[helm-ff-run-gid]\t\tRun Gid.
+\\<helm-generic-files-map>
+\\[helm-ff-run-toggle-basename]\t\tToggle basename.
+\\[helm-ff-run-zgrep]\t\tRun zgrep.
+\\[helm-ff-run-pdfgrep]\t\tRun Pdfgrep on marked files.
+\\[helm-ff-run-copy-file]\t\tCopy file(s)
+\\[helm-ff-run-rename-file]\t\tRename file(s).
+\\[helm-ff-run-symlink-file]\t\tSymlink file(s).
+\\[helm-ff-run-hardlink-file]\t\tHardlink file(s).
+\\[helm-ff-run-delete-file]\t\tDelete file(s).
+\\[helm-ff-run-byte-compile-file]\t\tByte compile file(s) (C-u load) (elisp).
+\\[helm-ff-run-load-file]\t\tLoad file(s) (elisp).
+\\[helm-ff-run-ediff-file]\t\tEdiff file.
+\\[helm-ff-run-ediff-merge-file]\t\tEdiff merge file.
+\\[helm-ff-run-switch-other-window]\t\tSwitch other window.
+\\[helm-ff-properties-persistent]\t\tShow file properties.
+\\[helm-ff-run-etags]\t\tRun etags (C-u use tap, C-u C-u reload DB).
+\\[helm-yank-text-at-point]\t\tYank text at point.
+\\[helm-ff-run-open-file-externally]\t\tOpen file with external program (C-u to choose).
+\\[helm-ff-run-open-file-with-default-tool]\t\tOpen file externally with default tool.
+\\[helm-ff-run-insert-org-link]\t\tInsert org link.")
+
+
 
 ;; Append visited files from `helm-source-ls-git' to `file-name-history'.
 (add-to-list 'helm-files-save-history-extra-sources "Git files")
@@ -237,7 +289,7 @@ Valid values are symbol 'abs (default) or 'relative."
                        (helm-set-local-variable
                         'helm-ls-git--current-branch nil)))
    (keymap :initform helm-ls-git-map)
-   (help-message :initform helm-generic-file-help-message)
+   (help-message :initform helm-ls-git-help-message)
    (match-part :initform 'helm-ls-git-match-part)
    (candidate-transformer :initform '(helm-ls-git-transformer
                                       helm-ls-git-sort-fn))
