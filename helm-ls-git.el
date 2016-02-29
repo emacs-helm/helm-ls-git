@@ -320,7 +320,7 @@ and launch git-grep from there.
   (let* ((helm-grep-default-command helm-ls-git-grep-command)
          helm-grep-default-recurse-command
          (files (cond ((equal helm-current-prefix-arg '(4))
-                       (list (format "'%s'" (mapconcat
+                       (list (format "\"%s\"" (mapconcat
                                              'identity
                                              (helm-grep-get-file-extensions
                                               (helm-marked-candidates))
