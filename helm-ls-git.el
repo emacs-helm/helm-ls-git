@@ -473,7 +473,7 @@ and launch git-grep from there.
 
 ;; Overhide the actions of helm-type-buffer.
 (defmethod helm--setup-source :after ((source helm-source-buffers))
-  (let ((name (oref source :name)))
+  (let ((name (slot-value source 'name)))
     (when (string= name "Buffers in git project")
       (set-slot-value
        source 'action
