@@ -475,15 +475,14 @@ and launch git-grep from there.
 (defmethod helm--setup-source :after ((source helm-source-buffers))
   (let ((name (slot-value source 'name)))
     (when (string= name "Buffers in git project")
-      (set-slot-value
-       source 'action
-       (helm-append-at-nth
-        helm-type-buffer-actions
-        (helm-make-actions "Git status"
-                           (lambda (_candidate)
-                             (funcall helm-ls-git-status-command
-                                      (helm-default-directory))))
-        1)))))
+      (setf (slot-value source 'action)
+            (helm-append-at-nth
+             helm-type-buffer-actions
+             (helm-make-actions "Git status"
+                                (lambda (_candidate)
+                                  (funcall helm-ls-git-status-command
+                                           (helm-default-directory))))
+             1)))))
 
 ;;;###autoload
 (defun helm-ls-git-ls (&optional arg)
