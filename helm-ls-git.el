@@ -459,7 +459,8 @@ and launch git-grep from there.
 (defun helm-ls-git-diff (candidate)
   (let ((default-directory
          (expand-file-name (file-name-directory candidate))))
-    (if (get-buffer-window "*vc-diff*" 'visible)
+    (if (and (get-buffer-window "*vc-diff*" 'visible)
+             (eq last-command 'helm-execute-persistent-action))
         (kill-buffer "*vc-diff*")
         (when (buffer-live-p (get-buffer "*vc-diff*"))
           (kill-buffer "*vc-diff*"))
