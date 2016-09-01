@@ -459,11 +459,13 @@ and launch git-grep from there.
 (defun helm-ls-git-diff (candidate)
   (let ((default-directory
          (expand-file-name (file-name-directory candidate))))
-    (when (buffer-live-p (get-buffer "*vc-diff*"))
-      (kill-buffer "*vc-diff*"))
-    (vc-git-diff (helm-marked-candidates))
-    (pop-to-buffer "*vc-diff*")
-    (diff-mode)))
+    (if (get-buffer-window "*vc-diff*" 'visible)
+        (kill-buffer "*vc-diff*")
+        (when (buffer-live-p (get-buffer "*vc-diff*"))
+          (kill-buffer "*vc-diff*"))
+        (vc-git-diff (helm-marked-candidates))
+        (pop-to-buffer "*vc-diff*")
+        (diff-mode))))
 
 ;; Overhide the actions of helm-type-buffer.
 (defmethod helm--setup-source :after ((source helm-source-buffers))
