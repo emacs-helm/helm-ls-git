@@ -132,7 +132,8 @@ Glob are enclosed in single quotes by default."
 (defvar helm-ls-git-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map helm-generic-files-map)
-    (define-key map (kbd "C-s")   'helm-ls-git-run-grep)
+    (define-key map (kbd "C-s")   'helm-ff-run-grep)
+    (define-key map (kbd "M-g g") 'helm-ls-git-run-grep)
     (define-key map (kbd "C-c g") 'helm-ff-run-gid)
     map))
 
@@ -145,16 +146,12 @@ Glob are enclosed in single quotes by default."
 
 **** With no prefix arg.
 
-Grep file at current selection or marked files if some.
+Git grep all files in current repository.
 
 **** With one prefix arg.
 
-Grep all files in current repository with a specific extension,
+Git grep all files in current repository with a specific extension,
 \(you will be prompted for choosing extension\).
-
-**** With two prefix args.
-
-Grep all files in current repository.
 
 **** Grep a subdirectory of current repository.
 
@@ -275,7 +272,7 @@ and launch git-grep from there.
                       (lambda (_candidate)
                         (funcall helm-ls-git-status-command
                                  (helm-default-directory)))
-                      "Git grep files (`C-u' only files with ext, `C-u C-u' all)"
+                      "Git grep files (`C-u' only with ext)"
                       'helm-ls-git-grep
                       "Gid" 'helm-ff-gid
                       "Search in Git log (C-u show patch)"
@@ -332,9 +329,7 @@ and launch git-grep from there.
                                       (helm-grep-get-file-extensions
                                        (helm-marked-candidates))
                                       " "))))
-                      ((equal helm-current-prefix-arg '(16))
-                       '(""))
-                      (t (helm-marked-candidates))))
+                      (t '(""))))
          ;; Expand filename of each candidate with the git root dir.
          ;; The filename will be in the help-echo prop.
          (helm-grep-default-directory-fn 'helm-ls-git-root-dir)
@@ -462,14 +457,13 @@ and launch git-grep from there.
           (t actions))))
 
 (defun helm-ls-git-diff (candidate)
-  (let (helm-persistent-action-use-special-display)
-    (with-current-buffer (find-file-noselect candidate)
-      (when (buffer-live-p (get-buffer "*vc-diff*"))
-        (kill-buffer "*vc-diff*")
-        (balance-windows))
-      (vc-git-diff (list candidate))
-      (pop-to-buffer "*vc-diff*")
-      (diff-mode))))
+  (with-current-buffer (find-file-noselect candidate)
+    (when (buffer-live-p (get-buffer "*vc-diff*"))
+      (kill-buffer "*vc-diff*")
+      (balance-windows))
+    (vc-git-diff (list candidate))
+    (pop-to-buffer "*vc-diff*")
+    (diff-mode)))
 
 ;; Overhide the actions of helm-type-buffer.
 (defmethod helm--setup-source :after ((source helm-source-buffers))
