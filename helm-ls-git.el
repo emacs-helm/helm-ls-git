@@ -482,7 +482,7 @@ and launch git-grep from there.
              1)))))
 
 ;;;###autoload
-(defun helm-ls-git-ls (&optional arg)
+(defun helm-ls-git-ls (&optional arg &optional input) 
   (interactive "p")
   (when (and arg (helm-ls-git-not-inside-git-repo))
     (error "Not inside a Git repository"))
@@ -505,8 +505,32 @@ and launch git-grep from there.
   (helm-set-local-variable 'helm-ls-git--current-branch (helm-ls-git--branch))
   (helm :sources helm-ls-git-default-sources
         :ff-transformer-show-only-basename nil
+        :input input 
         :buffer "*helm lsgit*"))
 
+(defun helm-ls-git-at-point() 
+  "Invoke `helm-ls-git-ls' with symbol at point. 
+ 
+Use region as input instead of the thing at point 
+if region exists. 
+" 
+  (interactive) 
+  (let* ((symbol (if (not mark-active) (thing-at-point 'symbol) 
+                   (when (use-region-p) (buffer-substring (region-beginning) (region-end))))) 
+         (input (if symbol (concat symbol " ") nil))) 
+    (when mark-active 
+      (deactivate-mark)) ;; remove any active regions 
+    (helm-ls-git-ls nil input) 
+    )) 
+
+(defun helm-ls-git-from-isearch() 
+  "Invoke `helm-ls-git-ls' from isearch." 
+  (interactive) 
+  (let ((input (if isearch-regexp 
+                   isearch-string 
+                 (regexp-quote isearch-string)))) 
+    (isearch-exit) 
+    (helm-ls-git-ls nil input))) 
 
 (provide 'helm-ls-git)
 
