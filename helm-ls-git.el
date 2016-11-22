@@ -311,6 +311,8 @@ and launch git-grep from there.
 (defclass helm-ls-git-source (helm-source-in-buffer)
   ((header-name :initform 'helm-ls-git-header-name)
    (init :initform 'helm-ls-git-init)
+   (cleanup :initform (lambda ()
+                        (setq helm-ls-git-ls-switches (remove "-o" helm-ls-git-ls-switches))))
    (update :initform (lambda ()
                        (helm-set-local-variable
                         'helm-ls-git--current-branch nil)))
