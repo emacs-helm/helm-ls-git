@@ -143,6 +143,12 @@ Glob are enclosed in single quotes by default."
     (define-key map (kbd "C-c i") 'helm-ls-git-ls-files-show-others)
     map))
 
+(defvar helm-ls-git-buffer-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map helm-buffer-map)
+    (define-key map (kbd "C-c i") 'helm-ls-git-ls-files-show-others)
+    map))
+
 (defvar helm-ls-git-help-message
   "* Helm ls git
 
@@ -526,7 +532,8 @@ and launch git-grep from there.
                (helm-make-source "Buffers in git project" 'helm-source-buffers
                  :header-name #'helm-ls-git-header-name
                  :buffer-list (lambda () (helm-browse-project-get-buffers
-                                          (helm-ls-git-root-dir)))))))
+                                          (helm-ls-git-root-dir)))
+                 :keymap helm-ls-git-buffer-map))))
   (helm-set-local-variable 'helm-ls-git--current-branch (helm-ls-git--branch))
   (helm :sources helm-ls-git-default-sources
         :ff-transformer-show-only-basename nil
