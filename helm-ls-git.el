@@ -237,6 +237,7 @@ and launch git-grep from there.
 
 (defun helm-ls-git-transformer (candidates)
    (cl-loop with root = (helm-ls-git-root-dir)
+            with untracking = (member "-o" helm-ls-git-ls-switches)
             for i in candidates
             for abs = (expand-file-name i root)
             for disp = (if (and helm-ff-transformer-show-only-basename
@@ -246,7 +247,11 @@ and launch git-grep from there.
                              (absolute abs)
                              (relative (file-relative-name i root))))
             collect
-            (cons (propertize disp 'face 'helm-ff-file) abs)))
+            (cons (propertize (if untracking (concat "? " disp) disp)
+                              'face (if untracking
+                                        'helm-ls-git-untracked-face
+                                        'helm-ff-file))
+                              abs)))
 
 (defun helm-ls-git-sort-fn (candidates)
   "Transformer for sorting candidates."
