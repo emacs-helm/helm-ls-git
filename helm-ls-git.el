@@ -82,6 +82,11 @@ Glob are enclosed in single quotes by default."
   :group 'helm-ls-git
   :type 'string)
 
+(defcustom helm-ls-git-ls-switches '("ls-files" "--full-name" "--")
+  "A list of arguments to pass to `git-ls-files'."
+  :type '(repeat string)
+  :group 'helm-ls-git)
+
 
 (defface helm-ls-git-modified-not-staged-face
     '((t :foreground "yellow"))
@@ -135,6 +140,7 @@ Glob are enclosed in single quotes by default."
     (define-key map (kbd "C-s")   'helm-ff-run-grep)
     (define-key map (kbd "M-g g") 'helm-ls-git-run-grep)
     (define-key map (kbd "C-c g") 'helm-ff-run-gid)
+    (define-key map (kbd "C-c i") 'helm-ls-git-ls-files-show-others)
     map))
 
 (defvar helm-ls-git-help-message
@@ -162,6 +168,7 @@ and launch git-grep from there.
 \\<helm-ls-git-map>
 \\[helm-ls-git-run-grep]\t\tRun git-grep.
 \\[helm-ff-run-gid]\t\tRun Gid.
+\\[helm-ls-git-ls-files-show-others]\t\tToggle tracked/non tracked files view.
 \\<helm-generic-files-map>
 \\[helm-ff-run-toggle-basename]\t\tToggle basename.
 \\[helm-ff-run-zgrep]\t\tRun zgrep.
@@ -205,10 +212,21 @@ and launch git-grep from there.
                 (apply #'process-file
                        "git"
                        nil (list t helm-ls-git-log-file) nil
-                       (list "ls-files" "--full-name" "--")))))
+                       helm-ls-git-ls-switches))))
     ;; Return empty string to give to `split-string'
     ;; in `helm-ls-git-init'.
     ""))
+
+(defun helm-ls-git-ls-files-show-others ()
+  "Toggle view of tracked/non tracked files."
+  (interactive)
+  (with-helm-alive-p
+    (setq helm-ls-git-ls-switches
+          (if (member "-o" helm-ls-git-ls-switches)
+              (remove "-o" helm-ls-git-ls-switches)
+              (helm-append-at-nth helm-ls-git-ls-switches "-o" 1)))
+    (helm-force-update)))
+(put 'helm-ls-git-ls-switches 'helm-only t)
 
 (cl-defun helm-ls-git-root-dir (&optional (directory default-directory))
   (let ((root (locate-dominating-file directory ".git")))
