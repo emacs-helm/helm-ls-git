@@ -264,20 +264,22 @@ and launch git-grep from there.
   (helm-ff-sort-candidates candidates nil))
 
 (defun helm-ls-git-init ()
-  (let ((data (cl-loop with root = (helm-ls-git-root-dir)
-                       for c in (split-string (helm-ls-git-list-files) "\n" t)
-                       collect (expand-file-name c root))))
-    (when (null data)
-      (setq data
-            (if helm-ls-git-log-file
-                (with-current-buffer
-                    (find-file-noselect helm-ls-git-log-file)
-                  (prog1
-                      (buffer-substring-no-properties
-                       (point-min) (point-max))
-                    (kill-buffer)))
-              data)))
-    (helm-init-candidates-in-buffer 'global data)))
+  (let ((git-root (helm-ls-git-root-dir)))
+    (when git-root
+      (let ((data (cl-loop for c in (split-string (helm-ls-git-list-files) "\n" t)
+                           collect (expand-file-name c git-root))))
+        (when (null data)
+          (setq data
+                (if helm-ls-git-log-file
+                    (with-current-buffer
+                        (find-file-noselect helm-ls-git-log-file)
+                      (prog1
+                          (buffer-substring-no-properties
+                           (point-min) (point-max))
+                        (kill-buffer)))
+                  data)))
+        (helm-init-candidates-in-buffer 'global data)))))
+
 
 (defvar helm-ls-git--current-branch nil)
 (defun helm-ls-git--branch ()
