@@ -72,6 +72,17 @@ to the `current-buffer`:
 M-x `helm-find-files`
 navigate to some git repo and hit `C-x C-d`
 
+
+You can also invoke `helm-ls-git-ls` through those two utility functions while browsing source code in a buffer :
+        
+```elisp
+(global-set-key (kbd "C-x <f6>") 'helm-ls-git-at-point)
+```
+
+```elisp
+(define-key isearch-mode-map (kbd "<f6>") 'helm-ls-git-from-isearch)
+```
+        
 ## Usage
 
 * By calling `helm-ls-git-ls` or `helm-browse-project` in any buffer that is a part of a git
