@@ -83,7 +83,8 @@ Glob are enclosed in single quotes by default."
   :type 'string)
 
 (defcustom helm-ls-git-ls-switches '("ls-files" "--full-name" "--")
-  "A list of arguments to pass to `git-ls-files'."
+  "A list of arguments to pass to `git-ls-files'.
+To see files in submodules add the option \"--recurse-submodules\"."
   :type '(repeat string)
   :group 'helm-ls-git)
 
