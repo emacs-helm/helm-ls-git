@@ -242,32 +242,31 @@ and launch git-grep from there.
 (defun helm-ls-git-not-inside-git-repo ()
   (not (helm-ls-git-root-dir)))
 
-(defun helm-ls-git-transformer (candidates)
+(defun helm-ls-git-transformer (candidates _source)
    (cl-loop with root = (helm-ls-git-root-dir)
             with untracking = (member "-o" helm-ls-git-ls-switches)
-            for i in candidates
-            for abs = (expand-file-name i root)
+            for file in candidates
+            for abs = (expand-file-name file root)
             for disp = (if (and helm-ff-transformer-show-only-basename
-                                (not (string-match "[.]\\{1,2\\}$" i)))
-                           (helm-basename i)
-                           (cl-case helm-ls-git-show-abs-or-relative
-                             (absolute abs)
-                             (relative (file-relative-name i root))))
+                                (not (string-match "[.]\\{1,2\\}\\'" file)))
+                           (helm-basename file) file)
             collect
             (cons (propertize (if untracking (concat "? " disp) disp)
                               'face (if untracking
                                         'helm-ls-git-untracked-face
                                         'helm-ff-file))
-                              abs)))
+                  abs)))
 
-(defun helm-ls-git-sort-fn (candidates)
+(defun helm-ls-git-sort-fn (candidates _source)
   "Transformer for sorting candidates."
   (helm-ff-sort-candidates candidates nil))
 
 (defun helm-ls-git-init ()
   (let ((data (cl-loop with root = (helm-ls-git-root-dir)
                        for c in (split-string (helm-ls-git-list-files) "\n" t)
-                       collect (expand-file-name c root))))
+                       collect (if (eq helm-ls-git-show-abs-or-relative 'relative)
+                                   (file-relative-name c root)
+                                 (expand-file-name c root)))))
     (when (null data)
       (setq data
             (if helm-ls-git-log-file
@@ -326,8 +325,9 @@ and launch git-grep from there.
    (keymap :initform helm-ls-git-map)
    (help-message :initform helm-ls-git-help-message)
    (match-part :initform 'helm-ls-git-match-part)
-   (candidate-transformer :initform '(helm-ls-git-transformer
-                                      helm-ls-git-sort-fn))
+   (filtered-candidate-transformer
+    :initform '(helm-ls-git-transformer
+                helm-ls-git-sort-fn))
    (action-transformer :initform 'helm-transform-file-load-el)
    (action :initform (helm-ls-git-actions-list helm-type-file-actions))))
 
