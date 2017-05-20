@@ -265,8 +265,7 @@ and launch git-grep from there.
   (let ((data (cl-loop with root = (helm-ls-git-root-dir)
                        for c in (split-string (helm-ls-git-list-files) "\n" t)
                        collect (if (eq helm-ls-git-show-abs-or-relative 'relative)
-                                   (file-relative-name c root)
-                                 (expand-file-name c root)))))
+                                   c (expand-file-name c root)))))
     (when (null data)
       (setq data
             (if helm-ls-git-log-file
