@@ -40,9 +40,9 @@
   "Helm completion for git repos."
   :group 'helm)
 
-(defcustom helm-ls-git-show-abs-or-relative 'absolute
+(defcustom helm-ls-git-show-abs-or-relative 'relative
   "Show full path or relative path to repo when using `helm-ff-toggle-basename'.
-Valid values are symbol 'abs (default) or 'relative."
+Valid values are symbol 'absolute or 'relative (default)."
   :group 'helm-ls-git
   :type  '(radio :tag "Show full path or relative path to Git repo when toggling"
            (const :tag "Show full path" absolute)
