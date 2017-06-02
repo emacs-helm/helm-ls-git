@@ -522,11 +522,13 @@ and launch git-grep from there.
     (setq helm-source-ls-git-status
           (and (memq 'helm-source-ls-git-status helm-ls-git-default-sources)
                (helm-make-source "Git status" 'helm-ls-git-status-source
-                 :fuzzy-match helm-ls-git-fuzzy-match))
+                 :fuzzy-match helm-ls-git-fuzzy-match
+                 :group 'helm-ls-git))
           helm-source-ls-git
           (and (memq 'helm-source-ls-git helm-ls-git-default-sources)
                (helm-make-source "Git files" 'helm-ls-git-source
-                 :fuzzy-match helm-ls-git-fuzzy-match))
+                 :fuzzy-match helm-ls-git-fuzzy-match
+                 :group 'helm-ls-git))
           helm-source-ls-git-buffers
           (and (memq 'helm-source-ls-git-buffers helm-ls-git-default-sources)
                (helm-make-source "Buffers in git project" 'helm-source-buffers
