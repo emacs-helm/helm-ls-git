@@ -49,7 +49,10 @@ Valid values are symbol 'absolute or 'relative (default)."
            (const :tag "Show relative path" relative)))
 
 (defcustom helm-ls-git-status-command 'vc-dir
-  "Favorite git-status command for emacs."
+  "Favorite git-status command for emacs.
+
+If you want to use magit use `magit-status-internal' and not
+`magit-status' which is working only interactively."
   :group 'helm-ls-git
   :type 'symbol)
 
@@ -154,6 +157,19 @@ To see files in submodules add the option \"--recurse-submodules\"."
   "* Helm ls git
 
 ** Tips
+
+*** Start helm-ls-git
+
+You can start with `helm-ls-git-ls' but you can also use the generic
+`helm-browse-project' which will use `helm-ls-git' if you are in a git
+project (actually supported backends are git, hg and svn). 
+
+*** You may want to use magit as git status command
+
+By default helm-ls-git is using emacs `vc-dir' as `helm-ls-git-status-command',
+perhaps you want to use something better like `magit-status' ?
+If it's the case use `magit-status-internal' as value for `helm-ls-git-status-command'
+as `magit-status' is working only interactively (it will not work from helm-ls-git).
 
 *** Git grep usage
 
