@@ -31,9 +31,19 @@
 (make-obsolete-variable 'helm-c-source-ls-git-status 'helm-source-ls-git-status "1.5.1")
 
 ;; Define the sources.
-(defvar helm-source-ls-git-status nil)
-(defvar helm-source-ls-git nil)
-(defvar helm-source-ls-git-buffers nil)
+(defvar helm-source-ls-git-status nil
+  "This source will built at runtime.
+It can be build explicitely with function
+`helm-ls-git-build-git-status-source'.")
+(defvar helm-source-ls-git nil
+  "This source will built at runtime.
+It can be build explicitely with function
+`helm-ls-git-build-ls-git-source'.")
+(defvar helm-source-ls-git-buffers nil
+  "This source will built at runtime.
+It can be build explicitely with function
+`helm-ls-git-build-buffers-source'.")
+
 
 
 (defgroup helm-ls-git nil
@@ -528,6 +538,39 @@ and launch git-grep from there.
                                   (funcall helm-ls-git-status-command
                                            (helm-default-directory))))
              1)))))
+
+(defun helm-ls-git-build-git-status-source ()
+  "Build `helm-source-ls-git-status'.
+
+Do nothing when `helm-source-ls-git-status' is not member of
+`helm-ls-git-default-sources'."
+  (and (memq 'helm-source-ls-git-status helm-ls-git-default-sources)
+       (helm-make-source "Git status" 'helm-ls-git-status-source
+         :fuzzy-match helm-ls-git-fuzzy-match
+         :group 'helm-ls-git)))
+
+(defun helm-ls-git-build-ls-git-source ()
+  "Build `helm-source-ls-git'.
+
+Do nothing when `helm-source-ls-git' is not member of
+`helm-ls-git-default-sources'."
+  (and (memq 'helm-source-ls-git helm-ls-git-default-sources)
+       (helm-make-source "Git files" 'helm-ls-git-source
+         :fuzzy-match helm-ls-git-fuzzy-match
+         :group 'helm-ls-git)))
+
+(defun helm-ls-git-build-buffers-source ()
+  "Build `helm-source-ls-git-buffers'.
+
+Do nothing when `helm-source-ls-git-buffers' is not member of
+`helm-ls-git-default-sources'."
+  (and (memq 'helm-source-ls-git-buffers helm-ls-git-default-sources)
+       (helm-make-source "Buffers in git project" 'helm-source-buffers
+         :header-name #'helm-ls-git-header-name
+         :buffer-list (lambda () (helm-browse-project-get-buffers
+                                  (helm-ls-git-root-dir)))
+         :keymap helm-ls-git-buffer-map)))
+
 
 ;;;###autoload
 (defun helm-ls-git-ls (&optional arg)
@@ -537,22 +580,11 @@ and launch git-grep from there.
   (unless (cl-loop for s in helm-ls-git-default-sources
                    always (symbol-value s))
     (setq helm-source-ls-git-status
-          (and (memq 'helm-source-ls-git-status helm-ls-git-default-sources)
-               (helm-make-source "Git status" 'helm-ls-git-status-source
-                 :fuzzy-match helm-ls-git-fuzzy-match
-                 :group 'helm-ls-git))
+          (helm-ls-git-build-git-status-source)
           helm-source-ls-git
-          (and (memq 'helm-source-ls-git helm-ls-git-default-sources)
-               (helm-make-source "Git files" 'helm-ls-git-source
-                 :fuzzy-match helm-ls-git-fuzzy-match
-                 :group 'helm-ls-git))
+          (helm-ls-git-build-ls-git-source)
           helm-source-ls-git-buffers
-          (and (memq 'helm-source-ls-git-buffers helm-ls-git-default-sources)
-               (helm-make-source "Buffers in git project" 'helm-source-buffers
-                 :header-name #'helm-ls-git-header-name
-                 :buffer-list (lambda () (helm-browse-project-get-buffers
-                                          (helm-ls-git-root-dir)))
-                 :keymap helm-ls-git-buffer-map))))
+          (helm-ls-git-build-buffers-source)))
   (helm-set-local-variable 'helm-ls-git--current-branch (helm-ls-git--branch))
   (helm :sources helm-ls-git-default-sources
         :ff-transformer-show-only-basename nil

@@ -72,6 +72,13 @@ to the `current-buffer`:
 M-x `helm-find-files`
 navigate to some git repo and hit `C-x C-d`
 
+If you want to use the helm-ls-git sources somewhere else, you can build them individually with functions
+`helm-ls-git-build-git-status-source`, 
+`helm-ls-git-build-buffers-source` and `helm-ls-git-build-ls-git-source`.
+
+As these sources are built with their own classes, they can be configured with defmethod `helm-setup-user-source`,
+see [FAQ](https://github.com/emacs-helm/helm/wiki/FAQ#why-is-a-customizable-helm-source-nil).
+
 ## Usage
 
 * By calling `helm-ls-git-ls` or `helm-browse-project` in any buffer that is a part of a git
