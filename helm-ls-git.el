@@ -512,7 +512,9 @@ and launch git-grep from there.
            (append actions (helm-append-at-nth
                             mofified-actions
                             '(("Stage file(s)"
-                               . helm-ls-git-stage-files))
+                               . helm-ls-git-stage-files)
+                              ("Stage marked file(s) and commit"
+                               . helm-ls-git-stage-marked-and-commit))
                             1)))
           ;; Modified and staged
           ((string-match "^M+ *" disp)
@@ -547,6 +549,11 @@ and launch git-grep from there.
     (if (fboundp 'magit-unstage-file)
         (helm-ls-git-magit-unstage-files files)
       (apply #'process-file "git" nil nil nil "reset" "HEAD" "--" files))))
+
+(defun helm-ls-git-stage-marked-and-commit (candidate)
+  "Stage marked files and commit."
+  (helm-ls-git-stage-files nil)
+  (helm-ls-git-commit candidate))
 
 (defun helm-ls-git-commit (candidate)
   "Commit all staged files."
