@@ -514,7 +514,11 @@ and launch git-grep from there.
                             '(("Stage file(s)"
                                . helm-ls-git-stage-files)
                               ("Stage marked file(s) and commit"
-                               . helm-ls-git-stage-marked-and-commit))
+                               . helm-ls-git-stage-marked-and-commit)
+                              ("Stage marked file(s) and extend commit"
+                               . helm-ls-git-stage-marked-and-extend-commit)
+                              ("Stage marked file(s) and amend commit"
+                               . helm-ls-git-stage-marked-and-amend-commit))
                             1)))
           ;; Modified and staged
           ((string-match "^M+ *" disp)
@@ -522,6 +526,10 @@ and launch git-grep from there.
                             mofified-actions
                             '(("Commit staged file(s)"
                                . helm-ls-git-commit)
+                              ("Extend commit"
+                               . helm-ls-git-extend-commit)
+                              ("Amend commit"
+                               . helm-ls-git-amend-commit)
                               ("Unstage file(s)"
                                . helm-ls-git-unstage-files))
                             1)))
@@ -544,8 +552,7 @@ and launch git-grep from there.
   "Unstage marked files."
   (require 'magit-apply nil t)
   (let* ((files (helm-marked-candidates))
-         (default-directory
-          (file-name-directory (car files))))
+         (default-directory (file-name-directory (car files))))
     (if (fboundp 'magit-unstage-file)
         (helm-ls-git-magit-unstage-files files)
       (apply #'process-file "git" nil nil nil "reset" "HEAD" "--" files))))
@@ -554,6 +561,28 @@ and launch git-grep from there.
   "Stage marked files and commit."
   (helm-ls-git-stage-files nil)
   (helm-ls-git-commit candidate))
+
+(defun helm-ls-git-stage-marked-and-extend-commit (candidate)
+  (helm-ls-git-stage-files nil)
+  (helm-ls-git-extend-commit candidate))
+
+(defun helm-ls-git-stage-marked-and-amend-commit (candidate)
+  (helm-ls-git-stage-files nil)
+  (helm-ls-git-amend-commit candidate))
+
+(defun helm-ls-git-extend-commit (candidate)
+  (require 'magit-commit nil t)
+  (let ((default-directory (file-name-directory candidate)))
+    (if (fboundp 'magit-commit-extend)
+        (magit-commit-extend)
+      (process-file "git" nil nil nil "commit" "--amend" "--no-edit"))))
+
+(defun helm-ls-git-amend-commit (candidate)
+  (require 'magit-commit nil t)
+  (let ((default-directory (file-name-directory candidate)))
+    (if (fboundp 'magit-commit-amend)
+        (magit-commit-amend)
+      (process-file "git" nil nil nil "commit" "--amend"))))
 
 (defun helm-ls-git-commit (candidate)
   "Commit all staged files."
