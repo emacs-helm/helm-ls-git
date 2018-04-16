@@ -536,7 +536,9 @@ and launch git-grep from there.
                             1)))
           ;; Deleted
           ((string-match "^ D " disp)
-           (append actions (list '("Git delete" . vc-git-delete-file))))
+           (append actions (list '("Git delete" . vc-git-delete-file)
+                                 '("Stage file(s)"
+                                   . helm-ls-git-stage-files))))
           (t actions))))
 
 (defun helm-ls-git-stage-files (_candidate)
