@@ -508,6 +508,15 @@ and launch git-grep from there.
                                          do (insert (concat bname "\n"))
                                          do (setq last-bname bname))
                                    (save-buffer))))))))
+          ((string-match "^A " disp)
+           (append actions '(("Commit staged file(s)"
+                              . helm-ls-git-commit)
+                             ("Extend commit"
+                              . helm-ls-git-extend-commit)
+                             ("Amend commit"
+                              . helm-ls-git-amend-commit)
+                             ("Unstage file(s)"
+                              . helm-ls-git-unstage-files))))
           ;; Modified but not staged
           ((string-match "^ M+ *" disp)
            (append actions (helm-append-at-nth
