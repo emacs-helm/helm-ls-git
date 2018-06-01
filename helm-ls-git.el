@@ -622,15 +622,21 @@ and launch git-grep from there.
 
 (defun helm-ls-git-diff (candidate)
   (let ((default-directory
-         (expand-file-name (file-name-directory candidate))))
-    (if (and (get-buffer-window "*vc-diff*" 'visible)
+         (expand-file-name (file-name-directory candidate)))
+        (win (get-buffer-window "*vc-diff*" 'visible)))
+    (if (and win
              (eq last-command 'helm-execute-persistent-action))
-        (kill-buffer "*vc-diff*")
-        (when (buffer-live-p (get-buffer "*vc-diff*"))
-          (kill-buffer "*vc-diff*"))
-        (vc-git-diff (helm-marked-candidates))
-        (pop-to-buffer "*vc-diff*")
-        (diff-mode))))
+        (with-helm-window
+          (kill-buffer "*vc-diff*")
+          (if (and helm-persistent-action-display-window
+                   (window-dedicated-p (next-window win 1)))
+              (delete-window helm-persistent-action-display-window)
+            (set-window-buffer win helm-current-buffer)))
+      (when (buffer-live-p (get-buffer "*vc-diff*"))
+        (kill-buffer "*vc-diff*"))
+      (vc-git-diff (helm-marked-candidates))
+      (pop-to-buffer "*vc-diff*")
+      (diff-mode))))
 
 ;; Overhide the actions of helm-type-buffer.
 (defmethod helm--setup-source :after ((source helm-source-buffers))
