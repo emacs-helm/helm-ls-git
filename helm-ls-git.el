@@ -687,20 +687,23 @@ Do nothing when `helm-source-ls-git-buffers' is not member of
 ;;;###autoload
 (defun helm-ls-git-ls (&optional arg)
   (interactive "p")
-  (when (and arg (helm-ls-git-not-inside-git-repo))
-    (error "Not inside a Git repository"))
-  (unless (cl-loop for s in helm-ls-git-default-sources
-                   always (symbol-value s))
-    (setq helm-source-ls-git-status
-          (helm-ls-git-build-git-status-source)
-          helm-source-ls-git
-          (helm-ls-git-build-ls-git-source)
-          helm-source-ls-git-buffers
-          (helm-ls-git-build-buffers-source)))
-  (helm-set-local-variable 'helm-ls-git--current-branch (helm-ls-git--branch))
-  (helm :sources helm-ls-git-default-sources
-        :ff-transformer-show-only-basename nil
-        :buffer "*helm lsgit*"))
+  (let ((helm-ff-default-directory
+         (or helm-ff-default-directory
+             default-directory)))
+    (when (and arg (helm-ls-git-not-inside-git-repo))
+      (error "Not inside a Git repository"))
+    (unless (cl-loop for s in helm-ls-git-default-sources
+                     always (symbol-value s))
+      (setq helm-source-ls-git-status
+            (helm-ls-git-build-git-status-source)
+            helm-source-ls-git
+            (helm-ls-git-build-ls-git-source)
+            helm-source-ls-git-buffers
+            (helm-ls-git-build-buffers-source)))
+    (helm-set-local-variable 'helm-ls-git--current-branch (helm-ls-git--branch))
+    (helm :sources helm-ls-git-default-sources
+          :ff-transformer-show-only-basename nil
+          :buffer "*helm lsgit*")))
 
 
 (provide 'helm-ls-git)
