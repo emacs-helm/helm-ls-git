@@ -490,7 +490,7 @@ and launch git-grep from there.
                                       (file-name-directory candidate))
                                      (marked (helm-marked-candidates)))
                                  (vc-call-backend 'Git 'register marked))))
-                         '("Delete file(s)" . helm-delete-marked-files)
+                         '("Delete file(s)" . helm-ff-delete-files)
                          '("Copy bnames to .gitignore"
                            . (lambda (candidate)
                                (let ((default-directory
