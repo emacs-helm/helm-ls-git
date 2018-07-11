@@ -349,7 +349,7 @@ and launch git-grep from there.
                       (lambda (_candidate)
                         (funcall helm-ls-git-status-command
                                  (helm-default-directory)))
-                      "Git grep files (`C-u' only with ext)"
+                      "Git grep files (`C-u' only current directory)"
                       'helm-ls-git-grep
                       "Gid" 'helm-ff-gid
                       "Search in Git log (C-u show patch)"
