@@ -718,6 +718,7 @@ Do nothing when `helm-source-ls-git-buffers' is not member of
     (helm-set-local-variable 'helm-ls-git--current-branch (helm-ls-git--branch))
     (helm :sources helm-ls-git-default-sources
           :ff-transformer-show-only-basename nil
+          :truncate-lines helm-buffers-truncate-lines
           :buffer "*helm lsgit*")))
 
 
