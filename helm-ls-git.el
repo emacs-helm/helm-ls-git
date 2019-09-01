@@ -164,6 +164,12 @@ See Issue #52."
     (define-key map (kbd "C-c i") 'helm-ls-git-ls-files-show-others)
     map))
 
+(defvar helm-ls-git-status-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map helm-generic-files-map)
+    (define-key map (kbd "M-g g") 'helm-ls-git-run-grep)
+    map))
+
 (defvar helm-ls-git-buffer-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map helm-buffer-map)
@@ -179,7 +185,7 @@ See Issue #52."
 
 You can start with `helm-ls-git-ls' but you can also use the generic
 `helm-browse-project' which will use `helm-ls-git' if you are in a git
-project (actually supported backends are git, hg and svn). 
+project (actually supported backends are git, hg and svn).
 
 *** You may want to use magit as git status command
 
@@ -393,7 +399,7 @@ See docstring of `helm-ls-git-ls-switches'.
          (lambda ()
            (helm-init-candidates-in-buffer 'global
              (helm-ls-git-status))))
-   (keymap :initform helm-ls-git-map)
+   (keymap :initform helm-ls-git-status-map)
    (filtered-candidate-transformer :initform 'helm-ls-git-status-transformer)
    (persistent-action :initform 'helm-ls-git-diff)
    (persistent-help :initform "Diff")
@@ -403,7 +409,8 @@ See docstring of `helm-ls-git-ls-switches'.
             "Find file" 'helm-find-many-files
             "Git status" (lambda (_candidate)
                            (funcall helm-ls-git-status-command
-                                    (helm-default-directory)))))))
+                                    (helm-default-directory)))
+            "Git grep files (`C-u' only current directory)" 'helm-ls-git-grep))))
 
 
 (defun helm-ls-git-grep (_candidate)
@@ -523,7 +530,7 @@ See docstring of `helm-ls-git-ls-switches'.
                                                         ".gitignore"
                                                         (helm-ls-git-root-dir)))
                                    (goto-char (point-max))
-                                   (cl-loop with last-bname 
+                                   (cl-loop with last-bname
                                          for f in marked
                                          for bname = (helm-basename f)
                                          unless (string= bname last-bname)
