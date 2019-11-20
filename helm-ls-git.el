@@ -102,7 +102,10 @@ Glob are enclosed in single quotes by default."
 
 (defcustom helm-ls-git-ls-switches '("ls-files" "--full-name" "--")
   "A list of arguments to pass to `git-ls-files'.
-To see files in submodules add the option \"--recurse-submodules\"."
+To see files in submodules add the option \"--recurse-submodules\".
+If you have problems displaying  unicode filenames use
+\'(\"-c\" \"core.quotePath=false\" \"ls-files\" \"--full-name\" \"--\").
+See Issue #52."
   :type '(repeat string)
   :group 'helm-ls-git)
 
@@ -219,6 +222,10 @@ from or the directory from where you launched `helm-ls-git' from
 
 Switch to `helm-find-files' with `C-x C-f', navigate to your directory
 and launch git-grep from there.
+
+*** Problem with unicode filenames (chinese etc...)
+
+See docstring of `helm-ls-git-ls-switches'.
 
 ** Commands
 \\<helm-ls-git-map>
