@@ -53,15 +53,7 @@ Assuming you are already using helm and it is installed properly (See [Install h
 ```elisp
 (require 'helm-ls-git)
 ```
-
-And then bind the command `helm-ls-git-ls` to a keybinding of your
-choice; for example:
-
-```elisp
-(global-set-key (kbd "C-<f6>") 'helm-ls-git-ls)
-```
-
-Or even better use M-x `helm-browse-project` or bind it to a key, for example:
+Use M-x `helm-browse-project` or bind it to a key, for example:
 
 ```elisp
 (global-set-key (kbd "C-x C-d") 'helm-browse-project)
@@ -72,6 +64,12 @@ to the `current-buffer`:
 M-x `helm-find-files`
 navigate to some git repo and hit `C-x C-d`
 
+You can also navigate in your git projects with M-x `helm-projects-history` or bind it to a key:
+
+```elisp
+(global-set-key (kbd "C-x r p") 'helm-projects-history)
+```
+
 If you want to use the helm-ls-git sources somewhere else, you can build them individually with functions
 `helm-ls-git-build-git-status-source`, 
 `helm-ls-git-build-buffers-source` and `helm-ls-git-build-ls-git-source`.
@@ -81,10 +79,12 @@ see [FAQ](https://github.com/emacs-helm/helm/wiki/FAQ#why-is-a-customizable-helm
 
 ## Usage
 
-* By calling `helm-ls-git-ls` or `helm-browse-project` in any buffer that is a part of a git
-  repo (or if you have navigated to a git repo from `helm-find-files`),
-  you will be presented with a corresponding helm buffer
-  containing a list of all the files currently in that same
+Use `helm-projects-history` or `helm-browse-project` as a starting point.
+
+* By calling `helm-browse-project` in any buffer that is a part of a
+  git repo (or if you have navigated to a git repo from
+  `helm-find-files`), you will be presented with a corresponding helm
+  buffer containing a list of all the files currently in that same
   repository. In the usual `helm` style you can just type at the
   prompt in the minibuffer and see the results narrow according to the
   input of your search pattern.
@@ -92,3 +92,11 @@ see [FAQ](https://github.com/emacs-helm/helm/wiki/FAQ#why-is-a-customizable-helm
 * When the helm-buffer is active and displaying results, the user can
   invoke `C-]` to toggle between showing filenames or full pathnames
   for the data that helm is listing.
+
+NOTE: You can also use directly `helm-ls-git-ls`, but note that in
+this case your project will NOT be recorded in project history and BTW
+not available through M-x `helm-projects-history`.
+
+Another way to record your projects is using bookmarks from `helm-find-files` (`C-x r m`).
+
+Have fun!
