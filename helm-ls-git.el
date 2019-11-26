@@ -38,15 +38,15 @@
 ;; Define the sources.
 (defvar helm-source-ls-git-status nil
   "This source will built at runtime.
-It can be build explicitely with function
+It can be build explicitly with function
 `helm-ls-git-build-git-status-source'.")
 (defvar helm-source-ls-git nil
   "This source will built at runtime.
-It can be build explicitely with function
+It can be build explicitly with function
 `helm-ls-git-build-ls-git-source'.")
 (defvar helm-source-ls-git-buffers nil
   "This source will built at runtime.
-It can be build explicitely with function
+It can be build explicitly with function
 `helm-ls-git-build-buffers-source'.")
 
 
