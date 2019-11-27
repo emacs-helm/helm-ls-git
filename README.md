@@ -16,7 +16,7 @@ Yet another helm for listing the files in a git repo.
 
 * Allow looking quickly at diff on modified files.
 
-* Allow switching to git status with your prefered frontend (vc-dir, magit,etc...)
+* Allow switching to git status with your preferred frontend (vc-dir, magit,etc...)
 
 * Full integration of `git-grep`, allow also usage of `helm-grep` (you can use `ack-grep` instead of `grep`).
 
