@@ -438,8 +438,7 @@ See docstring of `helm-ls-git-ls-switches'.
       (apply #'process-file "git" nil (list t nil) nil coms)))
   (pop-to-buffer "*helm ls log*")
   (goto-char (point-min))
-  (diff-mode)
-  (set (make-local-variable 'buffer-read-only) t))
+  (diff-mode))
 
 
 (defun helm-ls-git-status ()
