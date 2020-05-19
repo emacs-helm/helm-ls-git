@@ -368,7 +368,6 @@ See docstring of `helm-ls-git-ls-switches'.
       (helm-basename candidate)
       candidate))
 
-;;;###autoload
 (defclass helm-ls-git-source (helm-source-in-buffer)
   ((header-name :initform 'helm-ls-git-header-name)
    (init :initform 'helm-ls-git-init)
@@ -386,7 +385,6 @@ See docstring of `helm-ls-git-ls-switches'.
    (action-transformer :initform 'helm-transform-file-load-el)
    (action :initform (helm-ls-git-actions-list helm-type-file-actions))))
 
-;;;###autoload
 (defclass helm-ls-git-status-source (helm-source-in-buffer)
   ((header-name :initform 'helm-ls-git-header-name)
    (init :initform
