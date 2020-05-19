@@ -66,7 +66,7 @@ Valid values are symbol 'absolute or 'relative (default)."
 (defcustom helm-ls-git-status-command 'vc-dir
   "Favorite git-status command for emacs.
 
-If you want to use magit use `magit-status-internal' and not
+If you want to use magit use `magit-status-setup-buffer' and not
 `magit-status' which is working only interactively."
   :group 'helm-ls-git
   :type 'symbol)
