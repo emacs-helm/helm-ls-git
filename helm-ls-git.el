@@ -658,7 +658,7 @@ See docstring of `helm-ls-git-ls-switches'.
       (diff-mode))))
 
 ;; Overhide the actions of helm-type-buffer.
-(defmethod helm--setup-source :after ((source helm-source-buffers))
+(cl-defmethod helm--setup-source :after ((source helm-source-buffers))
   (let ((name (slot-value source 'name)))
     (when (string= name "Buffers in git project")
       (setf (slot-value source 'action)
