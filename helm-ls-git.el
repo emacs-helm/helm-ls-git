@@ -229,29 +229,31 @@ See docstring of `helm-ls-git-ls-switches'.
 
 ** Commands
 \\<helm-ls-git-map>
-\\[helm-ls-git-run-grep]\t\tRun git-grep.
-\\[helm-ff-run-gid]\t\tRun Gid.
-\\[helm-ls-git-ls-files-show-others]\t\tToggle tracked/non tracked files view.
-\\<helm-generic-files-map>
-\\[helm-ff-run-toggle-basename]\t\tToggle basename.
-\\[helm-ff-run-zgrep]\t\tRun zgrep.
-\\[helm-ff-run-pdfgrep]\t\tRun Pdfgrep on marked files.
-\\[helm-ff-run-copy-file]\t\tCopy file(s)
-\\[helm-ff-run-rename-file]\t\tRename file(s).
-\\[helm-ff-run-symlink-file]\t\tSymlink file(s).
-\\[helm-ff-run-hardlink-file]\t\tHardlink file(s).
-\\[helm-ff-run-delete-file]\t\tDelete file(s).
-\\[helm-ff-run-byte-compile-file]\t\tByte compile file(s) (C-u load) (elisp).
-\\[helm-ff-run-load-file]\t\tLoad file(s) (elisp).
-\\[helm-ff-run-ediff-file]\t\tEdiff file.
-\\[helm-ff-run-ediff-merge-file]\t\tEdiff merge file.
-\\[helm-ff-run-switch-other-window]\t\tSwitch other window.
-\\[helm-ff-properties-persistent]\t\tShow file properties.
-\\[helm-ff-run-etags]\t\tRun etags (C-u use tap, C-u C-u reload DB).
-\\[helm-yank-text-at-point]\t\tYank text at point.
-\\[helm-ff-run-open-file-externally]\t\tOpen file with external program (C-u to choose).
-\\[helm-ff-run-open-file-with-default-tool]\t\tOpen file externally with default tool.
-\\[helm-ff-run-insert-org-link]\t\tInsert org link.")
+|Keys|Description
+|-----------+----------|
+|\\[helm-ls-git-run-grep]|Run git-grep.
+|\\[helm-ff-run-gid]|Run Gid.
+|\\[helm-ls-git-ls-files-show-others]|Toggle tracked/non tracked files view.
+|\\<helm-generic-files-map>
+|\\[helm-ff-run-toggle-basename]|Toggle basename.
+|\\[helm-ff-run-zgrep]|Run zgrep.
+|\\[helm-ff-run-pdfgrep]|Run Pdfgrep on marked files.
+|\\[helm-ff-run-copy-file]|Copy file(s)
+|\\[helm-ff-run-rename-file]|Rename file(s).
+|\\[helm-ff-run-symlink-file]|Symlink file(s).
+|\\[helm-ff-run-hardlink-file]|Hardlink file(s).
+|\\[helm-ff-run-delete-file]|Delete file(s).
+|\\[helm-ff-run-byte-compile-file]|Byte compile file(s) (C-u load) (elisp).
+|\\[helm-ff-run-load-file]|Load file(s) (elisp).
+|\\[helm-ff-run-ediff-file]|Ediff file.
+|\\[helm-ff-run-ediff-merge-file]|Ediff merge file.
+|\\[helm-ff-run-switch-other-window]|Switch other window.
+|\\[helm-ff-properties-persistent]|Show file properties.
+|\\[helm-ff-run-etags]|Run etags (C-u use tap, C-u C-u reload DB).
+|\\[helm-yank-text-at-point]|Yank text at point.
+|\\[helm-ff-run-open-file-externally]|Open file with external program (C-u to choose).
+|\\[helm-ff-run-open-file-with-default-tool]|Open file externally with default tool.
+|\\[helm-ff-run-insert-org-link]|Insert org link.")
 
 
 
