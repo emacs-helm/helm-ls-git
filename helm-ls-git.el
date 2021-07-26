@@ -30,7 +30,7 @@
 (defvaralias 'helm-c-source-ls-git-status 'helm-source-ls-git-status)
 (make-obsolete-variable 'helm-c-source-ls-git-status 'helm-source-ls-git-status "1.5.1")
 
-(defvar inhibit-magit-refresh)
+(defvar magit-inhibit-refresh)
 (declare-function magit-stage-file "ext:magit-apply")
 (declare-function magit-unstage-file "ext:magit-apply")
 (declare-function magit-commit "ext:magit-commit")
