@@ -624,7 +624,7 @@ See docstring of `helm-ls-git-ls-switches'.
   (require 'magit-commit nil t)
   (let ((default-directory (file-name-directory candidate)))
     (if (fboundp 'magit-commit)
-        (let ((inhibit-magit-refresh t))
+        (let ((magit-inhibit-refresh t))
           (call-interactively 'magit-commit))
       (helm-ls-git-commit-files))))
 
