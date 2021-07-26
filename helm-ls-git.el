@@ -30,7 +30,7 @@
 (defvaralias 'helm-c-source-ls-git-status 'helm-source-ls-git-status)
 (make-obsolete-variable 'helm-c-source-ls-git-status 'helm-source-ls-git-status "1.5.1")
 
-(defvar inhibit-magit-refresh)
+(defvar magit-inhibit-refresh)
 (declare-function magit-stage-file "ext:magit-apply")
 (declare-function magit-unstage-file "ext:magit-apply")
 (declare-function magit-commit "ext:magit-commit")
@@ -607,7 +607,7 @@ See docstring of `helm-ls-git-ls-switches'.
   (require 'magit-commit nil t)
   (let ((default-directory (file-name-directory candidate)))
     (if (fboundp 'magit-commit-extend)
-        (let ((inhibit-magit-refresh t))
+        (let ((magit-inhibit-refresh t))
           (magit-commit-extend))
       (process-file "git" nil nil nil "commit" "--amend" "--no-edit"))))
 
@@ -615,7 +615,7 @@ See docstring of `helm-ls-git-ls-switches'.
   (require 'magit-commit nil t)
   (let ((default-directory (file-name-directory candidate)))
     (if (fboundp 'magit-commit-amend)
-        (let ((inhibit-magit-refresh t))
+        (let ((magit-inhibit-refresh t))
           (magit-commit-amend))
       (process-file "git" nil nil nil "commit" "--amend"))))
 
