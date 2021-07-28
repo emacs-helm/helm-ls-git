@@ -33,7 +33,7 @@
 (defvar magit-inhibit-refresh)
 (declare-function magit-stage-file "ext:magit-apply")
 (declare-function magit-unstage-file "ext:magit-apply")
-(declare-function magit-commit "ext:magit-commit")
+(declare-function magit-commit-create "ext:magit-commit")
 
 ;; Define the sources.
 (defvar helm-source-ls-git-status nil
@@ -625,7 +625,7 @@ See docstring of `helm-ls-git-ls-switches'.
   (let ((default-directory (file-name-directory candidate)))
     (if (fboundp 'magit-commit)
         (let ((magit-inhibit-refresh t))
-          (magit-commit))
+          (magit-commit-create))
       (helm-ls-git-commit-files))))
 
 (defun helm-ls-git-commit-files ()
