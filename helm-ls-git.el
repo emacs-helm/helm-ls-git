@@ -293,9 +293,8 @@ See docstring of `helm-ls-git-ls-switches'.
     (helm-force-update)))
 (put 'helm-ls-git-ls-switches 'helm-only t)
 
-(cl-defun helm-ls-git-root-dir (&optional (directory default-directory))
-  (let ((root (locate-dominating-file directory ".git")))
-    (and root (file-name-as-directory root))))
+(defun helm-ls-git-root-dir (&optional directory)
+  (locate-dominating-file directory (or directory default-directory)) ".git")
 
 (defun helm-ls-git-not-inside-git-repo ()
   (not (helm-ls-git-root-dir)))
