@@ -294,7 +294,7 @@ See docstring of `helm-ls-git-ls-switches'.
 (put 'helm-ls-git-ls-switches 'helm-only t)
 
 (defun helm-ls-git-root-dir (&optional directory)
-  (locate-dominating-file directory (or directory default-directory)) ".git")
+  (locate-dominating-file (or directory default-directory) ".git"))
 
 (defun helm-ls-git-not-inside-git-repo ()
   (not (helm-ls-git-root-dir)))
@@ -344,7 +344,7 @@ See docstring of `helm-ls-git-ls-switches'.
           (unless (zerop ret)
             (erase-buffer)
             (call-process "git" nil t nil "rev-parse" "--short" "HEAD")))
-        (buffer-substring-no-properties ((point-min))
+        (buffer-substring-no-properties (point-min)
                                         (line-end-position)))))
 
 (defun helm-ls-git-header-name (name)
