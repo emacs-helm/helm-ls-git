@@ -344,7 +344,7 @@ See docstring of `helm-ls-git-ls-switches'.
           (unless (zerop ret)
             (erase-buffer)
             (call-process "git" nil t nil "rev-parse" "--short" "HEAD")))
-        (buffer-substring-no-properties (goto-char (point-min))
+        (buffer-substring-no-properties (point-min)
                                         (line-end-position)))))
 
 (defun helm-ls-git-header-name (name)
