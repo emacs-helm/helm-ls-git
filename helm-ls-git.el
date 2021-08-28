@@ -90,7 +90,8 @@ If you want to use magit use `magit-status-setup-buffer' and not
 (defcustom helm-ls-git-default-sources '(helm-source-ls-git-status
                                          helm-ls-git-branches-source
                                          helm-source-ls-git-buffers
-                                         helm-source-ls-git)
+                                         helm-source-ls-git
+                                         helm-ls-git-create-branch-source)
   "Default sources for `helm-ls-git-ls'."
   :group 'helm-ls-git
   :type '(repeat symbol))
@@ -497,9 +498,27 @@ See docstring of `helm-ls-git-ls-switches'.
               (message "Switched to %s branch" real)
             (error "Process exit with non zero status")))))))
 
-;; TODO
-;; [ ] Add delete branch action.
-;; [ ] Add dummy source for new branch.
+(defun helm-ls-git-branches-create (candidate)
+  (with-helm-default-directory (helm-ls-git-root-dir)
+    (call-process "git" nil nil nil "checkout" "-B" candidate "-t" (helm-ls-git--branch))))
+
+(defun helm-ls-git-branches-delete (candidate)
+  (with-helm-default-directory (helm-ls-git-root-dir)
+    (let ((branch (replace-regexp-in-string "[ ]" "" candidate)))
+      (cl-assert (not (string-match "\\`[*]" candidate)) nil "Can't delete current branch")
+      (when (y-or-n-p (format "Really delete branch %s?" branch))
+        (if (= (call-process "git" nil nil nil "branch" "-d" branch) 0)
+            (message "Branch %s deleted succesfully" branch)
+          (message "failed to delete branch %s" branch))))))
+
+(defvar helm-ls-git-create-branch-source
+  (helm-build-dummy-source "Create branch"
+    :filtered-candidate-transformer
+    (lambda (_candidates _source)
+      (list (or (and (not (string= helm-pattern ""))
+                     helm-pattern)
+                "Enter new branch name")))
+    :action 'helm-ls-git-branches-create))
 
 (defun helm-ls-git-branches-transformer (candidates)
   (cl-loop for c in candidates
@@ -519,7 +538,8 @@ See docstring of `helm-ls-git-ls-switches'.
               (helm-init-candidates-in-buffer 'global data)))
     :candidate-transformer 'helm-ls-git-branches-transformer
     :cleanup (lambda () (setq helm-ls-git-branches-show-all nil))
-    :action '(("Checkout" . helm-ls-git-check-out))
+    :action '(("Checkout" . helm-ls-git-check-out)
+              ("Delete" . helm-ls-git-branches-delete))
     :keymap 'helm-ls-git-branches-map))
 
 
