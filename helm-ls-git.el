@@ -88,6 +88,7 @@ If you want to use magit use `magit-status-setup-buffer' and not
 (make-obsolete-variable 'helm-ls-git-grep-command 'helm-grep-git-grep-command "1.8.0")
 
 (defcustom helm-ls-git-default-sources '(helm-source-ls-git-status
+                                         helm-ls-git-branches-source
                                          helm-source-ls-git-buffers
                                          helm-source-ls-git)
   "Default sources for `helm-ls-git-ls'."
@@ -152,6 +153,16 @@ See Issue #52."
 (defface helm-ls-git-conflict-face
     '((t :foreground "MediumVioletRed"))
   "Files which contain rebase/merge conflicts."
+  :group 'helm-ls-git)
+
+(defface helm-ls-git-branches-current
+    '((t :foreground "gold"))
+  "Color of the start prefixing current branch."
+  :group 'helm-ls-git)
+
+(defface helm-ls-git-branches-name
+    '((t :foreground "red"))
+  "Color of branches names."
   :group 'helm-ls-git)
 
 
@@ -440,6 +451,67 @@ See docstring of `helm-ls-git-ls-switches'.
   (pop-to-buffer "*helm ls log*")
   (goto-char (point-min))
   (diff-mode))
+
+
+;;; Git branch basic management
+;;
+(defvar helm-ls-git-branches-show-all nil)
+
+(defun helm-ls-git-collect-branches (&optional arg)
+  (helm-aif (helm-ls-git-root-dir)
+      (with-helm-default-directory it
+        (with-output-to-string
+          (with-current-buffer standard-output
+            (cond ((null arg)
+                   ;; Only local branches.
+                   (apply #'call-process "git" nil t nil '("branch")))
+                  (t
+                   (apply #'call-process "git" nil t nil '("branch" "-a")))))))
+    ""))
+
+(defun helm-ls-git-branches-toggle-show-all ()
+  (interactive)
+  (setq helm-ls-git-branches-show-all (not helm-ls-git-branches-show-all))
+  (helm-force-update))
+
+(defvar helm-ls-git-branches-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map helm-map)
+    (define-key map (kbd "C-c b") 'helm-ls-git-branches-toggle-show-all)
+    map))
+
+(defun helm-ls-git-check-out (candidate)
+  (with-helm-current-buffer
+    (let* ((branch (replace-regexp-in-string "[ ]" "" candidate)) 
+           (real (replace-regexp-in-string "\\`\\*" "" branch)))
+      (if (string-match "\\`[*]" candidate)
+          (message "Already on %s branch" real)
+        (let ((status (apply #'call-process
+                             "git" nil nil nil
+                             `("checkout" "-q" ,real))))
+          (if (= status 0)
+              (message "Switched to %s branch" real)
+            (error "Process exit with non zero status")))))))
+
+(defun helm-ls-git-branches-transformer (candidates)
+  (cl-loop for c in candidates
+           collect (if (string-match "\\`\\([*]\\)\\(.*\\)" c)
+                       (format "%s%s"
+                               (propertize (match-string 1 c)
+                                           'face 'helm-ls-git-branches-current)
+                               (propertize (match-string 2 c)
+                                           'face 'helm-ls-git-branches-name))
+                     (propertize c 'face '((:foreground "red"))))))
+
+(defvar helm-ls-git-branches-source
+  (helm-build-in-buffer-source "Git branches"
+    :init (lambda ()
+            (let ((data (helm-ls-git-collect-branches
+                         helm-ls-git-branches-show-all)))
+              (helm-init-candidates-in-buffer 'global data)))
+    :candidate-transformer 'helm-ls-git-branches-transformer
+    :action '(("Checkout" . helm-ls-git-check-out))
+    :keymap 'helm-ls-git-branches-map))
 
 
 (defun helm-ls-git-status ()
