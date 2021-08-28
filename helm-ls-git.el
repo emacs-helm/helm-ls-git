@@ -537,9 +537,13 @@ See docstring of `helm-ls-git-ls-switches'.
                          helm-ls-git-branches-show-all)))
               (helm-init-candidates-in-buffer 'global data)))
     :candidate-transformer 'helm-ls-git-branches-transformer
+    :action-transformer (lambda (actions candidate)
+                          (if (string-match "\\`[*]" candidate)
+                              actions
+                            (helm-append-at-nth
+                             actions '(("Delete" . helm-ls-git-branches-delete)) 1)))
     :cleanup (lambda () (setq helm-ls-git-branches-show-all nil))
-    :action '(("Checkout" . helm-ls-git-check-out)
-              ("Delete" . helm-ls-git-branches-delete))
+    :action '(("Checkout" . helm-ls-git-check-out))
     :keymap 'helm-ls-git-branches-map))
 
 
