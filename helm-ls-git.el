@@ -481,7 +481,7 @@ See docstring of `helm-ls-git-ls-switches'.
     map))
 
 (defun helm-ls-git-check-out (candidate)
-  (with-helm-current-buffer
+  (with-helm-default-directory (file-name-directory candidate)
     (let* ((branch (replace-regexp-in-string "[ ]" "" candidate)) 
            (real (replace-regexp-in-string "\\`\\*" "" branch)))
       (if (string-match "\\`[*]" candidate)
