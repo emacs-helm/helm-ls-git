@@ -481,7 +481,7 @@ See docstring of `helm-ls-git-ls-switches'.
     map))
 
 (defun helm-ls-git-check-out (candidate)
-  (with-helm-default-directory (file-name-directory candidate)
+  (with-helm-default-directory (helm-ls-git-root-dir)
     (let* ((branch (replace-regexp-in-string "[ ]" "" candidate)) 
            (real (replace-regexp-in-string "\\`\\*" "" branch)))
       (if (string-match "\\`[*]" candidate)
@@ -496,6 +496,10 @@ See docstring of `helm-ls-git-ls-switches'.
           (if (= status 0)
               (message "Switched to %s branch" real)
             (error "Process exit with non zero status")))))))
+
+;; TODO
+;; [ ] Add delete branch action.
+;; [ ] Add dummy source for new branch.
 
 (defun helm-ls-git-branches-transformer (candidates)
   (cl-loop for c in candidates
@@ -514,6 +518,7 @@ See docstring of `helm-ls-git-ls-switches'.
                          helm-ls-git-branches-show-all)))
               (helm-init-candidates-in-buffer 'global data)))
     :candidate-transformer 'helm-ls-git-branches-transformer
+    :cleanup (lambda () (setq helm-ls-git-branches-show-all nil))
     :action '(("Checkout" . helm-ls-git-check-out))
     :keymap 'helm-ls-git-branches-map))
 
