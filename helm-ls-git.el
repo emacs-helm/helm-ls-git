@@ -486,9 +486,13 @@ See docstring of `helm-ls-git-ls-switches'.
            (real (replace-regexp-in-string "\\`\\*" "" branch)))
       (if (string-match "\\`[*]" candidate)
           (message "Already on %s branch" real)
-        (let ((status (apply #'call-process
-                             "git" nil nil nil
-                             `("checkout" "-q" ,real))))
+        (let* ((switches (if (string-match "\\`[Rr]emotes" real)
+                             `("checkout" "-b"
+                               ,(car (last (split-string real "/" t))) "-t" ,real)
+                           `("checkout" ,real)))
+               (status (apply #'call-process "git"
+                              nil nil nil
+                             switches)))
           (if (= status 0)
               (message "Switched to %s branch" real)
             (error "Process exit with non zero status")))))))
