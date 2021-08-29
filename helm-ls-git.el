@@ -593,14 +593,48 @@ See docstring of `helm-ls-git-ls-switches'.
                        nil (list t helm-ls-git-log-file) nil
                        (list "stash" "list")))))))
 
+(defun helm-ls-git-get-stash-number (candidate)
+  (when (string-match "stash@[{]\\([0-9]\\)[}]" candidate)
+    (match-string 1 candidate)))
+
+(defun helm-ls-git-revert-buffers-in-project ()
+  (cl-loop for buf in (helm-browse-project-get-buffers (helm-ls-git-root-dir))
+           do (with-current-buffer buf (revert-buffer nil t))))
+
+(defun helm-ls-git-stash-apply (candidate)
+  (let ((num (helm-ls-git-get-stash-number candidate)))
+    (if (eq (call-process "git" nil nil nil "stash" "apply" num) 0)
+        (progn
+          (helm-ls-git-revert-buffers-in-project)
+          (message "Stash %s applied" candidate))
+      (error "Couldn't apply stash %s" candidate))))
+
+(defun helm-ls-git-stash-pop (candidate)
+  (let ((num (helm-ls-git-get-stash-number candidate)))
+    (if (eq (call-process "git" nil nil nil "stash" "pop" num) 0)
+        (progn
+          (helm-ls-git-revert-buffers-in-project)
+          (message "Stashed pop %s" candidate))
+      (error "Couldn't stash pop %s" candidate))))
+
+(defun helm-ls-git-stash (_candidate)
+  (vc-git-stash (read-string "Stash name: ")))
+
+(defun helm-ls-git-stash-snapshot (_candidate)
+  (vc-git-stash-snapshot))
+
+(defun helm-ls-git-stash-drop (candidate)
+  (let ((num (helm-ls-git-get-stash-number candidate)))
+    (if (eq (call-process "git" nil nil nil "stash" "drop" num) 0)
+        (message "Stash %s deleted" candidate)
+      (error "Couldn't delete %s" candidate))))
+
 (defvar helm-ls-git-stashes-source
   (helm-build-in-buffer-source "Stashes"
     :data 'helm-ls-git-list-stashes
     :action '(("Apply" . vc-git-stash-apply)
               ("Pop" . vc-git-stash-pop)
-              ("Snapshot" . (lambda (_candidate)
-                              (vc-git-stash-snapshot)))
-              ("Drop" . vc-git-stash-delete))))
+              ("Drop" . helm-ls-git-stash-drop))))
 
 (defun helm-ls-git-status ()
   (when (and helm-ls-git-log-file
@@ -711,7 +745,8 @@ See docstring of `helm-ls-git-ls-switches'.
                                . helm-ls-git-stage-marked-and-extend-commit)
                               ("Stage marked file(s) and amend commit"
                                . helm-ls-git-stage-marked-and-amend-commit)
-                              ("Stash" . (lambda (_candidate) (vc-git-stash (read-string "Stash name: ")))))
+                              ("Stash" . helm-ls-git-stash)
+                              ("Stash snapshot" . helm-ls-git-stash-snapshot))
                             1)))
           ;; Modified and staged
           ((string-match "^M+ *" disp)
