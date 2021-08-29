@@ -629,12 +629,16 @@ See docstring of `helm-ls-git-ls-switches'.
         (message "Stash %s deleted" candidate)
       (error "Couldn't delete %s" candidate))))
 
+(defun helm-ls-git-stash-drop-marked (_candidate)
+  (let ((mkd (helm-marked-candidates)))
+    (cl-loop for c in mkd do (helm-ls-git-stash-drop c))))
+
 (defvar helm-ls-git-stashes-source
   (helm-build-in-buffer-source "Stashes"
     :data 'helm-ls-git-list-stashes
     :action '(("Apply" . vc-git-stash-apply)
               ("Pop" . vc-git-stash-pop)
-              ("Drop" . helm-ls-git-stash-drop))))
+              ("Drop" . helm-ls-git-stash-drop-marked))))
 
 (defun helm-ls-git-status ()
   (when (and helm-ls-git-log-file
