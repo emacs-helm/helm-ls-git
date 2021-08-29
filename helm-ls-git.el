@@ -91,6 +91,7 @@ If you want to use magit use `magit-status-setup-buffer' and not
                                          helm-ls-git-branches-source
                                          helm-source-ls-git-buffers
                                          helm-source-ls-git
+                                         helm-ls-git-stashes-source
                                          helm-ls-git-create-branch-source)
   "Default sources for `helm-ls-git-ls'."
   :group 'helm-ls-git
@@ -580,6 +581,27 @@ See docstring of `helm-ls-git-ls-switches'.
     :keymap 'helm-ls-git-branches-map))
 
 
+;;; Stashing
+;;
+(defun helm-ls-git-list-stashes ()
+  (helm-aif (helm-ls-git-root-dir)
+      (with-helm-default-directory it
+          (with-output-to-string
+              (with-current-buffer standard-output
+                (apply #'process-file
+                       "git"
+                       nil (list t helm-ls-git-log-file) nil
+                       (list "stash" "list")))))))
+
+(defvar helm-ls-git-stashes-source
+  (helm-build-in-buffer-source "Stashes"
+    :data 'helm-ls-git-list-stashes
+    :action '(("Apply" . vc-git-stash-apply)
+              ("Pop" . vc-git-stash-pop)
+              ("Snapshot" . (lambda (_candidate)
+                              (vc-git-stash-snapshot)))
+              ("Drop" . vc-git-stash-delete))))
+
 (defun helm-ls-git-status ()
   (when (and helm-ls-git-log-file
              (file-exists-p helm-ls-git-log-file))
@@ -688,7 +710,8 @@ See docstring of `helm-ls-git-ls-switches'.
                               ("Stage marked file(s) and extend commit"
                                . helm-ls-git-stage-marked-and-extend-commit)
                               ("Stage marked file(s) and amend commit"
-                               . helm-ls-git-stage-marked-and-amend-commit))
+                               . helm-ls-git-stage-marked-and-amend-commit)
+                              ("Stash" . (lambda (_candidate) (vc-git-stash (read-string "Stash name: ")))))
                             1)))
           ;; Modified and staged
           ((string-match "^M+ *" disp)
