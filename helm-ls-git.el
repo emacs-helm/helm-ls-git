@@ -482,6 +482,7 @@ See docstring of `helm-ls-git-ls-switches'.
     map))
 
 (defun helm-ls-git-check-out (candidate)
+  (cl-assert (not (helm-ls-git-modified-p)) nil "Please commit or stash your changes before proceeding")
   (with-helm-default-directory (helm-ls-git-root-dir)
     (let* ((branch (replace-regexp-in-string "[ ]" "" candidate)) 
            (real (replace-regexp-in-string "\\`\\*" "" branch)))
@@ -510,6 +511,10 @@ See docstring of `helm-ls-git-ls-switches'.
         (if (= (call-process "git" nil nil nil "branch" "-d" branch) 0)
             (message "Branch %s deleted successfully" branch)
           (message "failed to delete branch %s" branch))))))
+
+(defun helm-ls-git-modified-p ()
+  (with-helm-default-directory (helm-ls-git-root-dir)
+    (not (string= (helm-ls-git-status) ""))))
 
 (defun helm-ls-git-branches-merge (candidate)
   (with-helm-default-directory (helm-ls-git-root-dir)
