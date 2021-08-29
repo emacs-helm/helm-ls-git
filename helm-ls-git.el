@@ -575,6 +575,9 @@ See docstring of `helm-ls-git-ls-switches'.
                                1)
                             actions))
     :cleanup (lambda () (setq helm-ls-git-branches-show-all nil))
+    :persistent-action (lambda (candidate)
+                         (helm-ls-git-check-out candidate)
+                         (helm-force-update))
     :action '(("Git status" . (lambda (_candidate)
                                 (funcall helm-ls-git-status-command
                                          (helm-default-directory)))))
