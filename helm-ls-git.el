@@ -536,13 +536,27 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-branches-transformer (candidates)
   (cl-loop for c in candidates
-           collect (if (string-match "\\`\\([*]\\)\\(.*\\)" c)
-                       (format "%s%s"
-                               (propertize (match-string 1 c)
-                                           'face 'helm-ls-git-branches-current)
-                               (propertize (match-string 2 c)
-                                           'face 'helm-ls-git-branches-name))
-                     (propertize c 'face '((:foreground "red"))))))
+           for maxlen = (cl-loop for i in candidates maximize (length i))
+           for name = (replace-regexp-in-string "[ *]" "" c)
+           for log = (with-temp-buffer
+                       (call-process "git" nil t nil "log" name "-n" "1")
+                       (goto-char (point-min))
+                       (if (re-search-forward "^ +" nil t)
+                           (buffer-substring-no-properties (point) (point-at-eol))
+                         "--"))
+           for disp = (if (string-match "\\`\\([*]\\)\\(.*\\)" c)
+                          (format "%s%s: %s%s"
+                                  (propertize (match-string 1 c)
+                                              'face 'helm-ls-git-branches-current)
+                                  (propertize (match-string 2 c)
+                                              'face 'helm-ls-git-branches-name)
+                                  (make-string (- maxlen (length c)) ? )
+                                  log)
+                        (format "%s: %s%s"
+                                (propertize c 'face '((:foreground "red")))
+                                (make-string (- maxlen (length c)) ? )
+                                log))
+           collect (cons disp c)))
 
 (defvar helm-ls-git-branches-source
   (helm-build-in-buffer-source "Git branches"
