@@ -602,6 +602,7 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-revert-buffers-in-project ()
   (cl-loop for buf in (helm-browse-project-get-buffers (helm-ls-git-root-dir))
+           when (buffer-file-name (get-buffer buf))
            do (with-current-buffer buf (revert-buffer nil t))))
 
 (defun helm-ls-git-stash-apply (candidate)
@@ -639,8 +640,8 @@ See docstring of `helm-ls-git-ls-switches'.
 (defvar helm-ls-git-stashes-source
   (helm-build-in-buffer-source "Stashes"
     :data 'helm-ls-git-list-stashes
-    :action '(("Apply" . vc-git-stash-apply)
-              ("Pop" . vc-git-stash-pop)
+    :action '(("Apply" . helm-ls-git-stash-apply)
+              ("Pop" . helm-ls-git-stash-pop)
               ("Drop" . helm-ls-git-stash-drop-marked))))
 
 (defun helm-ls-git-status ()
