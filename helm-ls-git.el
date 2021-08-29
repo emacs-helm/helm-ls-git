@@ -511,6 +511,15 @@ See docstring of `helm-ls-git-ls-switches'.
             (message "Branch %s deleted successfully" branch)
           (message "failed to delete branch %s" branch))))))
 
+(defun helm-ls-git-branches-merge (candidate)
+  (with-helm-default-directory (helm-ls-git-root-dir)
+    (let ((branch (replace-regexp-in-string "[ ]" "" candidate))
+          (current (helm-ls-git--branch)))
+      (when (y-or-n-p (format "Merge branch %s into %s?" branch current))
+        (if (= (call-process "git" nil nil nil "merge" branch) 0)
+            (message "Branch %s merged successfully into %s" branch current)
+          (message "failed to merge branch %s" branch))))))
+
 (defvar helm-ls-git-create-branch-source
   (helm-build-dummy-source "Create branch"
     :filtered-candidate-transformer
@@ -541,7 +550,9 @@ See docstring of `helm-ls-git-ls-switches'.
                           (if (string-match "\\`[*]" candidate)
                               actions
                             (helm-append-at-nth
-                             actions '(("Delete" . helm-ls-git-branches-delete)) 1)))
+                             actions '(("Delete" . helm-ls-git-branches-delete)
+                                       ("Merge in current" . helm-ls-git-branches-merge))
+                             1)))
     :cleanup (lambda () (setq helm-ls-git-branches-show-all nil))
     :action '(("Checkout" . helm-ls-git-check-out))
     :keymap 'helm-ls-git-branches-map))
