@@ -552,14 +552,17 @@ See docstring of `helm-ls-git-ls-switches'.
               (helm-init-candidates-in-buffer 'global data)))
     :candidate-transformer 'helm-ls-git-branches-transformer
     :action-transformer (lambda (actions candidate)
-                          (if (string-match "\\`[*]" candidate)
-                              actions
-                            (helm-append-at-nth
-                             actions '(("Delete" . helm-ls-git-branches-delete)
-                                       ("Merge in current" . helm-ls-git-branches-merge))
-                             1)))
+                          (if (not (string-match "\\`[*]" candidate))
+                              (helm-append-at-nth
+                               actions '(("Checkout" . helm-ls-git-check-out)
+                                         ("Delete" . helm-ls-git-branches-delete)
+                                         ("Merge in current" . helm-ls-git-branches-merge))
+                               1)
+                            actions))
     :cleanup (lambda () (setq helm-ls-git-branches-show-all nil))
-    :action '(("Checkout" . helm-ls-git-check-out))
+    :action '(("Git status" . (lambda (_candidate)
+                                (funcall helm-ls-git-status-command
+                                         (helm-default-directory)))))
     :keymap 'helm-ls-git-branches-map))
 
 
