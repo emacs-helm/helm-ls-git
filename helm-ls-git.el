@@ -597,13 +597,22 @@ See docstring of `helm-ls-git-ls-switches'.
                        (list "stash" "list")))))))
 
 (defun helm-ls-git-get-stash-number (candidate)
-  (when (string-match "stash@[{]\\([0-9]\\)[}]" candidate)
-    (match-string 1 candidate)))
+  (when (string-match "stash@[{][0-9]+[}]" candidate)
+    (match-string 0 candidate)))
 
 (defun helm-ls-git-revert-buffers-in-project ()
   (cl-loop for buf in (helm-browse-project-get-buffers (helm-ls-git-root-dir))
            when (buffer-file-name (get-buffer buf))
            do (with-current-buffer buf (revert-buffer nil t))))
+
+(defun helm-ls-git-stash-show (candidate)
+  (let ((stash (helm-ls-git-get-stash-number candidate)))
+    (with-current-buffer (get-buffer-create "*stash diff*")
+      (insert
+       (with-output-to-string
+         (with-current-buffer standard-output
+           (call-process "git" nil nil nil "stash" "show" stash))))
+      (display-buffer (current-buffer)))))
 
 (defun helm-ls-git-stash-apply (candidate)
   (let ((num (helm-ls-git-get-stash-number candidate)))
@@ -640,6 +649,7 @@ See docstring of `helm-ls-git-ls-switches'.
 (defvar helm-ls-git-stashes-source
   (helm-build-in-buffer-source "Stashes"
     :data 'helm-ls-git-list-stashes
+    :persistent-action 'helm-ls-git-stash-show
     :action '(("Apply" . helm-ls-git-stash-apply)
               ("Pop" . helm-ls-git-stash-pop)
               ("Drop" . helm-ls-git-stash-drop-marked))))
