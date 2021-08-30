@@ -596,7 +596,7 @@ See docstring of `helm-ls-git-ls-switches'.
                        nil (list t helm-ls-git-log-file) nil
                        (list "stash" "list")))))))
 
-(defun helm-ls-git-get-stash-number (candidate)
+(defun helm-ls-git-get-stash-name (candidate)
   (when (string-match "stash@[{][0-9]+[}]" candidate)
     (match-string 0 candidate)))
 
@@ -606,7 +606,7 @@ See docstring of `helm-ls-git-ls-switches'.
            do (with-current-buffer buf (revert-buffer nil t))))
 
 (defun helm-ls-git-stash-show (candidate)
-  (let ((stash (helm-ls-git-get-stash-number candidate)))
+  (let ((stash (helm-ls-git-get-stash-name candidate)))
     (with-current-buffer (get-buffer-create "*stash diff*")
       (insert
        (with-output-to-string
@@ -615,7 +615,7 @@ See docstring of `helm-ls-git-ls-switches'.
       (display-buffer (current-buffer)))))
 
 (defun helm-ls-git-stash-apply (candidate)
-  (let ((num (helm-ls-git-get-stash-number candidate)))
+  (let ((num (helm-ls-git-get-stash-name candidate)))
     (if (eq (call-process "git" nil nil nil "stash" "apply" num) 0)
         (progn
           (helm-ls-git-revert-buffers-in-project)
@@ -623,7 +623,7 @@ See docstring of `helm-ls-git-ls-switches'.
       (error "Couldn't apply stash %s" candidate))))
 
 (defun helm-ls-git-stash-pop (candidate)
-  (let ((num (helm-ls-git-get-stash-number candidate)))
+  (let ((num (helm-ls-git-get-stash-name candidate)))
     (if (eq (call-process "git" nil nil nil "stash" "pop" num) 0)
         (progn
           (helm-ls-git-revert-buffers-in-project)
@@ -637,7 +637,7 @@ See docstring of `helm-ls-git-ls-switches'.
   (vc-git-stash-snapshot))
 
 (defun helm-ls-git-stash-drop (candidate)
-  (let ((num (helm-ls-git-get-stash-number candidate)))
+  (let ((num (helm-ls-git-get-stash-name candidate)))
     (if (eq (call-process "git" nil nil nil "stash" "drop" num) 0)
         (message "Stash %s deleted" candidate)
       (error "Couldn't delete %s" candidate))))
