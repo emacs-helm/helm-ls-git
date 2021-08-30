@@ -606,13 +606,20 @@ See docstring of `helm-ls-git-ls-switches'.
            do (with-current-buffer buf (revert-buffer nil t))))
 
 (defun helm-ls-git-stash-show (candidate)
-  (let ((stash (helm-ls-git-get-stash-name candidate)))
-    (with-current-buffer (get-buffer-create "*stash diff*")
-      (insert
-       (with-output-to-string
-         (with-current-buffer standard-output
-           (call-process "git" nil nil nil "stash" "show" stash))))
-      (display-buffer (current-buffer)))))
+  (if (get-buffer-window "*stash diff*" 'visible)
+      (kill-buffer "*stash diff*")
+    (let ((stash (helm-ls-git-get-stash-name candidate)))
+      (with-current-buffer (get-buffer-create "*stash diff*")
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (insert (with-helm-default-directory (helm-ls-git-root-dir)
+                    (with-output-to-string
+                      (with-current-buffer standard-output
+                        (call-process
+                         "git" nil (list t helm-ls-git-log-file) nil
+                         "stash" "show" "-p" stash)))))
+          (diff-mode))
+        (display-buffer (current-buffer))))))
 
 (defun helm-ls-git-stash-apply (candidate)
   (let ((num (helm-ls-git-get-stash-name candidate)))
