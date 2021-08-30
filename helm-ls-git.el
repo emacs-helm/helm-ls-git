@@ -112,7 +112,7 @@ See Issue #52."
   :type '(repeat string)
   :group 'helm-ls-git)
 
-(defcustom helm-ls-git-auto-check-out nil
+(defcustom helm-ls-git-auto-checkout nil
   "Stash automatically uncommited changes before checking out a branch."
   :type 'boolean
   :group 'helm-ls-git)
@@ -487,8 +487,8 @@ See docstring of `helm-ls-git-ls-switches'.
     (define-key map (kbd "C-c b") 'helm-ls-git-branches-toggle-show-all)
     map))
 
-(defun helm-ls-git-check-out (candidate)
-  (if (and helm-ls-git-auto-check-out
+(defun helm-ls-git-checkout (candidate)
+  (if (and helm-ls-git-auto-checkout
            (helm-ls-git-modified-p))
       (helm-ls-git-stash-1 "")
     (cl-assert (not (helm-ls-git-modified-p))
@@ -582,14 +582,14 @@ See docstring of `helm-ls-git-ls-switches'.
     :action-transformer (lambda (actions candidate)
                           (if (not (string-match "\\`[*]" candidate))
                               (append
-                               '(("Checkout" . helm-ls-git-check-out)
+                               '(("Checkout" . helm-ls-git-checkout)
                                  ("Delete" . helm-ls-git-branches-delete)
                                  ("Merge in current" . helm-ls-git-branches-merge))
                                actions)
                             actions))
     :cleanup (lambda () (setq helm-ls-git-branches-show-all nil))
     :persistent-action (lambda (candidate)
-                         (helm-ls-git-check-out candidate)
+                         (helm-ls-git-checkout candidate)
                          (helm-force-update))
     :action '(("Git status" . (lambda (_candidate)
                                 (funcall helm-ls-git-status-command
