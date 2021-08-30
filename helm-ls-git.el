@@ -111,6 +111,11 @@ If you have problems displaying  unicode filenames use
 See Issue #52."
   :type '(repeat string)
   :group 'helm-ls-git)
+
+(defcustom helm-ls-git-auto-check-out nil
+  "Stash automatically uncommited changes before checking out a branch."
+  :type 'boolean
+  :group 'helm-ls-git)
 
 (defface helm-ls-git-modified-not-staged-face
     '((t :foreground "yellow"))
@@ -483,7 +488,11 @@ See docstring of `helm-ls-git-ls-switches'.
     map))
 
 (defun helm-ls-git-check-out (candidate)
-  (cl-assert (not (helm-ls-git-modified-p)) nil "Please commit or stash your changes before proceeding")
+  (if (and helm-ls-git-auto-check-out
+           (helm-ls-git-modified-p))
+      (helm-ls-git-stash-1 "")
+    (cl-assert (not (helm-ls-git-modified-p))
+               nil "Please commit or stash your changes before proceeding"))
   (with-helm-default-directory (helm-ls-git-root-dir)
     (let* ((branch (replace-regexp-in-string "[ ]" "" candidate)) 
            (real (replace-regexp-in-string "\\`\\*" "" branch)))
@@ -641,11 +650,14 @@ See docstring of `helm-ls-git-ls-switches'.
           (message "Stashed pop <%s>" candidate))
       (error "Couldn't stash pop <%s>" candidate))))
 
+(defun helm-ls-git-stash-1 (name)
+  (with-helm-default-directory (helm-ls-git-root-dir)
+    (apply #'call-process "git" nil nil nil `("stash" "push" "-m" ,name))
+    (helm-ls-git-revert-buffers-in-project)))
+
 (defun helm-ls-git-stash (_candidate)
   (let ((name (read-string "Stash name: ")))
-    (with-helm-default-directory (helm-ls-git-root-dir)
-      (apply #'call-process "git" nil nil nil `("stash" "push" "-m" ,name))
-      (helm-ls-git-revert-buffers-in-project))))
+    (helm-ls-git-stash-1 name)))
 
 (defun helm-ls-git-stash-snapshot (_candidate)
   (vc-git-stash-snapshot))
