@@ -642,7 +642,10 @@ See docstring of `helm-ls-git-ls-switches'.
       (error "Couldn't stash pop <%s>" candidate))))
 
 (defun helm-ls-git-stash (_candidate)
-  (vc-git-stash (read-string "Stash name: ")))
+  (let ((name (read-string "Stash name: ")))
+    (with-helm-default-directory (helm-ls-git-root-dir)
+      (apply #'call-process "git" nil nil nil `("stash" "push" "-m" ,name))
+      (helm-ls-git-revert-buffers-in-project))))
 
 (defun helm-ls-git-stash-snapshot (_candidate)
   (vc-git-stash-snapshot))
