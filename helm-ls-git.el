@@ -568,11 +568,11 @@ See docstring of `helm-ls-git-ls-switches'.
     :candidate-transformer 'helm-ls-git-branches-transformer
     :action-transformer (lambda (actions candidate)
                           (if (not (string-match "\\`[*]" candidate))
-                              (helm-append-at-nth
-                               actions '(("Checkout" . helm-ls-git-check-out)
-                                         ("Delete" . helm-ls-git-branches-delete)
-                                         ("Merge in current" . helm-ls-git-branches-merge))
-                               1)
+                              (append
+                               '(("Checkout" . helm-ls-git-check-out)
+                                 ("Delete" . helm-ls-git-branches-delete)
+                                 ("Merge in current" . helm-ls-git-branches-merge))
+                               actions)
                             actions))
     :cleanup (lambda () (setq helm-ls-git-branches-show-all nil))
     :persistent-action (lambda (candidate)
