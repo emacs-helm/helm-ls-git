@@ -535,16 +535,20 @@ See docstring of `helm-ls-git-ls-switches'.
                 "Enter new branch name")))
     :action 'helm-ls-git-branches-create))
 
+(defun helm-ls-git-oneline-log (branch)
+  (let ((output (with-output-to-string
+                  (with-current-buffer standard-output
+                    (call-process
+                     "git" nil t nil
+                     "log" (car (split-string branch "->"))
+                     "-n" "1" "--oneline")))))
+    (replace-regexp-in-string "\n" "" output)))
+
 (defun helm-ls-git-branches-transformer (candidates)
   (cl-loop for c in candidates
            for maxlen = (cl-loop for i in candidates maximize (length i))
            for name = (replace-regexp-in-string "[ *]" "" c)
-           for log = (with-temp-buffer
-                       (call-process "git" nil t nil "log" name "-n" "1")
-                       (goto-char (point-min))
-                       (if (re-search-forward "^ +" nil t)
-                           (buffer-substring-no-properties (point) (point-at-eol))
-                         "--"))
+           for log = (helm-ls-git-oneline-log name)
            for disp = (if (string-match "\\`\\([*]\\)\\(.*\\)" c)
                           (format "%s%s: %s%s"
                                   (propertize (match-string 1 c)
