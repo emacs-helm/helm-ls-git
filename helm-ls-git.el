@@ -357,11 +357,11 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git--branch ()
   (or helm-ls-git--current-branch
       (with-temp-buffer
-        (let ((ret (call-process "git" nil t nil "symbolic-ref" "--short" "HEAD")))
+        (let ((ret (process-file "git" nil t nil "symbolic-ref" "--short" "HEAD")))
           ;; Use sha of HEAD when branch name is missing.
           (unless (zerop ret)
             (erase-buffer)
-            (call-process "git" nil t nil "rev-parse" "--short" "HEAD")))
+            (process-file "git" nil t nil "rev-parse" "--short" "HEAD")))
         ;; We use here (goto-char (point-min)) instead of (point-min)
         ;; to not endup with a ^J control char at end of branch name.
         (buffer-substring-no-properties (goto-char (point-min))
@@ -471,9 +471,9 @@ See docstring of `helm-ls-git-ls-switches'.
           (with-current-buffer standard-output
             (cond ((null arg)
                    ;; Only local branches.
-                   (apply #'call-process "git" nil t nil '("branch")))
+                   (apply #'process-file "git" nil t nil '("branch")))
                   (t
-                   (apply #'call-process "git" nil t nil '("branch" "-a")))))))
+                   (apply #'process-file "git" nil t nil '("branch" "-a")))))))
     ""))
 
 (defun helm-ls-git-branches-toggle-show-all ()
@@ -502,7 +502,7 @@ See docstring of `helm-ls-git-ls-switches'.
                              `("checkout" "-b"
                                ,(car (last (split-string real "/" t))) "-t" ,real)
                            `("checkout" ,real)))
-               (status (apply #'call-process "git"
+               (status (apply #'process-file "git"
                               nil nil nil
                              switches)))
           (if (= status 0)
@@ -511,14 +511,14 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-branches-create (candidate)
   (with-helm-default-directory (helm-ls-git-root-dir)
-    (call-process "git" nil nil nil "checkout" "-B" candidate "-t" (helm-ls-git--branch))))
+    (process-file "git" nil nil nil "checkout" "-B" candidate "-t" (helm-ls-git--branch))))
 
 (defun helm-ls-git-branches-delete (candidate)
   (with-helm-default-directory (helm-ls-git-root-dir)
     (let ((branch (replace-regexp-in-string "[ ]" "" candidate)))
       (cl-assert (not (string-match "\\`[*]" candidate)) nil "Can't delete current branch")
       (when (y-or-n-p (format "Really delete branch %s?" branch))
-        (if (= (call-process "git" nil nil nil "branch" "-d" branch) 0)
+        (if (= (process-file "git" nil nil nil "branch" "-d" branch) 0)
             (message "Branch %s deleted successfully" branch)
           (message "failed to delete branch %s" branch))))))
 
@@ -531,7 +531,7 @@ See docstring of `helm-ls-git-ls-switches'.
     (let ((branch (replace-regexp-in-string "[ ]" "" candidate))
           (current (helm-ls-git--branch)))
       (when (y-or-n-p (format "Merge branch %s into %s?" branch current))
-        (if (= (call-process "git" nil nil nil "merge" branch) 0)
+        (if (= (process-file "git" nil nil nil "merge" branch) 0)
             (message "Branch %s merged successfully into %s" branch current)
           (message "failed to merge branch %s" branch))))))
 
@@ -547,7 +547,7 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-oneline-log (branch)
   (let ((output (with-output-to-string
                   (with-current-buffer standard-output
-                    (call-process
+                    (process-file
                      "git" nil t nil
                      "log" (car (split-string branch "->"))
                      "-n" "1" "--oneline")))))
@@ -628,7 +628,7 @@ See docstring of `helm-ls-git-ls-switches'.
           (insert (with-helm-default-directory (helm-ls-git-root-dir)
                     (with-output-to-string
                       (with-current-buffer standard-output
-                        (call-process
+                        (process-file
                          "git" nil (list t helm-ls-git-log-file) nil
                          "stash" "show" "-p" stash)))))
           (diff-mode))
@@ -636,7 +636,7 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-stash-apply (candidate)
   (let ((num (helm-ls-git-get-stash-name candidate)))
-    (if (eq (call-process "git" nil nil nil "stash" "apply" num) 0)
+    (if (eq (process-file "git" nil nil nil "stash" "apply" num) 0)
         (progn
           (helm-ls-git-revert-buffers-in-project)
           (message "Stash <%s> applied" candidate))
@@ -644,7 +644,7 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-stash-pop (candidate)
   (let ((num (helm-ls-git-get-stash-name candidate)))
-    (if (eq (call-process "git" nil nil nil "stash" "pop" num) 0)
+    (if (eq (process-file "git" nil nil nil "stash" "pop" num) 0)
         (progn
           (helm-ls-git-revert-buffers-in-project)
           (message "Stashed pop <%s>" candidate))
@@ -652,7 +652,7 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-stash-1 (name)
   (with-helm-default-directory (helm-ls-git-root-dir)
-    (apply #'call-process "git" nil nil nil `("stash" "push" "-m" ,name))
+    (apply #'process-file "git" nil nil nil `("stash" "push" "-m" ,name))
     (helm-ls-git-revert-buffers-in-project)))
 
 (defun helm-ls-git-stash (_candidate)
@@ -664,7 +664,7 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-stash-drop (candidate)
   (let ((num (helm-ls-git-get-stash-name candidate)))
-    (if (eq (call-process "git" nil nil nil "stash" "drop" num) 0)
+    (if (eq (process-file "git" nil nil nil "stash" "drop" num) 0)
         (message "Stash <%s> deleted" candidate)
       (error "Couldn't delete <%s>" candidate))))
 
