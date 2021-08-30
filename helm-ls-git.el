@@ -630,16 +630,16 @@ See docstring of `helm-ls-git-ls-switches'.
     (if (eq (call-process "git" nil nil nil "stash" "apply" num) 0)
         (progn
           (helm-ls-git-revert-buffers-in-project)
-          (message "Stash %s applied" candidate))
-      (error "Couldn't apply stash %s" candidate))))
+          (message "Stash <%s> applied" candidate))
+      (error "Couldn't apply stash <%s>" candidate))))
 
 (defun helm-ls-git-stash-pop (candidate)
   (let ((num (helm-ls-git-get-stash-name candidate)))
     (if (eq (call-process "git" nil nil nil "stash" "pop" num) 0)
         (progn
           (helm-ls-git-revert-buffers-in-project)
-          (message "Stashed pop %s" candidate))
-      (error "Couldn't stash pop %s" candidate))))
+          (message "Stashed pop <%s>" candidate))
+      (error "Couldn't stash pop <%s>" candidate))))
 
 (defun helm-ls-git-stash (_candidate)
   (vc-git-stash (read-string "Stash name: ")))
@@ -650,8 +650,8 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-stash-drop (candidate)
   (let ((num (helm-ls-git-get-stash-name candidate)))
     (if (eq (call-process "git" nil nil nil "stash" "drop" num) 0)
-        (message "Stash %s deleted" candidate)
-      (error "Couldn't delete %s" candidate))))
+        (message "Stash <%s> deleted" candidate)
+      (error "Couldn't delete <%s>" candidate))))
 
 (defun helm-ls-git-stash-drop-marked (_candidate)
   (let ((mkd (helm-marked-candidates)))
