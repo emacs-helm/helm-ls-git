@@ -507,6 +507,11 @@ See docstring of `helm-ls-git-ls-switches'.
   (if (get-buffer-window "*git log diff*" 'visible)
       (kill-buffer "*git log diff*")
     (helm-ls-git-log-show-commit-1 candidate)))
+
+(defun helm-ls-git-run-show-log ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action #'helm-ls-git-show-log)))
 
 ;;; Git branch basic management
 ;;
@@ -533,6 +538,7 @@ See docstring of `helm-ls-git-ls-switches'.
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map helm-map)
     (define-key map (kbd "C-c b") 'helm-ls-git-branches-toggle-show-all)
+    (define-key map (kbd "M-L") 'helm-ls-git-run-show-log)
     map))
 
 (defun helm-ls-git-checkout (candidate)
