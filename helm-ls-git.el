@@ -465,7 +465,7 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-log (&optional branch)
   (let ((switches `("log" "--color"
                     "--pretty=format:%C(yellow)%h%Creset \
- %C(green)%ci%Creset %<(60,trunc)%s %Cred%an%Creset%n"
+ %C(green)%ci%Creset %<(60,trunc)%s %Cred%an%Creset %d %n"
                     "-n" "500"
                     ,(or branch ""))))
 
