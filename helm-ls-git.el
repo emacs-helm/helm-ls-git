@@ -488,7 +488,7 @@ See docstring of `helm-ls-git-ls-switches'.
                                 collect (helm--ansi-color-apply c))))
           :buffer "*helm-ls-git log*")))
 
-(defun helm-ls-git-log-show-commit (candidate)
+(defun helm-ls-git-log-show-commit-1 (candidate)
   (let ((sha (car (split-string candidate))))
     (with-current-buffer (get-buffer-create "*git log diff*")
       (let ((inhibit-read-only t))
@@ -502,6 +502,11 @@ See docstring of `helm-ls-git-ls-switches'.
                        "show" "-p" sha)))))
         (diff-mode))
       (display-buffer (current-buffer)))))
+
+(defun helm-ls-git-log-show-commit (candidate)
+  (if (get-buffer-window "*git log diff*" 'visible)
+      (kill-buffer "*git log diff*")
+    (helm-ls-git-log-show-commit-1 candidate)))
 
 ;;; Git branch basic management
 ;;
