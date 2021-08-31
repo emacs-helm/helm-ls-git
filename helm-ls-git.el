@@ -479,7 +479,7 @@ See docstring of `helm-ls-git-ls-switches'.
          (str (helm-ls-git-log name)))
     (when (buffer-live-p "*git log diff*")
       (kill-buffer "*git log diff*"))
-    (helm :sources (helm-build-in-buffer-source "Git log"
+    (helm :sources (helm-build-in-buffer-source (format "Git log (%s)" name)
                      :data str
                      :action '(("Show commit" . helm-ls-git-log-show-commit))
                      :candidate-transformer
