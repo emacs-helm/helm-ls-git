@@ -521,7 +521,8 @@ See docstring of `helm-ls-git-ls-switches'.
       (display-buffer (current-buffer)))))
 
 (defun helm-ls-git-log-show-commit (candidate)
-  (if (get-buffer-window "*git log diff*" 'visible)
+  (if (and (eq last-command 'helm-execute-persistent-action)
+           (get-buffer-window "*git log diff*" 'visible))
       (kill-buffer "*git log diff*")
     (helm-ls-git-log-show-commit-1 candidate)))
 
@@ -694,7 +695,8 @@ See docstring of `helm-ls-git-ls-switches'.
            do (with-current-buffer buf (revert-buffer nil t))))
 
 (defun helm-ls-git-stash-show (candidate)
-  (if (get-buffer-window "*stash diff*" 'visible)
+  (if (and (eq last-command 'helm-execute-persistent-action)
+           (get-buffer-window "*stash diff*" 'visible))
       (kill-buffer "*stash diff*")
     (let ((stash (helm-ls-git-get-stash-name candidate)))
       (with-current-buffer (get-buffer-create "*stash diff*")
