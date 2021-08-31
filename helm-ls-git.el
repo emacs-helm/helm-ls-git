@@ -444,6 +444,7 @@ See docstring of `helm-ls-git-ls-switches'.
   (interactive)
   (with-helm-alive-p
     (helm-exit-and-execute-action 'helm-ls-git-grep)))
+(put 'helm-ls-git-run-grep 'no-helm-mx t)
 
 
 (defun helm-ls-git-search-log (_candidate)
@@ -528,6 +529,8 @@ See docstring of `helm-ls-git-ls-switches'.
   (interactive)
   (with-helm-alive-p
     (helm-exit-and-execute-action #'helm-ls-git-show-log)))
+(put 'helm-ls-git-log-show-commit 'no-helm-mx t)
+
 
 ;;; Git branch basic management
 ;;
@@ -549,6 +552,7 @@ See docstring of `helm-ls-git-ls-switches'.
   (interactive)
   (setq helm-ls-git-branches-show-all (not helm-ls-git-branches-show-all))
   (helm-force-update))
+(put 'helm-ls-git-branches-toggle-show-all 'no-helm-mx t)
 
 (defvar helm-ls-git-branches-map
   (let ((map (make-sparse-keymap)))
