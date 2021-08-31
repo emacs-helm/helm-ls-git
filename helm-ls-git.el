@@ -460,6 +460,32 @@ See docstring of `helm-ls-git-ls-switches'.
   (diff-mode))
 
 
+;;; Git log
+;;
+(defun helm-ls-git-log (&optional branch)
+  (let ((switches `("log" "--color"
+                    "--pretty=format:%C(yellow)%h%Creset \
+ %C(green)%ci%Creset %<(60,trunc)%s %Cred%an%Creset%n"
+                    "-n" "500"
+                    ,(or branch ""))))
+
+    (with-helm-default-directory (helm-ls-git-root-dir)
+      (with-output-to-string
+        (with-current-buffer standard-output
+          (apply #'call-process "git" nil t nil switches))))))
+
+(defun helm-ls-git-show-log (branch)
+  (let* ((name (replace-regexp-in-string "[ *]" "" branch))
+         (str (helm-ls-git-log name)))
+    (helm :sources (helm-build-in-buffer-source "Git log"
+                     :data str
+                     :candidate-transformer
+                     (lambda (candidates)
+                       (cl-loop for c in candidates
+                                collect (helm--ansi-color-apply c))))
+          :buffer "*helm-ls-git log*")))
+
+
 ;;; Git branch basic management
 ;;
 (defvar helm-ls-git-branches-show-all nil)
@@ -593,7 +619,8 @@ See docstring of `helm-ls-git-ls-switches'.
                          (helm-force-update))
     :action '(("Git status" . (lambda (_candidate)
                                 (funcall helm-ls-git-status-command
-                                         (helm-default-directory)))))
+                                         (helm-default-directory))))
+              ("Git log" . helm-ls-git-show-log))
     :keymap 'helm-ls-git-branches-map))
 
 
