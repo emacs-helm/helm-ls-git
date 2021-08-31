@@ -482,11 +482,26 @@ See docstring of `helm-ls-git-ls-switches'.
       (kill-buffer "*git log diff*"))
     (helm :sources (helm-build-in-buffer-source (format "Git log (%s)" name)
                      :data str
-                     :action '(("Show commit" . helm-ls-git-log-show-commit))
+                     :get-line 'buffer-substring
+                     :action '(("Show commit" . helm-ls-git-log-show-commit)
+                               ("Kill rev as sha-1" .
+                                (lambda (candidate)
+                                  (kill-new (car (split-string candidate)))))
+                               ("Kill rev as <branch~n>" .
+                                (lambda (_candidate)
+                                  (helm-aif (get-text-property
+                                             2 'rev
+                                             (helm-get-selection nil 'withprop))
+                                      (kill-new it)))))
                      :candidate-transformer
                      (lambda (candidates)
                        (cl-loop for c in candidates
-                                collect (helm--ansi-color-apply c))))
+                                for count from 0
+                                for cand = (helm--ansi-color-apply c)
+                                collect (propertize
+                                         cand 'rev (if (zerop count)
+                                                       name
+                                                     (format "%s~%s" name count))))))
           :buffer "*helm-ls-git log*")))
 
 (defun helm-ls-git-log-show-commit-1 (candidate)
