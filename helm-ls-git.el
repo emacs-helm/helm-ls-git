@@ -474,7 +474,7 @@ See docstring of `helm-ls-git-ls-switches'.
     (with-helm-default-directory (helm-ls-git-root-dir)
       (with-output-to-string
         (with-current-buffer standard-output
-          (apply #'call-process "git" nil t nil switches))))))
+          (apply #'process-file "git" nil t nil switches))))))
 
 (defun helm-ls-git-show-log (branch)
   (let* ((name (replace-regexp-in-string "[ *]" "" branch))
