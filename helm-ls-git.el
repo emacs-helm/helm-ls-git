@@ -477,9 +477,11 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-show-log (branch)
   (let* ((name (replace-regexp-in-string "[ *]" "" branch))
          (str (helm-ls-git-log name)))
+    (when (buffer-live-p "*git log diff*")
+      (kill-buffer "*git log diff*"))
     (helm :sources (helm-build-in-buffer-source "Git log"
                      :data str
-                     :persistent-action 'helm-ls-git-log-show-commit
+                     :action '(("Show commit" . helm-ls-git-log-show-commit))
                      :candidate-transformer
                      (lambda (candidates)
                        (cl-loop for c in candidates
@@ -488,10 +490,11 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-log-show-commit (candidate)
   (let ((sha (car (split-string candidate))))
-    (with-current-buffer (get-buffer-create "*log diff*")
+    (with-current-buffer (get-buffer-create "*git log diff*")
       (let ((inhibit-read-only t))
         (erase-buffer)
-        (insert (with-helm-default-directory (helm-ls-git-root-dir)
+        (insert (with-helm-default-directory (helm-ls-git-root-dir
+                                              (helm-default-directory))
                   (with-output-to-string
                     (with-current-buffer standard-output
                       (process-file
