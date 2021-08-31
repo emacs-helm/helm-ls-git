@@ -479,12 +479,26 @@ See docstring of `helm-ls-git-ls-switches'.
          (str (helm-ls-git-log name)))
     (helm :sources (helm-build-in-buffer-source "Git log"
                      :data str
+                     :persistent-action 'helm-ls-git-log-show-commit
                      :candidate-transformer
                      (lambda (candidates)
                        (cl-loop for c in candidates
                                 collect (helm--ansi-color-apply c))))
           :buffer "*helm-ls-git log*")))
 
+(defun helm-ls-git-log-show-commit (candidate)
+  (let ((sha (car (split-string candidate))))
+    (with-current-buffer (get-buffer-create "*log diff*")
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (insert (with-helm-default-directory (helm-ls-git-root-dir)
+                  (with-output-to-string
+                    (with-current-buffer standard-output
+                      (process-file
+                       "git" nil (list t helm-ls-git-log-file) nil
+                       "show" "-p" sha)))))
+        (diff-mode))
+      (display-buffer (current-buffer)))))
 
 ;;; Git branch basic management
 ;;
