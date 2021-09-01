@@ -563,26 +563,27 @@ See docstring of `helm-ls-git-ls-switches'.
     map))
 
 (defun helm-ls-git-checkout (candidate)
-  (if (and helm-ls-git-auto-checkout
-           (helm-ls-git-modified-p))
-      (helm-ls-git-stash-1 "")
-    (cl-assert (not (helm-ls-git-modified-p))
-               nil "Please commit or stash your changes before proceeding"))
-  (with-helm-default-directory (helm-ls-git-root-dir)
-    (let* ((branch (replace-regexp-in-string "[ ]" "" candidate)) 
-           (real (replace-regexp-in-string "\\`\\*" "" branch)))
-      (if (string-match "\\`[*]" candidate)
-          (message "Already on %s branch" real)
-        (let* ((switches (if (string-match "\\`[Rr]emotes" real)
-                             `("checkout" "-b"
-                               ,(car (last (split-string real "/" t))) "-t" ,real)
-                           `("checkout" ,real)))
-               (status (apply #'process-file "git"
-                              nil nil nil
-                             switches)))
-          (if (= status 0)
-              (message "Switched to %s branch" real)
-            (error "Process exit with non zero status")))))))
+  (let ((default-directory (helm-default-directory)))
+    (if (and helm-ls-git-auto-checkout
+             (helm-ls-git-modified-p))
+        (helm-ls-git-stash-1 "")
+      (cl-assert (not (helm-ls-git-modified-p))
+                 nil "Please commit or stash your changes before proceeding"))
+    (with-helm-default-directory (helm-ls-git-root-dir)
+      (let* ((branch (replace-regexp-in-string "[ ]" "" candidate)) 
+             (real (replace-regexp-in-string "\\`\\*" "" branch)))
+        (if (string-match "\\`[*]" candidate)
+            (message "Already on %s branch" real)
+          (let* ((switches (if (string-match "\\`[Rr]emotes" real)
+                               `("checkout" "-b"
+                                 ,(car (last (split-string real "/" t))) "-t" ,real)
+                             `("checkout" ,real)))
+                 (status (apply #'process-file "git"
+                                nil nil nil
+                                switches)))
+            (if (= status 0)
+                (message "Switched to %s branch" real)
+              (error "Process exit with non zero status"))))))))
 
 (defun helm-ls-git-branches-create (candidate)
   (with-helm-default-directory (helm-ls-git-root-dir)
