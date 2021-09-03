@@ -496,6 +496,7 @@ See docstring of `helm-ls-git-ls-switches'.
                                              (helm-get-selection nil 'withprop))
                                       (kill-new it))))
                                ("Format patches" . helm-ls-git-log-format-patch)
+                               ("Git am" . helm-ls-git-log-am)
                                ("Reset" . helm-ls-git-log-reset))
                      :candidate-transformer
                      (lambda (candidates)
@@ -526,7 +527,10 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-log-format-patch (_candidate)
   (helm-ls-git-log-format-patch-1))
 
-(defun helm-ls-git-log-format-patch-1 ()
+(defun helm-ls-git-log-am (_candidate)
+  (helm-ls-git-log-format-patch-1 'am))
+
+(defun helm-ls-git-log-format-patch-1 (&optional am)
   (let ((commits (cl-loop for c in (helm-marked-candidates)
                           collect (get-text-property 1 'rev c)))
         range switches)
@@ -540,7 +544,11 @@ See docstring of `helm-ls-git-ls-switches'.
            (error "Specify either a single commit or a range with only two marked commits")))
     (with-helm-default-directory (helm-ls-git-root-dir
                                   (helm-default-directory))
-      (apply #'process-file "git" nil nil nil switches))))
+      (if am
+          (process-file-shell-command
+           (format "git %s | git am -3 -k"
+                   (mapconcat 'identity (helm-append-at-nth switches '("-k --stdout") 1) " ")))
+      (apply #'process-file "git" nil nil nil switches)))))
 
 (defun helm-ls-git-log-reset (_candidate)
   (let ((rev (get-text-property 1 'rev (helm-get-selection nil 'withprop))))
