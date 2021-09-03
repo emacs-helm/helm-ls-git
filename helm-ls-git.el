@@ -484,6 +484,7 @@ See docstring of `helm-ls-git-ls-switches'.
     (helm :sources (helm-build-in-buffer-source (format "Git log (%s)" name)
                      :data str
                      :get-line 'buffer-substring
+                     :marked-with-props 'withprop
                      :action '(("Show commit" . helm-ls-git-log-show-commit)
                                ("Kill rev as sha-1" .
                                 (lambda (candidate)
@@ -493,7 +494,8 @@ See docstring of `helm-ls-git-ls-switches'.
                                   (helm-aif (get-text-property
                                              2 'rev
                                              (helm-get-selection nil 'withprop))
-                                      (kill-new it)))))
+                                      (kill-new it))))
+                               ("Format patches" . helm-ls-git-log-format-patch))
                      :candidate-transformer
                      (lambda (candidates)
                        (cl-loop for c in candidates
@@ -520,6 +522,25 @@ See docstring of `helm-ls-git-ls-switches'.
         (diff-mode))
       (display-buffer (current-buffer)))))
 
+(defun helm-ls-git-log-format-patch (_candidate)
+  (helm-ls-git-log-format-patch-1))
+
+(defun helm-ls-git-log-format-patch-1 ()
+  (let ((commits (cl-loop for c in (helm-marked-candidates)
+                          collect (get-text-property 1 'rev c)))
+        range switches)
+    (cond ((= 2 (length commits))
+           (setq range (mapconcat 'identity (sort commits #'string-lessp) "...")
+                 switches `("format-patch" ,range)))
+          ((not (cdr commits))
+           (setq range (car commits)
+                 switches `("format-patch" "-1" ,range)))
+          ((> (length commits) 2)
+           (error "Specify either a single commit or a range with only two marked commits")))
+    (with-helm-default-directory (helm-ls-git-root-dir
+                                  (helm-default-directory))
+      (apply #'process-file "git" nil nil nil switches))))
+  
 (defun helm-ls-git-log-show-commit (candidate)
   (if (and (eq last-command 'helm-execute-persistent-action)
            (get-buffer-window "*git log diff*" 'visible))
