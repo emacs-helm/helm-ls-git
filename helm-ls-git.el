@@ -545,10 +545,15 @@ See docstring of `helm-ls-git-ls-switches'.
     (with-helm-default-directory (helm-ls-git-root-dir
                                   (helm-default-directory))
       (if am
-          (process-file-shell-command
-           (format "git %s | git am -3 -k"
-                   (mapconcat 'identity (helm-append-at-nth switches '("-k --stdout") 1) " ")))
-      (apply #'process-file "git" nil nil nil switches)))))
+          (with-current-buffer-window "*git am*" `(display-buffer-below-selected
+                                                   (window-height . fit-window-to-buffer)
+                                                   (preserve-size . (nil . t)))
+                                      nil
+            (process-file-shell-command
+             (format "git %s | git am -3 -k"
+                     (mapconcat 'identity (helm-append-at-nth switches '("-k --stdout") 1) " "))
+             nil t t))
+        (apply #'process-file "git" nil "*git format-patch*" nil switches)))))
 
 (defun helm-ls-git-log-reset (_candidate)
   (let ((rev (get-text-property 1 'rev (helm-get-selection nil 'withprop))))
