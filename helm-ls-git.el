@@ -633,7 +633,7 @@ See docstring of `helm-ls-git-ls-switches'.
     (let ((branch (replace-regexp-in-string "[ ]" "" candidate)))
       (cl-assert (not (string-match "\\`[*]" candidate)) nil "Can't delete current branch")
       (when (y-or-n-p (format "Really delete branch %s?" branch))
-        (if (= (process-file "git" nil nil nil "branch" "-d" branch) 0)
+        (if (= (process-file "git" nil nil nil "branch" "-D" branch) 0)
             (message "Branch %s deleted successfully" branch)
           (message "failed to delete branch %s" branch))))))
 
