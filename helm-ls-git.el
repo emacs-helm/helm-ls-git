@@ -545,7 +545,7 @@ See docstring of `helm-ls-git-ls-switches'.
     (with-helm-default-directory (helm-ls-git-root-dir
                                   (helm-default-directory))
       (if am
-          (with-current-buffer-window "*git am*" `(display-buffer-below-selected
+          (with-current-buffer-window "*git am*" '(display-buffer-below-selected
                                                    (window-height . fit-window-to-buffer)
                                                    (preserve-size . (nil . t)))
                                       nil
