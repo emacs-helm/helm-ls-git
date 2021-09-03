@@ -495,7 +495,8 @@ See docstring of `helm-ls-git-ls-switches'.
                                              2 'rev
                                              (helm-get-selection nil 'withprop))
                                       (kill-new it))))
-                               ("Format patches" . helm-ls-git-log-format-patch))
+                               ("Format patches" . helm-ls-git-log-format-patch)
+                               ("Reset" . helm-ls-git-log-reset))
                      :candidate-transformer
                      (lambda (candidates)
                        (cl-loop for c in candidates
@@ -540,7 +541,16 @@ See docstring of `helm-ls-git-ls-switches'.
     (with-helm-default-directory (helm-ls-git-root-dir
                                   (helm-default-directory))
       (apply #'process-file "git" nil nil nil switches))))
-  
+
+(defun helm-ls-git-log-reset (_candidate)
+  (let ((rev (get-text-property 1 'rev (helm-get-selection nil 'withprop))))
+    (with-helm-default-directory (helm-ls-git-root-dir
+                                  (helm-default-directory))
+      (when (y-or-n-p (format "Hard reset to <%s>?" rev))
+        (if (= (process-file "git" nil nil nil "reset" "--hard" rev) 0)
+            (message "Now at `%s'" (helm-ls-git-oneline-log
+                                    (helm-ls-git--branch))))))))
+
 (defun helm-ls-git-log-show-commit (candidate)
   (if (and (eq last-command 'helm-execute-persistent-action)
            (get-buffer-window "*git log diff*" 'visible))
