@@ -521,6 +521,7 @@ See docstring of `helm-ls-git-ls-switches'.
                       (process-file
                        "git" nil (list t helm-ls-git-log-file) nil
                        "show" "-p" sha)))))
+        (goto-char (point-min))
         (diff-mode))
       (display-buffer (current-buffer)))))
 
