@@ -116,6 +116,11 @@ See Issue #52."
   "Stash automatically uncommited changes before checking out a branch."
   :type 'boolean
   :group 'helm-ls-git)
+
+(defcustom helm-ls-git-log-max-commits "500"
+  "Max number of commits to show in git log (git log -n option)."
+  :type 'string
+  :group 'helm-ls-git)
 
 (defface helm-ls-git-modified-not-staged-face
     '((t :foreground "yellow"))
@@ -463,14 +468,16 @@ See docstring of `helm-ls-git-ls-switches'.
 
 ;;; Git log
 ;;
-(defun helm-ls-git-log (&optional branch)
-  (let ((switches `("log" "--color"
+(defun helm-ls-git-log (&optional branch num)
+  (let* ((commits-number (if num
+                             (number-to-string num)
+                           helm-ls-git-log-max-commits))
+         (switches `("log" "--color"
                     "--date=local"
                     "--pretty=format:%C(yellow)%h%Creset \
  %C(green)%ad%Creset %<(60,trunc)%s %Cred%an%Creset %C(auto)%d%Creset"
-                    "-n" "500"
+                    "-n" ,commits-number
                     ,(or branch ""))))
-
     (with-helm-default-directory (helm-ls-git-root-dir)
       (with-output-to-string
         (with-current-buffer standard-output
@@ -478,7 +485,8 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-show-log (branch)
   (let* ((name (replace-regexp-in-string "[ *]" "" branch))
-         (str (helm-ls-git-log name)))
+         (str (helm-ls-git-log name (helm-aif helm-current-prefix-arg
+                                        (prefix-numeric-value it)))))
     (when (buffer-live-p "*git log diff*")
       (kill-buffer "*git log diff*"))
     (helm :sources (helm-build-in-buffer-source (format "Git log (%s)" name)
