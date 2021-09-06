@@ -117,7 +117,7 @@ See Issue #52."
   :type 'boolean
   :group 'helm-ls-git)
 
-(defcustom helm-ls-git-log-max-commits "500"
+(defcustom helm-ls-git-log-max-commits "100"
   "Max number of commits to show in git log (git log -n option)."
   :type 'string
   :group 'helm-ls-git)
