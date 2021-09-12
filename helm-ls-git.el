@@ -489,7 +489,8 @@ See docstring of `helm-ls-git-ls-switches'.
                                         (prefix-numeric-value it)))))
     (when (buffer-live-p "*git log diff*")
       (kill-buffer "*git log diff*"))
-    (helm :sources (helm-build-in-buffer-source (format "Git log (%s)" name)
+    (helm :sources (helm-build-in-buffer-source "Git log"
+                     :header-name (lambda (sname) (format "%s (%s)" sname name))
                      :data str
                      :get-line 'buffer-substring
                      :marked-with-props 'withprop
