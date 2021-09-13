@@ -996,7 +996,9 @@ See docstring of `helm-ls-git-ls-switches'.
           (apply #'start-file-process "git" nil "git" args)
           (run-at-time 0.1 nil (lambda ()
                                  (diff-mode)
-                                 (setq buffer-read-only nil))))
+                                 (setq buffer-read-only nil)
+                                 (setq fill-column 70)
+                                 (auto-fill-mode 1))))
       (setenv "EDITOR" old-editor))))
 
 (defun helm-ls-git-amend-commit (_candidate)
@@ -1021,8 +1023,8 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-commit-files ()
   "Default function to commit files."
-  (let* ((marked (helm-marked-candidates)))
-    (vc-checkin marked 'Git)))
+  (helm-ls-git-stage-files nil)
+  (helm-ls-git-with-editor "commit" "-v"))
 
 (defun helm-ls-git-magit-stage-files (files)
   (cl-loop for f in files
