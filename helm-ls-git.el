@@ -994,6 +994,7 @@ See docstring of `helm-ls-git-ls-switches'.
     (unwind-protect
         (progn
           (apply #'start-file-process "git" nil "git" args)
+          ;; FIXME probably using server hooks would be better here.
           (run-at-time 0.1 nil (lambda ()
                                  (diff-mode)
                                  (setq buffer-read-only nil)
