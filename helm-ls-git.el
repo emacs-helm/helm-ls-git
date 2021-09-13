@@ -34,6 +34,7 @@
 (declare-function magit-stage-file "ext:magit-apply")
 (declare-function magit-unstage-file "ext:magit-apply")
 (declare-function magit-commit-create "ext:magit-commit")
+(declare-function server-running-p "server.el")
 
 ;; Define the sources.
 (defvar helm-source-ls-git-status nil
@@ -716,7 +717,7 @@ See docstring of `helm-ls-git-ls-switches'.
                                  ("Delete" . helm-ls-git-branches-delete)
                                  ("Merge in current" . helm-ls-git-branches-merge))
                                actions)
-                            actions))
+                            (helm-append-at-nth actions '(("Git amend" . helm-ls-git-amend-commit)) 2)))
     :cleanup (lambda () (setq helm-ls-git-branches-show-all nil))
     :persistent-action (lambda (candidate)
                          (helm-ls-git-checkout candidate)
@@ -984,13 +985,33 @@ See docstring of `helm-ls-git-ls-switches'.
           (magit-commit-extend))
       (process-file "git" nil nil nil "commit" "--amend" "--no-edit"))))
 
-(defun helm-ls-git-amend-commit (candidate)
+(defun helm-ls-git-with-editor (&rest args)
+  (require 'server)
+  (let ((old-editor (getenv "EDITOR")))
+    (setenv "EDITOR" "emacsclient $@")
+    (unless (server-running-p)
+      (server-start))
+    (unwind-protect
+        (progn
+          (apply #'start-file-process "git" nil "git" args)
+          ;; FIXME probably using server hooks would be better here.
+          (run-at-time 0.1 nil (lambda ()
+                                 (diff-mode)
+                                 (setq buffer-read-only nil)
+                                 (setq fill-column 70)
+                                 (auto-fill-mode 1))))
+      (setenv "EDITOR" old-editor))))
+
+(defun helm-ls-git-amend-commit (_candidate)
   (require 'magit-commit nil t)
-  (let ((default-directory (file-name-directory candidate)))
+  (let ((default-directory (expand-file-name
+                            (helm-ls-git-root-dir
+                             (helm-default-directory)))))
     (if (fboundp 'magit-commit-amend)
         (let ((magit-inhibit-refresh t))
           (magit-commit-amend))
-      (process-file "git" nil nil nil "commit" "--amend"))))
+      ;; An async process is needed for commands invoking $EDITOR.
+      (helm-ls-git-with-editor "commit" "-v" "--amend"))))
 
 (defun helm-ls-git-commit (candidate)
   "Commit all staged files."
@@ -1003,8 +1024,8 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-commit-files ()
   "Default function to commit files."
-  (let* ((marked (helm-marked-candidates)))
-    (vc-checkin marked 'Git)))
+  (helm-ls-git-stage-files nil)
+  (helm-ls-git-with-editor "commit" "-v"))
 
 (defun helm-ls-git-magit-stage-files (files)
   (cl-loop for f in files
