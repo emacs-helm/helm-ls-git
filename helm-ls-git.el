@@ -997,6 +997,7 @@ See docstring of `helm-ls-git-ls-switches'.
           ;; FIXME probably using server hooks would be better here.
           (run-at-time 0.1 nil (lambda ()
                                  (diff-mode)
+                                 (local-set-key (kbd "C-c C-c") 'server-edit)
                                  (setq buffer-read-only nil)
                                  (setq fill-column 70)
                                  (auto-fill-mode 1))))
