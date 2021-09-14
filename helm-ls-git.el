@@ -31,11 +31,14 @@
 (make-obsolete-variable 'helm-c-source-ls-git-status 'helm-source-ls-git-status "1.5.1")
 
 (defvar magit-inhibit-refresh)
+(defvar server-clients)
 (declare-function magit-stage-file "ext:magit-apply")
 (declare-function magit-unstage-file "ext:magit-apply")
 (declare-function magit-commit-create "ext:magit-commit")
 (declare-function server-running-p "server.el")
-
+(declare-function server-edit        "server.el")
+(declare-function server-send-string "server.el")
+(declare-function server-quote-arg   "server.el")
 ;; Define the sources.
 (defvar helm-source-ls-git-status nil
   "This source will built at runtime.
