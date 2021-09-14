@@ -987,21 +987,29 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-with-editor (&rest args)
   (require 'server)
-  (let ((old-editor (getenv "EDITOR")))
+  (let ((old-editor (getenv "EDITOR"))
+        (default-directory (expand-file-name
+                            (helm-ls-git-root-dir
+                             (helm-default-directory)))))
     (setenv "EDITOR" "emacsclient $@")
     (unless (server-running-p)
       (server-start))
     (unwind-protect
         (progn
+          (add-hook 'find-file-hook 'helm-ls-git-with-editor-setup)
+          (add-hook 'server-done-hook 'helm-ls-git-with-editor-done)
           (apply #'start-file-process "git" nil "git" args)
-          ;; FIXME probably using server hooks would be better here.
-          (run-at-time 0.1 nil (lambda ()
-                                 (diff-mode)
-                                 (local-set-key (kbd "C-c C-c") 'server-edit)
-                                 (setq buffer-read-only nil)
-                                 (setq fill-column 70)
-                                 (auto-fill-mode 1))))
-      (setenv "EDITOR" old-editor))))
+      (setenv "EDITOR" old-editor)))))
+
+(defun helm-ls-git-with-editor-done ()
+  (remove-hook 'find-file-hook 'helm-ls-git-with-editor-setup))
+
+(defun helm-ls-git-with-editor-setup ()
+  (diff-mode)
+  (local-set-key (kbd "C-c C-c") 'server-edit)
+  (setq buffer-read-only nil)
+  (setq fill-column 70)
+  (auto-fill-mode 1))
 
 (defun helm-ls-git-amend-commit (_candidate)
   (require 'magit-commit nil t)
