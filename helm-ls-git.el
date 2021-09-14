@@ -1002,13 +1002,16 @@ See docstring of `helm-ls-git-ls-switches'.
       (setenv "EDITOR" old-editor)))))
 
 (defun helm-ls-git-with-editor-done ()
+  (remove-hook 'find-file-hook 'helm-ls-git-with-editor-setup))
+
+(defun helm-ls-git-server-edit ()
   (helm-aif buffer-file-name
       (save-buffer it))
-  (remove-hook 'find-file-hook 'helm-ls-git-with-editor-setup))
+  (server-edit))
 
 (defun helm-ls-git-with-editor-setup ()
   (diff-mode)
-  (local-set-key (kbd "C-c C-c") 'server-edit)
+  (local-set-key (kbd "C-c C-c") 'helm-ls-git-server-edit)
   (setq buffer-read-only nil)
   (setq fill-column 70)
   (auto-fill-mode 1))
