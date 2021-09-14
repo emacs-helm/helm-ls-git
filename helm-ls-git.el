@@ -1031,10 +1031,14 @@ See docstring of `helm-ls-git-ls-switches'.
   (setq buffer-read-only nil)
   (setq fill-column 70)
   (auto-fill-mode 1)
-  (run-at-time 0.1 nil (lambda ()
-                         (message "%s"
-                                  (substitute-command-keys
-                                   "When done with a buffer, type \\[helm-ls-git-server-edit], to abort type \\[server-edit-abort]")))))
+  (run-at-time
+   0.1 nil
+   (lambda ()
+     (message
+      "%s"
+      (substitute-command-keys
+       "When done with a buffer, type \\[helm-ls-git-server-edit],\
+ to abort type \\[helm-ls-git-server-edit-abort]")))))
 
 (defun helm-ls-git-amend-commit (_candidate)
   (require 'magit-commit nil t)
