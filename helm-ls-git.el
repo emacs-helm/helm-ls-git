@@ -1029,10 +1029,10 @@ See docstring of `helm-ls-git-ls-switches'.
     (message "This buffer has no clients")))
 
 (defun helm-ls-git-with-editor-setup ()
-  (diff-mode)
+  (let ((diff-default-read-only nil))
+    (diff-mode))
   (local-set-key (kbd "C-c C-c") 'helm-ls-git-server-edit)
   (local-set-key (kbd "C-c C-k") 'helm-ls-git-server-edit-abort)
-  (setq buffer-read-only nil)
   (setq fill-column 70)
   (auto-fill-mode 1)
   (run-at-time
