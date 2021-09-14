@@ -1002,6 +1002,8 @@ See docstring of `helm-ls-git-ls-switches'.
       (setenv "EDITOR" old-editor)))))
 
 (defun helm-ls-git-with-editor-done ()
+  (helm-aif buffer-file-name
+      (save-buffer it))
   (remove-hook 'find-file-hook 'helm-ls-git-with-editor-setup))
 
 (defun helm-ls-git-with-editor-setup ()
