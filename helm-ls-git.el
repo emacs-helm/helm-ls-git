@@ -1005,6 +1005,7 @@ See docstring of `helm-ls-git-ls-switches'.
   (remove-hook 'find-file-hook 'helm-ls-git-with-editor-setup))
 
 (defun helm-ls-git-server-edit ()
+  (interactive)
   (helm-aif buffer-file-name
       (save-buffer it))
   (server-edit))
