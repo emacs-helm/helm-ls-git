@@ -1014,6 +1014,7 @@ See docstring of `helm-ls-git-ls-switches'.
       (save-buffer it))
   (server-edit))
 
+;; Same as `server-edit-abort' from emacs-28 but kill edit buffer as well.
 (defun helm-ls-git-server-edit-abort ()
   "Abort editing the current client buffer."
   (interactive)
