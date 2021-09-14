@@ -499,7 +499,7 @@ See docstring of `helm-ls-git-ls-switches'.
                      :get-line 'buffer-substring
                      :marked-with-props 'withprop
                      :action '(("Show commit" . helm-ls-git-log-show-commit)
-                               ("Kill rev as sha-1" .
+                               ("Kill rev as hash" .
                                 (lambda (candidate)
                                   (kill-new (car (split-string candidate)))))
                                ("Kill rev as <branch~n>" .
