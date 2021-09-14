@@ -1011,16 +1011,30 @@ See docstring of `helm-ls-git-ls-switches'.
       (save-buffer it))
   (server-edit))
 
+(defun helm-ls-git-server-edit-abort ()
+  "Abort editing the current client buffer."
+  (interactive)
+  (if server-clients
+      (progn
+        (mapc (lambda (proc)
+                (server-send-string
+                 proc (concat "-error "
+                              (server-quote-arg "Aborted by the user"))))
+              server-clients)
+        (kill-buffer))
+    (message "This buffer has no clients")))
+
 (defun helm-ls-git-with-editor-setup ()
   (diff-mode)
   (local-set-key (kbd "C-c C-c") 'helm-ls-git-server-edit)
-  (local-set-key (kbd "C-c C-k") 'server-edit-abort)
+  (local-set-key (kbd "C-c C-k") 'helm-ls-git-server-edit-abort)
   (setq buffer-read-only nil)
   (setq fill-column 70)
   (auto-fill-mode 1)
-  (message "%s"
-           (substitute-command-keys
-            "When done with a buffer, type \\[helm-ls-git-server-edit], to abort type \\[server-edit-abort]")))
+  (run-at-time 0.1 nil (lambda ()
+                         (message "%s"
+                                  (substitute-command-keys
+                                   "When done with a buffer, type \\[helm-ls-git-server-edit], to abort type \\[server-edit-abort]")))))
 
 (defun helm-ls-git-amend-commit (_candidate)
   (require 'magit-commit nil t)
