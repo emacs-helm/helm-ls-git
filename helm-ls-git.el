@@ -1014,9 +1014,13 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-with-editor-setup ()
   (diff-mode)
   (local-set-key (kbd "C-c C-c") 'helm-ls-git-server-edit)
+  (local-set-key (kbd "C-c C-k") 'server-edit-abort)
   (setq buffer-read-only nil)
   (setq fill-column 70)
-  (auto-fill-mode 1))
+  (auto-fill-mode 1)
+  (message "%s"
+           (substitute-command-keys
+            "When done with a buffer, type \\[helm-ls-git-server-edit], to abort type \\[server-edit-abort]")))
 
 (defun helm-ls-git-amend-commit (_candidate)
   (require 'magit-commit nil t)
