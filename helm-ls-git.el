@@ -1006,6 +1006,7 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-server-edit ()
   (interactive)
+  ;; Prevent server asking to save file when done.
   (helm-aif buffer-file-name
       (save-buffer it))
   (server-edit))
