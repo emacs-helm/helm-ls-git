@@ -851,7 +851,7 @@ See docstring of `helm-ls-git-ls-switches'.
               ((string-match "^\\(RM?\\).* -> \\(.*\\)" i)
                (cons (propertize i 'face 'helm-ls-git-renamed-modified-face)
                      (expand-file-name (match-string 2 i) root)))
-              ((string-match "^\\([D] \\)\\(.*\\)" i)
+              ((string-match "^\\([D] +\\)\\(.*\\)" i)
                (cons (propertize i 'face 'helm-ls-git-deleted-and-staged-face)
                      (expand-file-name (match-string 2 i) root)))
               ((string-match "^\\(UU \\)\\(.*\\)" i)
@@ -929,7 +929,7 @@ See docstring of `helm-ls-git-ls-switches'.
                               ("Stash snapshot" . helm-ls-git-stash-snapshot))
                             1)))
           ;; Modified and staged
-          ((string-match "^M+ *" disp)
+          ((string-match "^M+ +" disp)
            (append actions (helm-append-at-nth
                             mofified-actions
                             '(("Commit staged file(s)"
@@ -946,6 +946,12 @@ See docstring of `helm-ls-git-ls-switches'.
            (append actions (list '("Git delete" . vc-git-delete-file)
                                  '("Stage file(s)"
                                    . helm-ls-git-stage-files))))
+          ;; Deleted and staged
+          ((string-match "^D +" disp)
+           (append actions (list '("Commit staged file(s)"
+                                   . helm-ls-git-commit)
+                                 '("Stage marked file(s) and commit"
+                                   . helm-ls-git-stage-marked-and-commit))))
           (t actions))))
 
 (defun helm-ls-git-stage-files (_candidate)
