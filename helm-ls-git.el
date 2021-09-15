@@ -989,6 +989,7 @@ See docstring of `helm-ls-git-ls-switches'.
       (process-file "git" nil nil nil "commit" "--amend" "--no-edit"))))
 
 (defun helm-ls-git-with-editor (&rest args)
+  "Binds EDITOR env var to emacsclient and run git with ARGS."
   (require 'server)
   (let ((old-editor (getenv "EDITOR"))
         (default-directory (expand-file-name
