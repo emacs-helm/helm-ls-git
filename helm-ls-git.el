@@ -995,13 +995,13 @@ See docstring of `helm-ls-git-ls-switches'.
       (process-file "git" nil nil nil "commit" "--amend" "--no-edit"))))
 
 (defun helm-ls-git-with-editor (&rest args)
-  "Binds EDITOR env var to emacsclient and run git with ARGS."
+  "Binds GIT_EDITOR env var to emacsclient and run git with ARGS."
   (require 'server)
-  (let ((old-editor (getenv "EDITOR"))
+  (let ((old-editor (getenv "GIT_EDITOR"))
         (default-directory (expand-file-name
                             (helm-ls-git-root-dir
                              (helm-default-directory)))))
-    (setenv "EDITOR" "emacsclient $@")
+    (setenv "GIT_EDITOR" "emacsclient $@")
     (unless (server-running-p)
       (server-start))
     (unwind-protect
@@ -1009,7 +1009,7 @@ See docstring of `helm-ls-git-ls-switches'.
           (add-hook 'find-file-hook 'helm-ls-git-with-editor-setup)
           (add-hook 'server-done-hook 'helm-ls-git-with-editor-done)
           (apply #'start-file-process "git" "*helm-ls-git log*" "git" args)
-      (setenv "EDITOR" old-editor)))))
+      (setenv "GIT_EDITOR" old-editor)))))
 
 (defun helm-ls-git-with-editor-done ()
   (remove-hook 'find-file-hook 'helm-ls-git-with-editor-setup))
