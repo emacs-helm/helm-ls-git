@@ -718,9 +718,13 @@ See docstring of `helm-ls-git-ls-switches'.
                               (append
                                '(("Checkout" . helm-ls-git-checkout)
                                  ("Delete" . helm-ls-git-branches-delete)
-                                 ("Merge in current" . helm-ls-git-branches-merge))
+                                 ("Merge in current" .
+                                  helm-ls-git-branches-merge))
                                actions)
-                            (helm-append-at-nth actions '(("Git amend" . helm-ls-git-amend-commit)) 2)))
+                            (helm-append-at-nth
+                             actions
+                             '(("Git amend" . helm-ls-git-amend-commit))
+                             2)))
     :cleanup (lambda () (setq helm-ls-git-branches-show-all nil))
     :persistent-action (lambda (candidate)
                          (helm-ls-git-checkout candidate)
