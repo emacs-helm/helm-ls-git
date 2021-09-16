@@ -646,7 +646,7 @@ See docstring of `helm-ls-git-ls-switches'.
     (if (and helm-ls-git-auto-checkout
              (helm-ls-git-modified-p))
         (helm-ls-git-stash-1 "")
-      (cl-assert (not (helm-ls-git-modified-p))
+      (cl-assert (not (helm-ls-git-modified-p t))
                  nil "Please commit or stash your changes before proceeding"))
     (with-helm-default-directory (helm-ls-git-root-dir)
       (let* ((branch (replace-regexp-in-string "[ ]" "" candidate)) 
@@ -677,9 +677,9 @@ See docstring of `helm-ls-git-ls-switches'.
             (message "Branch %s deleted successfully" branch)
           (message "failed to delete branch %s" branch))))))
 
-(defun helm-ls-git-modified-p ()
+(defun helm-ls-git-modified-p (&optional ignore-untracked)
   (with-helm-default-directory (helm-ls-git-root-dir)
-    (not (string= (helm-ls-git-status) ""))))
+    (not (string= (helm-ls-git-status ignore-untracked) ""))))
 
 (defun helm-ls-git-branches-merge (candidate)
   (with-helm-default-directory (helm-ls-git-root-dir)
@@ -851,7 +851,7 @@ See docstring of `helm-ls-git-ls-switches'.
               ("Pop" . helm-ls-git-stash-pop)
               ("Drop" . helm-ls-git-stash-drop-marked))))
 
-(defun helm-ls-git-status ()
+(defun helm-ls-git-status (&optional ignore-untracked)
   (when (and helm-ls-git-log-file
              (file-exists-p helm-ls-git-log-file))
     (delete-file helm-ls-git-log-file))
@@ -862,7 +862,9 @@ See docstring of `helm-ls-git-ls-switches'.
                 (apply #'process-file
                        "git"
                        nil (list t helm-ls-git-log-file) nil
-                       (list "status" "--porcelain")))))))
+                       (if ignore-untracked
+                           (list "status" "-uno" "--porcelain")
+                         (list "status" "--porcelain"))))))))
 
 (defun helm-ls-git-status-transformer (candidates _source)
   (cl-loop with root = (helm-ls-git-root-dir)
