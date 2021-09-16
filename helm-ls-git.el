@@ -206,7 +206,7 @@ See Issue #52."
 
 You can start with `helm-ls-git-ls' but you can also use the generic
 `helm-browse-project' which will use `helm-ls-git' if you are in a git
-project (actually supported backends are git, hg and svn). 
+project (actually supported backends are git, hg and svn).
 
 *** You may want to use magit as git status command
 
@@ -604,7 +604,7 @@ See docstring of `helm-ls-git-ls-switches'.
               (save-buffer))
             (find-file path))
         (error "No such file %s at %s" file rev)))))
-    
+
 (defun helm-ls-git-run-show-log ()
   (interactive)
   (with-helm-alive-p
@@ -649,7 +649,7 @@ See docstring of `helm-ls-git-ls-switches'.
       (cl-assert (not (helm-ls-git-modified-p t))
                  nil "Please commit or stash your changes before proceeding"))
     (with-helm-default-directory (helm-ls-git-root-dir)
-      (let* ((branch (replace-regexp-in-string "[ ]" "" candidate)) 
+      (let* ((branch (replace-regexp-in-string "[ ]" "" candidate))
              (real (replace-regexp-in-string "\\`\\*" "" branch)))
         (if (string-match "\\`[*]" candidate)
             (message "Already on %s branch" real)
@@ -836,7 +836,7 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-apply-patch (_candidate)
   (with-helm-default-directory (helm-default-directory)
-    (let ((patchs (helm-marked-candidates))) 
+    (let ((patchs (helm-marked-candidates)))
       (with-current-buffer-window "*git apply*" '(display-buffer-below-selected
                                                   (window-height . fit-window-to-buffer)
                                                   (preserve-size . (nil . t)))
@@ -939,7 +939,7 @@ See docstring of `helm-ls-git-ls-switches'.
                                                                  ".gitignore"
                                                                  (helm-ls-git-root-dir)))
                                             (goto-char (point-max))
-                                            (cl-loop with last-bname 
+                                            (cl-loop with last-bname
                                                      for f in marked
                                                      for bname = (helm-basename f)
                                                      unless (string= bname last-bname)
