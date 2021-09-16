@@ -1088,10 +1088,7 @@ See docstring of `helm-ls-git-ls-switches'.
    0.1 nil
    (lambda ()
      (message
-      "%s"
-      (substitute-command-keys
-       "When done with a buffer, type \\[helm-ls-git-server-edit],\
- to abort type \\[helm-ls-git-server-edit-abort]")))))
+      "When done with a buffer, type `C-c C-c', to abort type `C-c C-k'"))))
 
 (defun helm-ls-git-amend-commit (_candidate)
   (require 'magit-commit nil t)
