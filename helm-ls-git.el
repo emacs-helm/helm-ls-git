@@ -747,6 +747,7 @@ See docstring of `helm-ls-git-ls-switches'.
                              '(("Git amend" . helm-ls-git-amend-commit))
                              2)))
     :cleanup (lambda () (setq helm-ls-git-branches-show-all nil))
+    :persistent-help "Checkout"
     :persistent-action (lambda (candidate)
                          (helm-ls-git-checkout candidate)
                          (helm-force-update))
