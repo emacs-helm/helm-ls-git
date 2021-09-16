@@ -834,6 +834,15 @@ See docstring of `helm-ls-git-ls-switches'.
   (let ((mkd (helm-marked-candidates)))
     (cl-loop for c in mkd do (helm-ls-git-stash-drop c))))
 
+(defun helm-ls-git-apply-patch (_candidate)
+  (with-helm-default-directory (helm-default-directory)
+    (let ((patchs (helm-marked-candidates))) 
+      (with-current-buffer-window "*git apply*" '(display-buffer-below-selected
+                                                  (window-height . fit-window-to-buffer)
+                                                  (preserve-size . (nil . t)))
+                                  nil
+        (apply #'process-file "git" nil t t "apply" patchs)))))
+
 (defvar helm-ls-git-stashes-source
   (helm-build-in-buffer-source "Stashes"
     :data 'helm-ls-git-list-stashes
@@ -906,30 +915,35 @@ See docstring of `helm-ls-git-ls-switches'.
     ;; Unregistered files
     (cond ((string-match "^[?]\\{2\\}" disp)
            (append actions
-                   (list '("Add file(s)"
-                           . (lambda (candidate)
-                               (let ((default-directory
-                                      (file-name-directory candidate))
-                                     (marked (helm-marked-candidates)))
-                                 (vc-call-backend 'Git 'register marked))))
-                         '("Delete file(s)" . helm-ff-delete-files)
-                         '("Copy bnames to .gitignore"
-                           . (lambda (candidate)
-                               (let ((default-directory
-                                      (file-name-directory candidate))
-                                     (marked (helm-marked-candidates)))
-                                 (with-current-buffer (find-file-noselect
-                                                       (expand-file-name
-                                                        ".gitignore"
-                                                        (helm-ls-git-root-dir)))
-                                   (goto-char (point-max))
-                                   (cl-loop with last-bname 
-                                         for f in marked
-                                         for bname = (helm-basename f)
-                                         unless (string= bname last-bname)
-                                         do (insert (concat bname "\n"))
-                                         do (setq last-bname bname))
-                                   (save-buffer))))))))
+                   (helm-make-actions "Add file(s)"
+                                      (lambda (candidate)
+                                        (let ((default-directory
+                                                (file-name-directory candidate))
+                                              (marked (helm-marked-candidates)))
+                                          (vc-call-backend 'Git 'register marked)))
+                                      "Delete file(s)"
+                                      'helm-ff-delete-files
+                                      (lambda ()
+                                        (and (string-match "\\`[?]\\{2\\}.*\\.patch\\|diff" disp)
+                                             "Apply patch"))
+                                      'helm-ls-git-apply-patch
+                                      "Copy bnames to .gitignore"
+                                      (lambda (candidate)
+                                        (let ((default-directory
+                                                (file-name-directory candidate))
+                                              (marked (helm-marked-candidates)))
+                                          (with-current-buffer (find-file-noselect
+                                                                (expand-file-name
+                                                                 ".gitignore"
+                                                                 (helm-ls-git-root-dir)))
+                                            (goto-char (point-max))
+                                            (cl-loop with last-bname 
+                                                     for f in marked
+                                                     for bname = (helm-basename f)
+                                                     unless (string= bname last-bname)
+                                                     do (insert (concat bname "\n"))
+                                                     do (setq last-bname bname))
+                                            (save-buffer)))))))
           ((string-match "^A " disp)
            (append actions '(("Commit staged file(s)"
                               . helm-ls-git-commit)
