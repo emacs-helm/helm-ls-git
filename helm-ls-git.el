@@ -499,6 +499,7 @@ See docstring of `helm-ls-git-ls-switches'.
                      :get-line 'buffer-substring
                      :marked-with-props 'withprop
                      :action '(("Show commit" . helm-ls-git-log-show-commit)
+                               ("Find file at rev" . helm-ls-git-log-find-file)
                                ("Kill rev as hash" .
                                 (lambda (candidate)
                                   (kill-new (car (split-string candidate)))))
@@ -584,6 +585,26 @@ See docstring of `helm-ls-git-ls-switches'.
       (kill-buffer "*git log diff*")
     (helm-ls-git-log-show-commit-1 candidate)))
 
+(defun helm-ls-git-log-find-file (_candidate)
+  (with-helm-default-directory (helm-default-directory)
+    (let* ((rev (get-text-property 1 'rev (helm-get-selection nil 'withprop)))
+           (file (helm :sources (helm-build-in-buffer-source "Git cat-file"
+                                  :data (helm-ls-git-list-files))
+                       :buffer "*helm-ls-git cat-file*"))
+           (fname (concat rev ":" file))
+           (path (expand-file-name fname))
+           str status)
+      (setq str (with-output-to-string
+                  (with-current-buffer standard-output
+                    (setq status (process-file "git" nil t nil "cat-file" "-p" fname)))))
+      (if (zerop status)
+          (progn
+            (with-current-buffer (find-file-noselect path)
+              (insert str)
+              (save-buffer))
+            (find-file path))
+        (error "No such file %s at %s" file rev)))))
+    
 (defun helm-ls-git-run-show-log ()
   (interactive)
   (with-helm-alive-p
