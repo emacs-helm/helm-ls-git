@@ -746,7 +746,7 @@ See docstring of `helm-ls-git-ls-switches'.
                                   (make-string (- maxlen (length c)) ? )
                                   log)
                         (format "%s: %s%s"
-                                (propertize c 'face '((:foreground "red")))
+                                (propertize c 'face 'helm-ls-git-branches-name)
                                 (make-string (- maxlen (length c)) ? )
                                 log))
            collect (cons disp c)))
