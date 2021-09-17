@@ -478,8 +478,9 @@ See docstring of `helm-ls-git-ls-switches'.
   (with-helm-alive-p
     (helm-exit-and-execute-action 'helm-ls-git-grep)))
 (put 'helm-ls-git-run-grep 'no-helm-mx t)
-
 
+;;; Git log
+;;
 (defun helm-ls-git-search-log (_candidate)
   (let* ((query (helm-read-string "Search log: "))
          (coms (if helm-current-prefix-arg
@@ -493,9 +494,6 @@ See docstring of `helm-ls-git-ls-switches'.
   (goto-char (point-min))
   (diff-mode))
 
-
-;;; Git log
-;;
 (defun helm-ls-git-log (&optional branch num)
   (let* ((commits-number (if num
                              (number-to-string num)
