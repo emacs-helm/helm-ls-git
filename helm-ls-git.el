@@ -433,7 +433,31 @@ See docstring of `helm-ls-git-ls-switches'.
                            (funcall helm-ls-git-status-command
                                     (helm-default-directory)))))))
 
+(defun helm-ls-git-revert-buffers-in-project ()
+  (cl-loop for buf in (helm-browse-project-get-buffers (helm-ls-git-root-dir))
+           when (buffer-file-name (get-buffer buf))
+           do (with-current-buffer buf (revert-buffer nil t))))
+
+(defun helm-ls-git-diff (candidate)
+  (let ((default-directory
+         (expand-file-name (file-name-directory candidate)))
+        (win (get-buffer-window "*vc-diff*" 'visible)))
+    (if (and win
+             (eq last-command 'helm-execute-persistent-action))
+        (with-helm-window
+          (kill-buffer "*vc-diff*")
+          (if (and helm-persistent-action-display-window
+                   (window-dedicated-p (next-window win 1)))
+              (delete-window helm-persistent-action-display-window)
+            (set-window-buffer win helm-current-buffer)))
+      (when (buffer-live-p (get-buffer "*vc-diff*"))
+        (kill-buffer "*vc-diff*"))
+      (vc-git-diff (helm-marked-candidates))
+      (pop-to-buffer "*vc-diff*")
+      (diff-mode))))
 
+;;; Git grep
+;;
 (defun helm-ls-git-grep (_candidate)
   (let* ((helm-grep-default-command helm-ls-git-grep-command)
          helm-grep-default-recurse-command
@@ -776,11 +800,6 @@ See docstring of `helm-ls-git-ls-switches'.
   (when (string-match "stash@[{][0-9]+[}]" candidate)
     (match-string 0 candidate)))
 
-(defun helm-ls-git-revert-buffers-in-project ()
-  (cl-loop for buf in (helm-browse-project-get-buffers (helm-ls-git-root-dir))
-           when (buffer-file-name (get-buffer buf))
-           do (with-current-buffer buf (revert-buffer nil t))))
-
 (defun helm-ls-git-stash-show (candidate)
   (if (and (eq last-command 'helm-execute-persistent-action)
            (get-buffer-window "*stash diff*" 'visible))
@@ -853,6 +872,7 @@ See docstring of `helm-ls-git-ls-switches'.
               ("Pop" . helm-ls-git-stash-pop)
               ("Drop" . helm-ls-git-stash-drop-marked))))
 
+;;; Git status
 (defun helm-ls-git-status (&optional ignore-untracked)
   (when (and helm-ls-git-log-file
              (file-exists-p helm-ls-git-log-file))
@@ -998,6 +1018,9 @@ See docstring of `helm-ls-git-ls-switches'.
                                    . helm-ls-git-stage-marked-and-commit))))
           (t actions))))
 
+
+;;; Stage and commit
+;;
 (defun helm-ls-git-stage-files (_candidate)
   "Stage marked files."
   (require 'magit-apply nil t)
@@ -1038,6 +1061,42 @@ See docstring of `helm-ls-git-ls-switches'.
           (magit-commit-extend))
       (process-file "git" nil nil nil "commit" "--amend" "--no-edit"))))
 
+(defun helm-ls-git-amend-commit (_candidate)
+  (require 'magit-commit nil t)
+  (let ((default-directory (expand-file-name
+                            (helm-ls-git-root-dir
+                             (helm-default-directory)))))
+    (if (fboundp 'magit-commit-amend)
+        (let ((magit-inhibit-refresh t))
+          (magit-commit-amend))
+      ;; An async process is needed for commands invoking $EDITOR.
+      (helm-ls-git-with-editor "commit" "-v" "--amend"))))
+
+(defun helm-ls-git-commit (candidate)
+  "Commit all staged files."
+  (require 'magit-commit nil t)
+  (let ((default-directory (file-name-directory candidate)))
+    (if (fboundp 'magit-commit)
+        (let ((magit-inhibit-refresh t))
+          (magit-commit-create))
+      (helm-ls-git-commit-files))))
+
+(defun helm-ls-git-commit-files ()
+  "Default function to commit files."
+  (helm-ls-git-stage-files nil)
+  (helm-ls-git-with-editor "commit" "-v"))
+
+(defun helm-ls-git-magit-stage-files (files)
+  (cl-loop for f in files
+           do (magit-stage-file f)))
+
+(defun helm-ls-git-magit-unstage-files (files)
+  (cl-loop for f in files
+           do (magit-unstage-file f)))
+
+
+;;; Emacsclient as git editor
+;;
 (defun helm-ls-git-with-editor (&rest args)
   "Binds GIT_EDITOR env var to emacsclient and run git with ARGS."
   (require 'server)
@@ -1093,57 +1152,9 @@ See docstring of `helm-ls-git-ls-switches'.
      (message
       "When done with a buffer, type `C-c C-c', to abort type `C-c C-k'"))))
 
-(defun helm-ls-git-amend-commit (_candidate)
-  (require 'magit-commit nil t)
-  (let ((default-directory (expand-file-name
-                            (helm-ls-git-root-dir
-                             (helm-default-directory)))))
-    (if (fboundp 'magit-commit-amend)
-        (let ((magit-inhibit-refresh t))
-          (magit-commit-amend))
-      ;; An async process is needed for commands invoking $EDITOR.
-      (helm-ls-git-with-editor "commit" "-v" "--amend"))))
-
-(defun helm-ls-git-commit (candidate)
-  "Commit all staged files."
-  (require 'magit-commit nil t)
-  (let ((default-directory (file-name-directory candidate)))
-    (if (fboundp 'magit-commit)
-        (let ((magit-inhibit-refresh t))
-          (magit-commit-create))
-      (helm-ls-git-commit-files))))
-
-(defun helm-ls-git-commit-files ()
-  "Default function to commit files."
-  (helm-ls-git-stage-files nil)
-  (helm-ls-git-with-editor "commit" "-v"))
-
-(defun helm-ls-git-magit-stage-files (files)
-  (cl-loop for f in files
-           do (magit-stage-file f)))
-
-(defun helm-ls-git-magit-unstage-files (files)
-  (cl-loop for f in files
-           do (magit-unstage-file f)))
-
-(defun helm-ls-git-diff (candidate)
-  (let ((default-directory
-         (expand-file-name (file-name-directory candidate)))
-        (win (get-buffer-window "*vc-diff*" 'visible)))
-    (if (and win
-             (eq last-command 'helm-execute-persistent-action))
-        (with-helm-window
-          (kill-buffer "*vc-diff*")
-          (if (and helm-persistent-action-display-window
-                   (window-dedicated-p (next-window win 1)))
-              (delete-window helm-persistent-action-display-window)
-            (set-window-buffer win helm-current-buffer)))
-      (when (buffer-live-p (get-buffer "*vc-diff*"))
-        (kill-buffer "*vc-diff*"))
-      (vc-git-diff (helm-marked-candidates))
-      (pop-to-buffer "*vc-diff*")
-      (diff-mode))))
-
+
+;;; Build sources
+;;
 ;; Overhide the actions of helm-type-buffer.
 (cl-defmethod helm--setup-source :after ((source helm-source-buffers))
   (let ((name (slot-value source 'name)))
@@ -1191,7 +1202,7 @@ Do nothing when `helm-source-ls-git-buffers' is not member of
 
 
 ;;;###autoload
-(defun helm-ls-git-ls (&optional arg)
+(defun helm-ls-git (&optional arg)
   (interactive "p")
   (let ((helm-ff-default-directory
          (or helm-ff-default-directory
@@ -1211,6 +1222,10 @@ Do nothing when `helm-source-ls-git-buffers' is not member of
           :ff-transformer-show-only-basename nil
           :truncate-lines helm-buffers-truncate-lines
           :buffer "*helm lsgit*")))
+
+(defalias 'helm-ls-git-ls 'helm-ls-git)
+(make-obsolete 'helm-ls-git-ls 'helm-ls-git "1.9.2")
+(put 'helm-ls-git-ls 'no-helm-mx t)
 
 
 (provide 'helm-ls-git)
