@@ -318,7 +318,7 @@ See docstring of `helm-ls-git-ls-switches'.
               (remove "-o" helm-ls-git-ls-switches)
               (helm-append-at-nth helm-ls-git-ls-switches "-o" 1)))
     (helm-force-update)))
-(put 'helm-ls-git-ls-switches 'helm-only t)
+(put 'helm-ls-git-ls-files-show-others 'no-helm-mx t)
 
 (cl-defun helm-ls-git-root-dir (&optional (directory default-directory))
   (locate-dominating-file directory ".git"))
@@ -633,7 +633,7 @@ See docstring of `helm-ls-git-ls-switches'.
   (interactive)
   (with-helm-alive-p
     (helm-exit-and-execute-action #'helm-ls-git-show-log)))
-(put 'helm-ls-git-log-show-commit 'no-helm-mx t)
+(put 'helm-ls-git-run-show-log 'no-helm-mx t)
 
 
 ;;; Git branch basic management
