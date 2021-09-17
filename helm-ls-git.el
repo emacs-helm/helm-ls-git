@@ -688,7 +688,8 @@ See docstring of `helm-ls-git-ls-switches'.
           (current (helm-ls-git--branch)))
       (when (y-or-n-p (format "Merge branch %s into %s?" branch current))
         (if (= (process-file "git" nil nil nil "merge" branch) 0)
-            (message "Branch %s merged successfully into %s" branch current)
+            (progn (message "Branch %s merged successfully into %s" branch current)
+                   (helm-ls-git-revert-buffers-in-project))
           (message "failed to merge branch %s" branch))))))
 
 (defvar helm-ls-git-create-branch-source
