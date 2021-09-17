@@ -644,7 +644,7 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-checkout (candidate)
   (let ((default-directory (helm-default-directory)))
     (if (and helm-ls-git-auto-checkout
-             (helm-ls-git-modified-p))
+             (helm-ls-git-modified-p t))
         (helm-ls-git-stash-1 "")
       (cl-assert (not (helm-ls-git-modified-p t))
                  nil "Please commit or stash your changes before proceeding"))
