@@ -661,7 +661,8 @@ See docstring of `helm-ls-git-ls-switches'.
                                 nil nil nil
                                 switches)))
             (if (= status 0)
-                (message "Switched to %s branch" real)
+                (progn (message "Switched to %s branch" real)
+                       (helm-ls-git-revert-buffers-in-project))
               (error "Process exit with non zero status"))))))))
 
 (defun helm-ls-git-branches-create (candidate)
