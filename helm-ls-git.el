@@ -204,16 +204,39 @@ See Issue #52."
 
 *** Start helm-ls-git
 
-You can start with `helm-ls-git-ls' but you can also use the generic
-`helm-browse-project' which will use `helm-ls-git' if you are in a git
-project (actually supported backends are git, hg and svn).
+You can start with `helm-ls-git' but you can also use the generic
+`helm-browse-project' which will use `helm-ls-git' if you are in
+a git project (actually supported backends are git and hg though
+helm-ls-hg is no more maintained).
 
 *** You may want to use magit as git status command
 
 By default helm-ls-git is using emacs `vc-dir' as `helm-ls-git-status-command',
 perhaps you want to use something better like `magit-status' ?
-If it's the case use `magit-status-internal' as value for `helm-ls-git-status-command'
-as `magit-status' is working only interactively (it will not work from helm-ls-git).
+
+*** Git log
+
+From branches source, you can launch git log.  With a numeric
+prefix arg specify the number of commits to show.  Once you are
+in Git log you can specify with 2 marked candidates range of
+commits, specifying more than two marked candidate for actions
+accepting ranges will fail.  When specifying a range of commits,
+the top commit will be included in range whereas the bottom
+commit will not be included, e.g. if you mark commit-2 and
+commit-5, and use the format-patch action, git will make
+01-commit-4.patch, 02-commit-3.patch, and 03-commit-2.patch files
+taking care of naming files in the reverse order for applying
+patches later, commit-5 beeing excluded.
+
+Persistent action in git log is to show diff of commits, if you
+want to always show diff while moving from one commit to the
+other use follow-mode (C-c C-f).
+
+*** Git commit
+
+If magit is installed commits will be done with magit, otherwise
+they will be done using emacsclient as GIT_EDITOR, you can use
+there C-c C-c to commit or C-c C-k to abort commit.
 
 *** Git grep usage
 
@@ -233,17 +256,6 @@ extensions to grep, this is non sense because we have here the
 whole list of files (recursive) of current repo and not only the
 file under current directory, so we have better time
 selectionning the files we want to grep.
-
-**** With no prefix arg.
-
-Git grep all files in current repository.
-
-**** With one prefix arg.
-
-Git grep all files in current directory i.e. `default-directory'.
-It may be the `default-directory' from the buffer you started
-from or the directory from where you launched `helm-ls-git' from
-`helm-find-files'.
 
 **** Grep a subdirectory of current repository.
 
