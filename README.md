@@ -8,9 +8,17 @@ Yet another helm for listing the files in a git repo.
 
 ## Features:
 
+* Display list of branches in project and provide related actions.
+
+* Provide git log view from branches source with related actions (diff, patches, find file etc...)
+
 * Display the open buffers in project.
 
 * Display a status source showing state of project (modified files etc...).
+
+* Provide its own commit facilities (commit, amend etc...)
+
+* Display stashes list and provide related actions.
 
 * Display a list of all files in project under git control.
 
