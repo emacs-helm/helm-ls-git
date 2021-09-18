@@ -544,6 +544,7 @@ See docstring of `helm-ls-git-ls-switches'.
                                              2 'rev
                                              (helm-get-selection nil 'withprop))
                                       (kill-new it))))
+                               ("Cherry-pick" . helm-ls-git-log-cherry-pick)
                                ("Format patches" . helm-ls-git-log-format-patch)
                                ("Git am" . helm-ls-git-log-am)
                                ("Reset" . helm-ls-git-log-reset))
@@ -645,6 +646,18 @@ See docstring of `helm-ls-git-ls-switches'.
               (save-buffer))
             (find-file path))
         (error "No such file %s at %s" file rev)))))
+
+(defun helm-ls-git-log-cherry-pick (_candidate)
+  (let* ((commits (cl-loop for c in (helm-marked-candidates)
+                           collect (get-text-property 1 'rev c) into revs
+                           finally return (sort revs #'string-greaterp))))
+    (with-helm-default-directory (helm-ls-git-root-dir
+                                  (helm-default-directory))
+      (with-current-buffer-window "*git cherry-pick*" '(display-buffer-below-selected
+                                                        (window-height . fit-window-to-buffer)
+                                                        (preserve-size . (nil . t)))
+                                  nil
+        (apply #'process-file "git" nil "*git cherry-pick*" nil "cherry-pick" commits)))))
 
 (defun helm-ls-git-run-show-log ()
   (interactive)
