@@ -572,6 +572,12 @@ See docstring of `helm-ls-git-ls-switches'.
                           collect (get-text-property 1 'rev c)))
         range switches)
     (cond ((= 2 (length commits))
+           ;; Using "..." makes a range from top marked (included) to
+           ;; bottom marked (not included) e.g. when we have commit-2
+           ;; marked and commit-5 marked the serie of patches will be
+           ;; 01-commit-4.patch, 02-commit-3.patch, 03-commit-2.patch,
+           ;; git taking care of numering the patch in reversed order
+           ;; for further apply.
            (setq range (mapconcat 'identity (sort commits #'string-lessp) "...")
                  switches `("format-patch" ,range)))
           ((not (cdr commits))
