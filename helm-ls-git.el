@@ -851,7 +851,16 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-stash-drop-marked (_candidate)
   (let ((mkd (helm-marked-candidates)))
-    (cl-loop for c in mkd do (helm-ls-git-stash-drop c))))
+    (cl-loop with sorted =
+             (sort mkd (lambda (s1 s2)
+                         (let ((n1 (and (string-match
+                                         "^stash@[{]\\([0-9]+\\)[}]" s1)
+                                        (match-string 1 s1)))
+                               (n2 (and (string-match
+                                         "^stash@[{]\\([0-9]+\\)[}]" s2)
+                                        (match-string 1 s2))))
+                           (string-greaterp n1 n2))))
+             for c in sorted do (helm-ls-git-stash-drop c))))
 
 (defun helm-ls-git-apply-patch (_candidate)
   (with-helm-default-directory (helm-default-directory)
