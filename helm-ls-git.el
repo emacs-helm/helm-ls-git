@@ -437,6 +437,7 @@ See docstring of `helm-ls-git-ls-switches'.
    (filtered-candidate-transformer :initform 'helm-ls-git-status-transformer)
    (persistent-action :initform 'helm-ls-git-diff)
    (persistent-help :initform "Diff")
+   (help-message :initform helm-ls-git-help-message)
    (action-transformer :initform 'helm-ls-git-status-action-transformer)
    (action :initform
            (helm-make-actions
@@ -788,6 +789,7 @@ See docstring of `helm-ls-git-ls-switches'.
                              actions
                              '(("Git amend" . helm-ls-git-amend-commit))
                              2)))
+    :help-message 'helm-ls-git-help-message
     :cleanup (lambda () (setq helm-ls-git-branches-show-all nil))
     :persistent-help "Checkout"
     :persistent-action (lambda (candidate)
