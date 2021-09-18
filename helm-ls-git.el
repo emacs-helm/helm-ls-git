@@ -659,6 +659,10 @@ See docstring of `helm-ls-git-ls-switches'.
                                   nil
         (apply #'process-file "git" nil "*git cherry-pick*" nil "cherry-pick" commits)))))
 
+(defun helm-ls-git-cherry-pick-abort (_candidate)
+  (with-helm-default-directory (helm-default-directory)
+    (process-file "git" nil nil nil "cherry-pick" "--abort")))
+
 (defun helm-ls-git-run-show-log ()
   (interactive)
   (with-helm-alive-p
@@ -1056,6 +1060,9 @@ See docstring of `helm-ls-git-ls-switches'.
                                    . helm-ls-git-commit)
                                  '("Stage marked file(s) and commit"
                                    . helm-ls-git-stage-marked-and-commit))))
+          ;; Conflict
+          ((string-match "^U+ +" disp)
+           (append actions (list '("Git cherry-pick abort" . helm-ls-git-cherry-pick-abort))))
           (t actions))))
 
 
