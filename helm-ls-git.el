@@ -1093,10 +1093,12 @@ See docstring of `helm-ls-git-ls-switches'.
   (helm-ls-git-with-editor "commit" "-v"))
 
 (defun helm-ls-git-stage-marked-and-extend-commit (candidate)
+  "Stage marked files and extend these changes to last commit"
   (helm-ls-git-stage-files nil)
   (helm-ls-git-extend-commit candidate))
 
 (defun helm-ls-git-stage-marked-and-amend-commit (candidate)
+  "Stage marked files and amend last commit."
   (helm-ls-git-stage-files nil)
   (helm-ls-git-amend-commit candidate))
 
@@ -1109,6 +1111,7 @@ See docstring of `helm-ls-git-ls-switches'.
       (process-file "git" nil nil nil "commit" "--amend" "--no-edit"))))
 
 (defun helm-ls-git-amend-commit (_candidate)
+  "Amend last commit."
   (require 'magit-commit nil t)
   (let ((default-directory (expand-file-name
                             (helm-ls-git-root-dir
