@@ -1087,10 +1087,10 @@ See docstring of `helm-ls-git-ls-switches'.
         (helm-ls-git-magit-unstage-files files)
       (apply #'process-file "git" nil nil nil "reset" "HEAD" "--" files))))
 
-(defun helm-ls-git-stage-marked-and-commit (candidate)
+(defun helm-ls-git-stage-marked-and-commit (_candidate)
   "Stage marked files and commit."
   (helm-ls-git-stage-files nil)
-  (helm-ls-git-commit candidate))
+  (helm-ls-git-with-editor "commit" "-v"))
 
 (defun helm-ls-git-stage-marked-and-extend-commit (candidate)
   (helm-ls-git-stage-files nil)
@@ -1120,18 +1120,13 @@ See docstring of `helm-ls-git-ls-switches'.
       (helm-ls-git-with-editor "commit" "-v" "--amend"))))
 
 (defun helm-ls-git-commit (candidate)
-  "Commit all staged files."
+  "Commit already staged files."
   (require 'magit-commit nil t)
   (let ((default-directory (file-name-directory candidate)))
     (if (fboundp 'magit-commit)
         (let ((magit-inhibit-refresh t))
           (magit-commit-create))
-      (helm-ls-git-commit-files))))
-
-(defun helm-ls-git-commit-files ()
-  "Default function to commit files."
-  (helm-ls-git-stage-files nil)
-  (helm-ls-git-with-editor "commit" "-v"))
+      (helm-ls-git-with-editor "commit" "-v"))))
 
 (defun helm-ls-git-magit-stage-files (files)
   (cl-loop for f in files
