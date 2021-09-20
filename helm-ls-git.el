@@ -698,6 +698,7 @@ See docstring of `helm-ls-git-ls-switches'.
     (define-key map (kbd "C-c b") 'helm-ls-git-branches-toggle-show-all)
     (define-key map (kbd "M-L") 'helm-ls-git-run-show-log)
     (define-key map (kbd "C-c P") 'helm-ls-git-run-push)
+    (define-key map (kbd "C-c F") 'helm-ls-git-run-pull)
     map))
 
 (defun helm-ls-git-checkout (candidate)
@@ -804,13 +805,22 @@ See docstring of `helm-ls-git-ls-switches'.
     (helm-exit-and-execute-action #'helm-ls-git-push)))
 (put 'helm-ls-git-run-push 'no-helm-mx t)
 
-(defun helm-ls-git-pull ()
+(defun helm-ls-git-pull (_candidate)
   (with-helm-default-directory (helm-default-directory)
+    (message "Pulling from remote...")
     (let ((proc (start-process "git" nil "git" "pull")))
       (set-process-sentinel
        proc (lambda (_process event)
               (when (string= event "finished\n")
+                (message "Pulling from remote done")
                 (with-helm-window (helm-force-update "^\\*"))))))))
+
+(defun helm-ls-git-run-pull ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-set-attr 'pull '(helm-ls-git-pull . never-split))
+    (helm-execute-persistent-action 'pull)))
+(put 'helm-ls-git-run-pull 'no-helm-mx t)
 
 (defvar helm-ls-git-branches-source
   (helm-build-in-buffer-source "Git branches"
@@ -818,7 +828,6 @@ See docstring of `helm-ls-git-ls-switches'.
             (let ((data (helm-ls-git-collect-branches
                          helm-ls-git-branches-show-all)))
               (helm-init-candidates-in-buffer 'global data)))
-    :update #'helm-ls-git-pull
     :candidate-transformer 'helm-ls-git-branches-transformer
     :action-transformer (lambda (actions candidate)
                           (if (not (string-match "\\`[*]" candidate))
