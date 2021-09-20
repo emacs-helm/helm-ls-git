@@ -697,6 +697,7 @@ See docstring of `helm-ls-git-ls-switches'.
     (set-keymap-parent map helm-map)
     (define-key map (kbd "C-c b") 'helm-ls-git-branches-toggle-show-all)
     (define-key map (kbd "M-L") 'helm-ls-git-run-show-log)
+    (define-key map (kbd "C-c P") 'helm-ls-git-run-push)
     map))
 
 (defun helm-ls-git-checkout (candidate)
@@ -787,12 +788,35 @@ See docstring of `helm-ls-git-ls-switches'.
                                 log))
            collect (cons disp c)))
 
+(defun helm-ls-git-push (_candidate)
+  (with-helm-default-directory (helm-default-directory)
+    (let ((proc (start-process "git" nil "git" "push")))
+      (set-process-sentinel
+       proc (lambda (_process event)
+              (if (string= event "finished\n")
+                  (message "All changes applied on remote successfully")
+                (error "Failed to push on remote")))))))
+
+(defun helm-ls-git-run-push ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action #'helm-ls-git-push)))
+
+(defun helm-ls-git-pull ()
+  (with-helm-default-directory (helm-default-directory)
+    (let ((proc (start-process "git" nil "git" "pull")))
+      (set-process-sentinel
+       proc (lambda (_process event)
+              (when (string= event "finished\n")
+                (with-helm-window (helm-force-update "^\\*"))))))))
+
 (defvar helm-ls-git-branches-source
   (helm-build-in-buffer-source "Git branches"
     :init (lambda ()
             (let ((data (helm-ls-git-collect-branches
                          helm-ls-git-branches-show-all)))
               (helm-init-candidates-in-buffer 'global data)))
+    :update #'helm-ls-git-pull
     :candidate-transformer 'helm-ls-git-branches-transformer
     :action-transformer (lambda (actions candidate)
                           (if (not (string-match "\\`[*]" candidate))
@@ -804,7 +828,8 @@ See docstring of `helm-ls-git-ls-switches'.
                                actions)
                             (helm-append-at-nth
                              actions
-                             '(("Git amend" . helm-ls-git-amend-commit))
+                             '(("Git amend" . helm-ls-git-amend-commit)
+                               ("Git push" . helm-ls-git-push))
                              2)))
     :help-message 'helm-ls-git-help-message
     :cleanup (lambda () (setq helm-ls-git-branches-show-all nil))
