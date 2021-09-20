@@ -801,6 +801,7 @@ See docstring of `helm-ls-git-ls-switches'.
   (interactive)
   (with-helm-alive-p
     (helm-exit-and-execute-action #'helm-ls-git-push)))
+(put 'helm-ls-git-run-push 'no-helm-mx t)
 
 (defun helm-ls-git-pull ()
   (with-helm-default-directory (helm-default-directory)
