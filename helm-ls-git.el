@@ -790,11 +790,12 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-push (_candidate)
   (with-helm-default-directory (helm-default-directory)
+    (message "Pushing changes on remote...")
     (let ((proc (start-process "git" nil "git" "push")))
       (set-process-sentinel
        proc (lambda (_process event)
               (if (string= event "finished\n")
-                  (message "All changes applied on remote successfully")
+                  (message "Pushing changes on remote done")
                 (error "Failed to push on remote")))))))
 
 (defun helm-ls-git-run-push ()
