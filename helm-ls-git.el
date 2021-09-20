@@ -32,6 +32,7 @@
 
 (defvar magit-inhibit-refresh)
 (defvar server-clients)
+(declare-function helm-comp-read "ext:helm-mode.el")
 (declare-function magit-stage-file "ext:magit-apply")
 (declare-function magit-unstage-file "ext:magit-apply")
 (declare-function magit-commit-create "ext:magit-commit")
@@ -805,15 +806,34 @@ See docstring of `helm-ls-git-ls-switches'.
     (helm-exit-and-execute-action #'helm-ls-git-push)))
 (put 'helm-ls-git-run-push 'no-helm-mx t)
 
+(defun helm-ls-git-remotes ()
+  (with-helm-default-directory (helm-default-directory)
+    (with-output-to-string
+      (with-current-buffer standard-output
+        (process-file "git" nil t nil "remote")))))
+
 (defun helm-ls-git-pull (_candidate)
   (with-helm-default-directory (helm-default-directory)
-    (message "Pulling from remote...")
-    (let ((proc (start-process "git" nil "git" "pull")))
-      (set-process-sentinel
-       proc (lambda (_process event)
-              (when (string= event "finished\n")
-                (message "Pulling from remote done")
-                (with-helm-window (helm-force-update "^\\*"))))))))
+    (let ((remote "origin"))
+      (message "Pulling from `%s'..." remote)
+      (let* ((switches (if current-prefix-arg
+                           (list "pull "
+                                 (setq remote
+                                       (helm-comp-read
+                                        "Pull from: "
+                                        (split-string
+                                         (helm-ls-git-remotes)
+                                         "\n")
+                                        :allow-nest t))
+                                 (helm-ls-git--branch))
+                         '("pull")))
+             (proc (apply #'start-process "git" nil "git" switches)))
+        (set-process-sentinel
+         proc (lambda (_process event)
+                (when (string= event "finished\n")
+                  (message "Pulling from %s done" remote)
+                  (when helm-alive-p
+                    (with-helm-window (helm-force-update "^\\*"))))))))))
 
 (defun helm-ls-git-run-pull ()
   (interactive)
