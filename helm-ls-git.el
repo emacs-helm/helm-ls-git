@@ -815,9 +815,8 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-pull (_candidate)
   (with-helm-default-directory (helm-default-directory)
     (let ((remote "origin"))
-      (message "Pulling from `%s'..." remote)
       (let* ((switches (if current-prefix-arg
-                           (list "pull "
+                           (list "pull"
                                  (setq remote
                                        (helm-comp-read
                                         "Pull from: "
@@ -828,12 +827,14 @@ See docstring of `helm-ls-git-ls-switches'.
                                  (helm-ls-git--branch))
                          '("pull")))
              (proc (apply #'start-process "git" nil "git" switches)))
+        (message "Pulling from `%s'..." remote)
         (set-process-sentinel
          proc (lambda (_process event)
-                (when (string= event "finished\n")
-                  (message "Pulling from %s done" remote)
-                  (when helm-alive-p
-                    (with-helm-window (helm-force-update "^\\*"))))))))))
+                (if (string= event "finished\n")
+                    (progn (message "Pulling from %s done" remote)
+                           (when helm-alive-p
+                             (with-helm-window (helm-force-update "^\\*"))))
+                  (error "Failed pulling from %s" remote))))))))
 
 (defun helm-ls-git-run-pull ()
   (interactive)
