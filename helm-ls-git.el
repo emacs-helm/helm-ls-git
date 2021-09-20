@@ -1087,16 +1087,18 @@ See docstring of `helm-ls-git-ls-switches'.
         (helm-ls-git-magit-unstage-files files)
       (apply #'process-file "git" nil nil nil "reset" "HEAD" "--" files))))
 
-(defun helm-ls-git-stage-marked-and-commit (candidate)
+(defun helm-ls-git-stage-marked-and-commit (_candidate)
   "Stage marked files and commit."
   (helm-ls-git-stage-files nil)
-  (helm-ls-git-commit candidate))
+  (helm-ls-git-with-editor "commit" "-v"))
 
 (defun helm-ls-git-stage-marked-and-extend-commit (candidate)
+  "Stage marked files and extend these changes to last commit"
   (helm-ls-git-stage-files nil)
   (helm-ls-git-extend-commit candidate))
 
 (defun helm-ls-git-stage-marked-and-amend-commit (candidate)
+  "Stage marked files and amend last commit."
   (helm-ls-git-stage-files nil)
   (helm-ls-git-amend-commit candidate))
 
@@ -1109,6 +1111,7 @@ See docstring of `helm-ls-git-ls-switches'.
       (process-file "git" nil nil nil "commit" "--amend" "--no-edit"))))
 
 (defun helm-ls-git-amend-commit (_candidate)
+  "Amend last commit."
   (require 'magit-commit nil t)
   (let ((default-directory (expand-file-name
                             (helm-ls-git-root-dir
@@ -1120,18 +1123,13 @@ See docstring of `helm-ls-git-ls-switches'.
       (helm-ls-git-with-editor "commit" "-v" "--amend"))))
 
 (defun helm-ls-git-commit (candidate)
-  "Commit all staged files."
+  "Commit already staged files."
   (require 'magit-commit nil t)
   (let ((default-directory (file-name-directory candidate)))
     (if (fboundp 'magit-commit)
         (let ((magit-inhibit-refresh t))
           (magit-commit-create))
-      (helm-ls-git-commit-files))))
-
-(defun helm-ls-git-commit-files ()
-  "Default function to commit files."
-  (helm-ls-git-stage-files nil)
-  (helm-ls-git-with-editor "commit" "-v"))
+      (helm-ls-git-with-editor "commit" "-v"))))
 
 (defun helm-ls-git-magit-stage-files (files)
   (cl-loop for f in files
