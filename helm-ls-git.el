@@ -64,8 +64,8 @@ It can be build explicitly with function
 Valid values are symbol 'absolute or 'relative (default)."
   :group 'helm-ls-git
   :type  '(radio :tag "Show full path or relative path to Git repo when toggling"
-           (const :tag "Show full path" absolute)
-           (const :tag "Show relative path" relative)))
+                 (const :tag "Show full path" absolute)
+                 (const :tag "Show relative path" relative)))
 
 (defcustom helm-ls-git-status-command 'vc-dir
   "Favorite git-status command for emacs.
@@ -127,57 +127,57 @@ See Issue #52."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-modified-not-staged-face
-    '((t :foreground "yellow"))
+  '((t :foreground "yellow"))
   "Files which are modified but not yet staged."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-modified-and-staged-face
-    '((t :foreground "Goldenrod"))
+  '((t :foreground "Goldenrod"))
   "Files which are modified and already staged."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-renamed-modified-face
-    '((t :foreground "Goldenrod"))
+  '((t :foreground "Goldenrod"))
   "Files which are renamed or renamed and modified."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-untracked-face
-    '((t :foreground "red"))
+  '((t :foreground "red"))
   "Files which are not yet tracked by git."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-added-copied-face
-    '((t :foreground "green"))
+  '((t :foreground "green"))
   "Files which are newly added or copied."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-added-modified-face
-    '((t :foreground "blue"))
+  '((t :foreground "blue"))
   "Files which are newly added and have unstaged modifications."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-deleted-not-staged-face
-    '((t :foreground "Darkgoldenrod3"))
+  '((t :foreground "Darkgoldenrod3"))
   "Files which are deleted but not staged."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-deleted-and-staged-face
-    '((t :foreground "DimGray"))
+  '((t :foreground "DimGray"))
   "Files which are deleted and staged."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-conflict-face
-    '((t :foreground "MediumVioletRed"))
+  '((t :foreground "MediumVioletRed"))
   "Files which contain rebase/merge conflicts."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-branches-current
-    '((t :foreground "gold"))
+  '((t :foreground "gold"))
   "Color of the start prefixing current branch."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-branches-name
-    '((t :foreground "red"))
+  '((t :foreground "red"))
   "Color of branches names."
   :group 'helm-ls-git)
 
@@ -311,12 +311,12 @@ See docstring of `helm-ls-git-ls-switches'.
   ;; in `helm-buffer' as value for `default-directory'.
   (helm-aif (helm-ls-git-root-dir)
       (with-helm-default-directory it
-          (with-output-to-string
-              (with-current-buffer standard-output
-                (apply #'process-file
-                       "git"
-                       nil (list t helm-ls-git-log-file) nil
-                       helm-ls-git-ls-switches))))
+        (with-output-to-string
+          (with-current-buffer standard-output
+            (apply #'process-file
+                   "git"
+                   nil (list t helm-ls-git-log-file) nil
+                   helm-ls-git-ls-switches))))
     ;; Return empty string to give to `split-string'
     ;; in `helm-ls-git-init'.
     ""))
@@ -328,7 +328,7 @@ See docstring of `helm-ls-git-ls-switches'.
     (setq helm-ls-git-ls-switches
           (if (member "-o" helm-ls-git-ls-switches)
               (remove "-o" helm-ls-git-ls-switches)
-              (helm-append-at-nth helm-ls-git-ls-switches "-o" 1)))
+            (helm-append-at-nth helm-ls-git-ls-switches "-o" 1)))
     (helm-force-update)))
 (put 'helm-ls-git-ls-files-show-others 'no-helm-mx t)
 
@@ -339,19 +339,19 @@ See docstring of `helm-ls-git-ls-switches'.
   (not (helm-ls-git-root-dir)))
 
 (defun helm-ls-git-transformer (candidates _source)
-   (cl-loop with root = (helm-ls-git-root-dir)
-            with untracking = (member "-o" helm-ls-git-ls-switches)
-            for file in candidates
-            for abs = (expand-file-name file root)
-            for disp = (if (and helm-ff-transformer-show-only-basename
-                                (not (string-match "[.]\\{1,2\\}\\'" file)))
-                           (helm-basename file) file)
-            collect
-            (cons (propertize (if untracking (concat "? " disp) disp)
-                              'face (if untracking
-                                        'helm-ls-git-untracked-face
-                                        'helm-ff-file))
-                  abs)))
+  (cl-loop with root = (helm-ls-git-root-dir)
+           with untracking = (member "-o" helm-ls-git-ls-switches)
+           for file in candidates
+           for abs = (expand-file-name file root)
+           for disp = (if (and helm-ff-transformer-show-only-basename
+                               (not (string-match "[.]\\{1,2\\}\\'" file)))
+                          (helm-basename file) file)
+           collect
+           (cons (propertize (if untracking (concat "? " disp) disp)
+                             'face (if untracking
+                                       'helm-ls-git-untracked-face
+                                     'helm-ff-file))
+                 abs)))
 
 (defun helm-ls-git-sort-fn (candidates _source)
   "Transformer for sorting candidates."
@@ -408,7 +408,7 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-match-part (candidate)
   (if (with-helm-buffer helm-ff-transformer-show-only-basename)
       (helm-basename candidate)
-      candidate))
+    candidate))
 
 (defclass helm-ls-git-source (helm-source-in-buffer)
   ((header-name :initform 'helm-ls-git-header-name)
@@ -453,7 +453,7 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-diff (candidate)
   (let ((default-directory
-         (expand-file-name (file-name-directory candidate)))
+          (expand-file-name (file-name-directory candidate)))
         (win (get-buffer-window "*vc-diff*" 'visible)))
     (if (and win
              (eq last-command 'helm-execute-persistent-action))
@@ -512,11 +512,11 @@ See docstring of `helm-ls-git-ls-switches'.
                              (number-to-string num)
                            helm-ls-git-log-max-commits))
          (switches `("log" "--color"
-                    "--date=local"
-                    "--pretty=format:%C(yellow)%h%Creset \
+                     "--date=local"
+                     "--pretty=format:%C(yellow)%h%Creset \
  %C(green)%ad%Creset %<(60,trunc)%s %Cred%an%Creset %C(auto)%d%Creset"
-                    "-n" ,commits-number
-                    ,(or branch ""))))
+                     "-n" ,commits-number
+                     ,(or branch ""))))
     (with-helm-default-directory (helm-ls-git-root-dir)
       (with-output-to-string
         (with-current-buffer standard-output
@@ -824,12 +824,12 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-list-stashes ()
   (helm-aif (helm-ls-git-root-dir)
       (with-helm-default-directory it
-          (with-output-to-string
-              (with-current-buffer standard-output
-                (apply #'process-file
-                       "git"
-                       nil (list t helm-ls-git-log-file) nil
-                       (list "stash" "list")))))))
+        (with-output-to-string
+          (with-current-buffer standard-output
+            (apply #'process-file
+                   "git"
+                   nil (list t helm-ls-git-log-file) nil
+                   (list "stash" "list")))))))
 
 (defun helm-ls-git-get-stash-name (candidate)
   (when (string-match "stash@[{][0-9]+[}]" candidate)
@@ -923,47 +923,47 @@ See docstring of `helm-ls-git-ls-switches'.
     (delete-file helm-ls-git-log-file))
   (helm-aif (helm-ls-git-root-dir)
       (with-helm-default-directory it
-          (with-output-to-string
-              (with-current-buffer standard-output
-                (apply #'process-file
-                       "git"
-                       nil (list t helm-ls-git-log-file) nil
-                       (if ignore-untracked
-                           (list "status" "-uno" "--porcelain")
-                         (list "status" "--porcelain"))))))))
+        (with-output-to-string
+          (with-current-buffer standard-output
+            (apply #'process-file
+                   "git"
+                   nil (list t helm-ls-git-log-file) nil
+                   (if ignore-untracked
+                       (list "status" "-uno" "--porcelain")
+                     (list "status" "--porcelain"))))))))
 
 (defun helm-ls-git-status-transformer (candidates _source)
   (cl-loop with root = (helm-ls-git-root-dir)
-        for i in candidates
-        collect
-        (cond ((string-match "^\\( M \\)\\(.*\\)" i) ; modified.
-               (cons (propertize i 'face 'helm-ls-git-modified-not-staged-face)
-                     (expand-file-name (match-string 2 i) root)))
-              ((string-match "^\\(M+ *\\)\\(.*\\)" i) ; modified and staged.
-               (cons (propertize i 'face 'helm-ls-git-modified-and-staged-face)
-                     (expand-file-name (match-string 2 i) root)))
-              ((string-match "^\\([?]\\{2\\} \\)\\(.*\\)" i)
-               (cons (propertize i 'face 'helm-ls-git-untracked-face)
-                     (expand-file-name (match-string 2 i) root)))
-              ((string-match "^\\([AC] +\\)\\(.*\\)" i)
-               (cons (propertize i 'face 'helm-ls-git-added-copied-face)
-                     (expand-file-name (match-string 2 i) root)))
-              ((string-match "^\\( [D] \\)\\(.*\\)" i)
-               (cons (propertize i 'face 'helm-ls-git-deleted-not-staged-face)
-                     (expand-file-name (match-string 2 i) root)))
-              ((string-match "^\\(RM?\\).* -> \\(.*\\)" i)
-               (cons (propertize i 'face 'helm-ls-git-renamed-modified-face)
-                     (expand-file-name (match-string 2 i) root)))
-              ((string-match "^\\([D] +\\)\\(.*\\)" i)
-               (cons (propertize i 'face 'helm-ls-git-deleted-and-staged-face)
-                     (expand-file-name (match-string 2 i) root)))
-              ((string-match "^\\(UU \\)\\(.*\\)" i)
-               (cons (propertize i 'face 'helm-ls-git-conflict-face)
-                     (expand-file-name (match-string 2 i) root)))
-              ((string-match "^\\(AM \\)\\(.*\\)" i)
-               (cons (propertize i 'face 'helm-ls-git-added-modified-face)
-                     (expand-file-name (match-string 2 i) root)))
-              (t i))))
+           for i in candidates
+           collect
+           (cond ((string-match "^\\( M \\)\\(.*\\)" i) ; modified.
+                  (cons (propertize i 'face 'helm-ls-git-modified-not-staged-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 ((string-match "^\\(M+ *\\)\\(.*\\)" i) ; modified and staged.
+                  (cons (propertize i 'face 'helm-ls-git-modified-and-staged-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 ((string-match "^\\([?]\\{2\\} \\)\\(.*\\)" i)
+                  (cons (propertize i 'face 'helm-ls-git-untracked-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 ((string-match "^\\([AC] +\\)\\(.*\\)" i)
+                  (cons (propertize i 'face 'helm-ls-git-added-copied-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 ((string-match "^\\( [D] \\)\\(.*\\)" i)
+                  (cons (propertize i 'face 'helm-ls-git-deleted-not-staged-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 ((string-match "^\\(RM?\\).* -> \\(.*\\)" i)
+                  (cons (propertize i 'face 'helm-ls-git-renamed-modified-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 ((string-match "^\\([D] +\\)\\(.*\\)" i)
+                  (cons (propertize i 'face 'helm-ls-git-deleted-and-staged-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 ((string-match "^\\(UU \\)\\(.*\\)" i)
+                  (cons (propertize i 'face 'helm-ls-git-conflict-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 ((string-match "^\\(AM \\)\\(.*\\)" i)
+                  (cons (propertize i 'face 'helm-ls-git-added-modified-face)
+                        (expand-file-name (match-string 2 i) root)))
+                 (t i))))
 
 (defun helm-ls-git-status-action-transformer (actions _candidate)
   (let ((disp (helm-get-selection nil t))
@@ -1073,7 +1073,7 @@ See docstring of `helm-ls-git-ls-switches'.
   (require 'magit-apply nil t)
   (let* ((files (helm-marked-candidates))
          (default-directory
-          (file-name-directory (car files))))
+           (file-name-directory (car files))))
     (if (fboundp 'magit-stage-file)
         (helm-ls-git-magit-stage-files files)
       (apply #'process-file "git" nil nil nil "stage" files))))
@@ -1157,7 +1157,7 @@ See docstring of `helm-ls-git-ls-switches'.
           (add-hook 'find-file-hook 'helm-ls-git-with-editor-setup)
           (add-hook 'server-done-hook 'helm-ls-git-with-editor-done)
           (apply #'start-file-process "git" "*helm-ls-git log*" "git" args)
-      (setenv "GIT_EDITOR" old-editor)))))
+          (setenv "GIT_EDITOR" old-editor)))))
 
 (defun helm-ls-git-with-editor-done ()
   (remove-hook 'find-file-hook 'helm-ls-git-with-editor-setup))
