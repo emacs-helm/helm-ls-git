@@ -1213,8 +1213,8 @@ See docstring of `helm-ls-git-ls-switches'.
         (progn
           (add-hook 'find-file-hook 'helm-ls-git-with-editor-setup)
           (add-hook 'server-done-hook 'helm-ls-git-with-editor-done)
-          (apply #'start-file-process "git" "*helm-ls-git commit*" "git" args)
-          (setenv "GIT_EDITOR" old-editor)))))
+          (apply #'start-file-process "git" "*helm-ls-git commit*" "git" args))
+      (setenv "GIT_EDITOR" old-editor))))
 
 (defun helm-ls-git-with-editor-done ()
   (remove-hook 'find-file-hook 'helm-ls-git-with-editor-setup))
