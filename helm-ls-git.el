@@ -815,6 +815,7 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-pull (_candidate)
   (with-helm-default-directory (helm-default-directory)
     (let ((remote "origin"))
+      ;; A `C-g' in helm-comp-read will quit function as well.
       (let* ((switches (if current-prefix-arg
                            (list "pull"
                                  (setq remote
@@ -826,7 +827,8 @@ See docstring of `helm-ls-git-ls-switches'.
                                         :allow-nest t))
                                  (helm-ls-git--branch))
                          '("pull")))
-             (proc (apply #'start-file-process "git" "*helm-ls-git pull*" "git" switches)))
+             (proc (apply #'start-file-process
+                          "git" "*helm-ls-git pull*" "git" switches)))
         (message "Pulling from `%s'..." remote)
         (set-process-sentinel
          proc (lambda (_process event)
