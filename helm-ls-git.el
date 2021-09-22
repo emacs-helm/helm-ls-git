@@ -197,6 +197,26 @@ See Issue #52."
     (set-keymap-parent map helm-buffer-map)
     (define-key map (kbd "C-c i") 'helm-ls-git-ls-files-show-others)
     map))
+
+(defvar helm-ls-git-branches-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map helm-map)
+    (define-key map (kbd "C-c b") 'helm-ls-git-branches-toggle-show-all)
+    (define-key map (kbd "M-L") 'helm-ls-git-run-show-log)
+    (define-key map (kbd "C-c P") 'helm-ls-git-run-push)
+    (define-key map (kbd "C-c F") 'helm-ls-git-run-pull)
+    map))
+
+(defvar helm-ls-git-status-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map helm-ls-git-map)
+    (define-key map (kbd "C-c c") 'helm-ls-git-run-stage-marked-and-commit)
+    (define-key map (kbd "C-c a") 'helm-ls-git-run-stage-marked-and-amend-commit)
+    (define-key map (kbd "C-c s") 'helm-ls-git-run-stage-files)
+    (define-key map (kbd "C-c e") 'helm-ls-git-run-stage-marked-and-extend-commit)
+    (define-key map (kbd "C-c z") 'helm-ls-git-run-stash)
+    (define-key map (kbd "C-c Z") 'helm-ls-git-run-stash-snapshot)
+    map))
 
 (defvar helm-ls-git-help-message
   "* Helm ls git
@@ -434,7 +454,7 @@ See docstring of `helm-ls-git-ls-switches'.
          (lambda ()
            (helm-init-candidates-in-buffer 'global
              (helm-ls-git-status))))
-   (keymap :initform helm-ls-git-map)
+   (keymap :initform helm-ls-git-status-map)
    (filtered-candidate-transformer :initform 'helm-ls-git-status-transformer)
    (persistent-action :initform 'helm-ls-git-diff)
    (persistent-help :initform "Diff")
@@ -693,15 +713,6 @@ See docstring of `helm-ls-git-ls-switches'.
   (helm-force-update))
 (put 'helm-ls-git-branches-toggle-show-all 'no-helm-mx t)
 
-(defvar helm-ls-git-branches-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map helm-map)
-    (define-key map (kbd "C-c b") 'helm-ls-git-branches-toggle-show-all)
-    (define-key map (kbd "M-L") 'helm-ls-git-run-show-log)
-    (define-key map (kbd "C-c P") 'helm-ls-git-run-push)
-    (define-key map (kbd "C-c F") 'helm-ls-git-run-pull)
-    map))
-
 (defun helm-ls-git-checkout (candidate)
   (let ((default-directory (helm-default-directory)))
     (if (and helm-ls-git-auto-checkout
@@ -936,8 +947,20 @@ See docstring of `helm-ls-git-ls-switches'.
   (let ((name (read-string "Stash name: ")))
     (helm-ls-git-stash-1 name)))
 
+(defun helm-ls-git-run-stash ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'helm-ls-git-stash)))
+(put 'helm-ls-git-run-stash 'no-helm-mx t)
+
 (defun helm-ls-git-stash-snapshot (_candidate)
   (vc-git-stash-snapshot))
+
+(defun helm-ls-git-run-stash-snapshot ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'helm-ls-git-stash-snapshot)))
+(put 'helm-ls-git-run-stash-snapshot 'no-helm-mx t)
 
 (defun helm-ls-git-stash-drop (candidate)
   (let ((num (helm-ls-git-get-stash-name candidate)))
@@ -1137,6 +1160,14 @@ See docstring of `helm-ls-git-ls-switches'.
         (helm-ls-git-magit-stage-files files)
       (apply #'process-file "git" nil nil nil "stage" files))))
 
+(defun helm-ls-git-run-stage-files (arg)
+  (interactive "P")
+  (with-helm-alive-p
+    (helm-exit-and-execute-action (if arg
+                                      'helm-ls-git-unstage-files
+                                    'helm-ls-git-stage-files))))
+(put 'helm-ls-git-run-stage-files 'no-helm-mx t)
+
 (defun helm-ls-git-unstage-files (_candidate)
   "Unstage marked files."
   (require 'magit-apply nil t)
@@ -1151,15 +1182,33 @@ See docstring of `helm-ls-git-ls-switches'.
   (helm-ls-git-stage-files nil)
   (helm-ls-git-with-editor "commit" "-v"))
 
+(defun helm-ls-git-run-stage-marked-and-commit ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'helm-ls-git-stage-marked-and-commit)))
+(put 'helm-ls-git-run-stage-marked-and-commit 'no-helm-mx t)
+
 (defun helm-ls-git-stage-marked-and-extend-commit (candidate)
   "Stage marked files and extend these changes to last commit"
   (helm-ls-git-stage-files nil)
   (helm-ls-git-extend-commit candidate))
 
+(defun helm-ls-git-run-stage-marked-and-extend-commit ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'helm-ls-git-stage-marked-and-extend-commit)))
+(put 'helm-ls-git-run-stage-marked-and-extend-commit 'no-helm-mx t)
+
 (defun helm-ls-git-stage-marked-and-amend-commit (candidate)
   "Stage marked files and amend last commit."
   (helm-ls-git-stage-files nil)
   (helm-ls-git-amend-commit candidate))
+
+(defun helm-ls-git-run-stage-marked-and-amend-commit ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'helm-ls-git-stage-marked-and-amend-commit)))
+(put 'helm-ls-git-run-stage-marked-and-amend-commit 'no-helm-mx t)
 
 (defun helm-ls-git-extend-commit (candidate)
   (require 'magit-commit nil t)
