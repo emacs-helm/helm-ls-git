@@ -745,12 +745,22 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-branches-delete (candidate)
   (with-helm-default-directory (helm-ls-git-root-dir)
-    (let ((branch (replace-regexp-in-string "[ ]" "" candidate)))
+    (let* ((branch (helm-aand candidate
+                              (replace-regexp-in-string "[ ]" "" it)
+                              (replace-regexp-in-string "remotes/" "" it)))
+           (switches (if (string-match "remotes/" candidate)
+                         `("-D" "-r" ,branch)
+                       `("-D" ,branch))))
       (cl-assert (not (string-match "\\`[*]" candidate)) nil "Can't delete current branch")
       (when (y-or-n-p (format "Really delete branch %s?" branch))
-        (if (= (process-file "git" nil nil nil "branch" "-D" branch) 0)
+        (if (= (apply #'process-file "git" nil nil nil "branch" switches) 0)
             (message "Branch %s deleted successfully" branch)
           (message "failed to delete branch %s" branch))))))
+
+(defun helm-ls-git-delete-marked-branches (_candidate)
+  (let ((branches (helm-marked-candidates)))
+    (cl-loop for b in branches
+             do (helm-ls-git-branches-delete b))))
 
 (defun helm-ls-git-modified-p (&optional ignore-untracked)
   (with-helm-default-directory (helm-ls-git-root-dir)
@@ -869,7 +879,7 @@ See docstring of `helm-ls-git-ls-switches'.
                           (if (not (string-match "\\`[*]" candidate))
                               (append
                                '(("Checkout" . helm-ls-git-checkout)
-                                 ("Delete" . helm-ls-git-branches-delete)
+                                 ("Delete branches" . helm-ls-git-delete-marked-branches)
                                  ("Merge in current" .
                                   helm-ls-git-branches-merge))
                                actions)
