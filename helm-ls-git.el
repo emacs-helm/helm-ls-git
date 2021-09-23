@@ -729,7 +729,8 @@ See docstring of `helm-ls-git-ls-switches'.
             (message "Already on %s branch" real)
           (let* ((switches (if (string-match "\\`[Rr]emotes" real)
                                `("checkout" "-b"
-                                 ,(car (last (split-string real "/" t))) "-t" ,real)
+                                 ,(car (last (split-string real "/" t)))
+                                 "-t" ,real)
                              `("checkout" ,real)))
                  (status (apply #'process-file "git"
                                 nil nil nil
@@ -741,7 +742,8 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-branches-create (candidate)
   (with-helm-default-directory (helm-ls-git-root-dir)
-    (process-file "git" nil nil nil "checkout" "-B" candidate "-t" (helm-ls-git--branch))))
+    (process-file "git" nil nil nil
+                  "checkout" "-B" candidate "-t" (helm-ls-git--branch))))
 
 (defun helm-ls-git-branches-delete (candidate)
   (with-helm-default-directory (helm-ls-git-root-dir)
@@ -751,7 +753,8 @@ See docstring of `helm-ls-git-ls-switches'.
            (switches (if (string-match "remotes/" candidate)
                          `("-D" "-r" ,branch)
                        `("-D" ,branch))))
-      (cl-assert (not (string-match "\\`[*]" candidate)) nil "Can't delete current branch")
+      (cl-assert (not (string-match "\\`[*]" candidate))
+                 nil "Can't delete current branch")
       (when (y-or-n-p (format "Really delete branch %s?" branch))
         (if (= (apply #'process-file "git" nil nil nil "branch" switches) 0)
             (message "Branch %s deleted successfully" branch)
