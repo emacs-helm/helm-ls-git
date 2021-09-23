@@ -757,8 +757,6 @@ See docstring of `helm-ls-git-ls-switches'.
           (message "Branch %s deleted successfully" branch)
         (message "failed to delete branch %s" branch)))))
 
-(defvar helm-ls-git-delete-branches-no-ask nil)
-
 (defun helm-ls-git-normalize-branch-names (names)
   (cl-loop for name in names collect
            (helm-ls-git-normalize-branch-name name)))
@@ -772,26 +770,12 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-delete-marked-branches (_candidate)
   (let* ((branches (helm-marked-candidates))
          (bnames (helm-ls-git-normalize-branch-names branches))
-         (old--helm-ls-git-delete-branches-no-ask
-          (default-value 'helm-ls-git-delete-branches-no-ask)))
-    (unwind-protect
+         (display-buf "*helm-ls-git deleted branches*"))
+    (with-helm-display-marked-candidates
+      display-buf bnames                                   
+      (when (y-or-n-p "Really delete branches ?")
         (cl-loop for b in branches
-                 for count from 1
-                 for bname = (helm-ls-git-normalize-branch-name b)
-                 do (if helm-ls-git-delete-branches-no-ask
-                        (helm-ls-git-branches-delete b)
-                      (helm-acase (helm-read-answer
-                                   (format
-                                    "Really delete branch %s (%s/%s) ? [y,n,!,q]"
-                                    bname count (length branches))
-                                   '("y" "n" "!" "q"))
-                        ("y" (helm-ls-git-branches-delete b))
-                        ("n" (message "Skip deletion of branch %s" b))
-                        ("!" (setq helm-ls-git-delete-branches-no-ask t)
-                             (helm-ls-git-branches-delete b))
-                        ("q" (cl-return (message "Abort branches deletion"))))))
-      (setq helm-ls-git-delete-branches-no-ask
-            old--helm-ls-git-delete-branches-no-ask))))
+                 do (helm-ls-git-branches-delete b))))))
 
 (defun helm-ls-git-modified-p (&optional ignore-untracked)
   (with-helm-default-directory (helm-ls-git-root-dir)
