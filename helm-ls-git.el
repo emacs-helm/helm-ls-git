@@ -747,9 +747,7 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-branches-delete (candidate)
   (with-helm-default-directory (helm-ls-git-root-dir)
-    (let* ((branch (helm-aand candidate
-                              (replace-regexp-in-string "[ ]" "" it)
-                              (replace-regexp-in-string "remotes/" "" it)))
+    (let* ((branch (helm-ls-git-normalize-branch-name candidate))
            (switches (if (string-match "remotes/" candidate)
                          `("-D" "-r" ,branch)
                        `("-D" ,branch))))
@@ -763,31 +761,37 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-normalize-branch-names (names)
   (cl-loop for name in names collect
-           (helm-aand name
-                      (replace-regexp-in-string " " "" it)
-                      (replace-regexp-in-string "[*]" "" it)
-                      (replace-regexp-in-string "remotes/" "" it))))
+           (helm-ls-git-normalize-branch-name name)))
+
+(defun helm-ls-git-normalize-branch-name (name)
+  (helm-aand name
+             (replace-regexp-in-string " " "" it)
+             (replace-regexp-in-string "[*]" "" it)
+             (replace-regexp-in-string "remotes/" "" it)))
 
 (defun helm-ls-git-delete-marked-branches (_candidate)
-  (let ((branches (helm-marked-candidates))
-        (old--helm-ls-git-delete-branches-no-ask
-         (default-value 'helm-ls-git-delete-branches-no-ask)))
-    (with-helm-display-marked-candidates
-      "*helm-ls-git deleted branches*" (helm-ls-git-normalize-branch-names branches)
-      (unwind-protect
-          (cl-loop for b in branches
-                   do (if helm-ls-git-delete-branches-no-ask
-                          (helm-ls-git-branches-delete b)
-                        (helm-acase (helm-read-answer
-                                     "Really delete branches ? [y,n,!,q]"
-                                     '("y" "n" "!" "q"))
-                          ("y" (helm-ls-git-branches-delete b))
-                          ("n" (message "Skip deletion of branch %s" b))
-                          ("!" (setq helm-ls-git-delete-branches-no-ask t)
-                           (helm-ls-git-branches-delete b))
-                          ("q" (cl-return (message "Abort branches deletion"))))))
-        (setq helm-ls-git-delete-branches-no-ask
-              old--helm-ls-git-delete-branches-no-ask)))))
+  (let* ((branches (helm-marked-candidates))
+         (bnames (helm-ls-git-normalize-branch-names branches))
+         (old--helm-ls-git-delete-branches-no-ask
+          (default-value 'helm-ls-git-delete-branches-no-ask)))
+    (unwind-protect
+        (cl-loop for b in branches
+                 for count from 1
+                 for bname = (helm-ls-git-normalize-branch-name b)
+                 do (if helm-ls-git-delete-branches-no-ask
+                        (helm-ls-git-branches-delete b)
+                      (helm-acase (helm-read-answer
+                                   (format
+                                    "Really delete branch %s (%s/%s) ? [y,n,!,q]"
+                                    bname count (length branches))
+                                   '("y" "n" "!" "q"))
+                        ("y" (helm-ls-git-branches-delete b))
+                        ("n" (message "Skip deletion of branch %s" b))
+                        ("!" (setq helm-ls-git-delete-branches-no-ask t)
+                             (helm-ls-git-branches-delete b))
+                        ("q" (cl-return (message "Abort branches deletion"))))))
+      (setq helm-ls-git-delete-branches-no-ask
+            old--helm-ls-git-delete-branches-no-ask))))
 
 (defun helm-ls-git-modified-p (&optional ignore-untracked)
   (with-helm-default-directory (helm-ls-git-root-dir)
