@@ -831,7 +831,8 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-push (_candidate)
   (with-helm-default-directory (helm-default-directory)
     (message "Pushing changes on remote...")
-    (let ((proc (start-file-process "git" "*helm-ls-git push*" "git" "push")))
+    (let ((proc (start-file-process
+                 "git" "*helm-ls-git push*" "git" "push" "origin")))
       (set-process-sentinel
        proc (lambda (_process event)
               (if (string= event "finished\n")
