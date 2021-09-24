@@ -765,11 +765,14 @@ See docstring of `helm-ls-git-ls-switches'.
                       (y-or-n-p "Deleting %s branch on remote as well ?"))
               (let ((proc (start-file-process
                            "git" "*helm-ls-git branch delete*"
-                           "git" "push" "origin" "--delete" (car (last (split-string branch "/" t))))))
-                (set-process-sentinel proc (lambda (_process event)
-                                             (if (string= event "finished\n")
-                                                 (message "Remote branch %s deleted successfully" branch)
-                                               (message "Failed to delete remote branch %s" branch))))))
+                           "git" "push" "origin" "--delete"
+                           (car (last (split-string branch "/" t))))))
+                (set-process-sentinel
+                 proc
+                 (lambda (_process event)
+                   (if (string= event "finished\n")
+                       (message "Remote branch %s deleted successfully" branch)
+                     (message "Failed to delete remote branch %s" branch))))))
             (message "Local branch %s deleted successfully" branch))
         (message "failed to delete branch %s" branch)))))
 
