@@ -755,8 +755,8 @@ See docstring of `helm-ls-git-ls-switches'.
                  nil "Can't delete current branch")
       (if (= (apply #'process-file "git" nil nil nil "branch" switches) 0)
           (progn
-            (when helm-ls-git-delete-branch-on-remote
-              ;; git push origin --delete feature/login
+            (when (or helm-ls-git-delete-branch-on-remote
+                      (y-or-n-p "Deleting %s branch on remote as well ?"))
               (let ((proc (start-file-process
                            "git" "*helm-ls-git branch delete*"
                            "git" "push" "origin" "--delete" (car (last (split-string branch "/" t))))))
@@ -765,11 +765,11 @@ See docstring of `helm-ls-git-ls-switches'.
                                                  (message "Remote branch %s deleted successfully" branch)
                                                (message "Failed to delete remote branch %s" branch))))))
             (message "Local branch %s deleted successfully" branch))
-                 
-        
         (message "failed to delete branch %s" branch)))))
 
-(defvar helm-ls-git-delete-branch-on-remote t)
+(defvar helm-ls-git-delete-branch-on-remote nil
+  "Delete remote branch without asking when non nil.
+This happen only when deleting a remote branch e.g. remotes/origin/foo.")
 
 (defun helm-ls-git-normalize-branch-names (names)
   (cl-loop for name in names collect
@@ -787,7 +787,7 @@ See docstring of `helm-ls-git-ls-switches'.
          (display-buf "*helm-ls-git deleted branches*"))
     (with-helm-display-marked-candidates
       display-buf bnames                                   
-      (when (y-or-n-p "Really delete branches ?")
+      (when (y-or-n-p "Really delete branche(s) ?")
         (cl-loop for b in branches
                  do (helm-ls-git-branches-delete b))))))
 
@@ -909,7 +909,7 @@ See docstring of `helm-ls-git-ls-switches'.
                           (if (not (string-match "\\`[*]" candidate))
                               (append
                                '(("Checkout" . helm-ls-git-checkout)
-                                 ("Delete branches" . helm-ls-git-delete-marked-branches)
+                                 ("Delete branche(s)" . helm-ls-git-delete-marked-branches)
                                  ("Merge in current" .
                                   helm-ls-git-branches-merge))
                                actions)
