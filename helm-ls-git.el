@@ -126,6 +126,12 @@ See Issue #52."
   "Max number of commits to show in git log (git log -n option)."
   :type 'string
   :group 'helm-ls-git)
+
+(defcustom helm-ls-git-delete-branch-on-remote nil
+  "Delete remote branch without asking when non nil.
+This happen only when deleting a remote branch e.g. remotes/origin/foo."
+  :type 'boolean
+  :group 'helm-ls-git)
 
 (defface helm-ls-git-modified-not-staged-face
   '((t :foreground "yellow"))
@@ -766,10 +772,6 @@ See docstring of `helm-ls-git-ls-switches'.
                                                (message "Failed to delete remote branch %s" branch))))))
             (message "Local branch %s deleted successfully" branch))
         (message "failed to delete branch %s" branch)))))
-
-(defvar helm-ls-git-delete-branch-on-remote nil
-  "Delete remote branch without asking when non nil.
-This happen only when deleting a remote branch e.g. remotes/origin/foo.")
 
 (defun helm-ls-git-normalize-branch-names (names)
   (cl-loop for name in names collect
