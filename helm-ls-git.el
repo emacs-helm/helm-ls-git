@@ -754,8 +754,22 @@ See docstring of `helm-ls-git-ls-switches'.
       (cl-assert (not (string-match "\\`[*]" candidate))
                  nil "Can't delete current branch")
       (if (= (apply #'process-file "git" nil nil nil "branch" switches) 0)
-          (message "Branch %s deleted successfully" branch)
+          (progn
+            (when helm-ls-git-delete-branch-on-remote
+              ;; git push origin --delete feature/login
+              (let ((proc (start-file-process
+                           "git" "*helm-ls-git branch delete*"
+                           "git" "push" "origin" "--delete" (car (last (split-string branch "/" t))))))
+                (set-process-sentinel proc (lambda (_process event)
+                                             (if (string= event "finished\n")
+                                                 (message "Remote branch %s deleted successfully" branch)
+                                               (message "Failed to delete remote branch %s" branch))))))
+            (message "Local branch %s deleted successfully" branch))
+                 
+        
         (message "failed to delete branch %s" branch)))))
+
+(defvar helm-ls-git-delete-branch-on-remote t)
 
 (defun helm-ls-git-normalize-branch-names (names)
   (cl-loop for name in names collect
