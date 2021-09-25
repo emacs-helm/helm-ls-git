@@ -1071,9 +1071,9 @@ See docstring of `helm-ls-git-ls-switches'.
   (helm-build-in-buffer-source "Stashes"
     :data 'helm-ls-git-list-stashes
     :persistent-action 'helm-ls-git-stash-show
-    :action '(("Apply" . helm-ls-git-stash-apply)
-              ("Pop" . helm-ls-git-stash-pop)
-              ("Drop" . helm-ls-git-stash-drop-marked))))
+    :action '(("Apply stash" . helm-ls-git-stash-apply)
+              ("Pop stash" . helm-ls-git-stash-pop)
+              ("Drop stashe(s)" . helm-ls-git-stash-drop-marked))))
 
 ;;; Git status
 (defun helm-ls-git-status (&optional ignore-untracked)
