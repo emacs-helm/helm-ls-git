@@ -1422,6 +1422,7 @@ Commands:
   "Keymap used in `helm-ls-git-rebase-todo-mode' buffers.")
 
 (defun helm-ls-git-rebase-todo-move-down ()
+  "Move commit line one line down."
   (interactive)
   (beginning-of-line)
   (let* ((next (+ 1 (line-end-position)))
@@ -1432,6 +1433,7 @@ Commands:
     (forward-line -1)))
 
 (defun helm-ls-git-rebase-todo-move-up ()
+  "Move commit line on line up."
   (interactive)
   (beginning-of-line)
   (let* ((next (+ 1 (line-end-position)))
@@ -1442,6 +1444,8 @@ Commands:
     (forward-line -1)))
 
 (defun helm-ls-git-rebase-action (action)
+  "Replace the current rebase command at bol by ACTION.
+ACTION is the cdr entry of one of `helm-ls-git-rebase-actions'."
   (let* ((assocs helm-ls-git-rebase-actions)
          (regexp (cl-loop with len = (length assocs)
                           for (_k . v) in assocs
@@ -1456,6 +1460,8 @@ Commands:
     (insert (cdr (rassoc action assocs)))))
 
 (cl-defun helm-ls-git-rebase-build-commands ()
+  "build a function for each `helm-ls-git-rebase-actions' entry.
+Bind it to the car of each entry of `helm-ls-git-rebase-actions'."
   (cl-loop for (k . v) in helm-ls-git-rebase-actions
            for sym = (intern (concat "helm-ls-git-rebase-" v))
            do (progn
