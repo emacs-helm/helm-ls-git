@@ -712,6 +712,10 @@ See docstring of `helm-ls-git-ls-switches'.
   (with-helm-default-directory (helm-default-directory)
     (process-file "git" nil nil nil "cherry-pick" "--abort")))
 
+(defun helm-ls-git-rebase-abort (_candidate)
+  (with-helm-default-directory (helm-default-directory)
+    (process-file "git" nil nil nil "rebase" "--abort")))
+
 (defun helm-ls-git-rebase (candidate)
   (let ((hash (car (split-string candidate))))
     (helm-ls-git-with-editor "rebase" "-i" hash)))
@@ -1217,7 +1221,8 @@ See docstring of `helm-ls-git-ls-switches'.
                                    . helm-ls-git-stage-marked-and-commit))))
           ;; Conflict
           ((string-match "^U+ +" disp)
-           (append actions (list '("Git cherry-pick abort" . helm-ls-git-cherry-pick-abort))))
+           (append actions (list '("Git cherry-pick abort" . helm-ls-git-cherry-pick-abort)
+                                 '("Git rebase abort" . helm-ls-git-rebase-abort))))
           (t actions))))
 
 
