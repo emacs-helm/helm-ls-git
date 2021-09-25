@@ -565,27 +565,11 @@ See docstring of `helm-ls-git-ls-switches'.
                      :action '(("Show commit" . helm-ls-git-log-show-commit)
                                ("Find file at rev" . helm-ls-git-log-find-file)
                                ("Kill rev as short hash" .
-                                (lambda (candidate)
-                                  (kill-new (car (split-string candidate)))))
+                                helm-ls-git-log-kill-short-hash)
                                ("Kill rev as long hash" .
-                                (lambda (_candidate)
-                                  (helm-aif (get-text-property
-                                             2 'rev
-                                             (helm-get-selection nil 'withprop))
-                                      (kill-new
-                                       (replace-regexp-in-string
-                                        "\n" ""
-                                        (shell-command-to-string
-                                         (format "git rev-parse --default %s %s"
-                                                 (replace-regexp-in-string
-                                                  "~[0-9]+" "" it)
-                                                 it)))))))
+                                helm-ls-git-log-kill-long-hash)
                                ("Kill rev as <branch~n>" .
-                                (lambda (_candidate)
-                                  (helm-aif (get-text-property
-                                             2 'rev
-                                             (helm-get-selection nil 'withprop))
-                                      (kill-new it))))
+                                helm-ls-git-log-kill-rev)
                                ("Cherry-pick" . helm-ls-git-log-cherry-pick)
                                ("Format patches" . helm-ls-git-log-format-patch)
                                ("Git am" . helm-ls-git-log-am)
@@ -616,6 +600,28 @@ See docstring of `helm-ls-git-ls-switches'.
         (goto-char (point-min))
         (diff-mode))
       (display-buffer (current-buffer)))))
+
+(defun helm-ls-git-log-kill-short-hash (candidate)
+  (kill-new (car (split-string candidate))))
+
+(defun helm-ls-git-log-kill-long-hash (_candidate)
+  (helm-aif (get-text-property
+             2 'rev
+             (helm-get-selection nil 'withprop))
+      (kill-new
+       (replace-regexp-in-string
+        "\n" ""
+        (shell-command-to-string
+         (format "git rev-parse --default %s %s"
+                 (replace-regexp-in-string
+                  "~[0-9]+" "" it)
+                 it))))))
+
+(defun helm-ls-git-log-kill-rev (_candidate)
+  (helm-aif (get-text-property
+             2 'rev
+             (helm-get-selection nil 'withprop))
+      (kill-new it)))
 
 (defun helm-ls-git-log-format-patch (_candidate)
   (helm-ls-git-log-format-patch-1))
