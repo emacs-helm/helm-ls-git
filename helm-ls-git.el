@@ -1395,6 +1395,8 @@ Commands:
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-n") 'helm-ls-git-rebase-todo-move-down)
     (define-key map (kbd "M-p") 'helm-ls-git-rebase-todo-move-up)
+    (define-key map (kbd "C-c C-c") 'helm-ls-git-server-edit)
+    (define-key map (kbd "C-c C-k") 'helm-ls-git-server-edit-abort)
     map)
   "Keymap used in `helm-ls-git-rebase-todo-mode' buffers.")
 
@@ -1466,13 +1468,17 @@ These files are the ones on which git launches the editor for
 Commands:
 \\{helm-ls-git-rebase-todo-mode-map}
 "
-  (use-local-map helm-ls-git-rebase-todo-mode-map)
   (set (make-local-variable 'font-lock-defaults)
        '(helm-ls-git-rebase-todo-font-lock-keywords t))
   (helm-ls-git-rebase-build-commands)
   (set (make-local-variable 'comment-start) "#")
   (set (make-local-variable 'comment-end) "")
-  (run-hooks 'helm-ls-git-rebase-todo-mode-hook))
+  (run-hooks 'helm-ls-git-rebase-todo-mode-hook)
+  (run-at-time
+   0.1 nil
+   (lambda ()
+     (message
+      "When done with a buffer, type `C-c C-c', to abort type `C-c C-k'"))))
 
 
 ;;; Build sources
