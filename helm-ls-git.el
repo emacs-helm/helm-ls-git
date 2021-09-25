@@ -564,9 +564,22 @@ See docstring of `helm-ls-git-ls-switches'.
                      :marked-with-props 'withprop
                      :action '(("Show commit" . helm-ls-git-log-show-commit)
                                ("Find file at rev" . helm-ls-git-log-find-file)
-                               ("Kill rev as hash" .
+                               ("Kill rev as short hash" .
                                 (lambda (candidate)
                                   (kill-new (car (split-string candidate)))))
+                               ("Kill rev as long hash" .
+                                (lambda (_candidate)
+                                  (helm-aif (get-text-property
+                                             2 'rev
+                                             (helm-get-selection nil 'withprop))
+                                      (kill-new
+                                       (replace-regexp-in-string
+                                        "\n" ""
+                                        (shell-command-to-string
+                                         (format "git rev-parse --default %s %s"
+                                                 (replace-regexp-in-string
+                                                  "~[0-9]+" "" it)
+                                                 it)))))))
                                ("Kill rev as <branch~n>" .
                                 (lambda (_candidate)
                                   (helm-aif (get-text-property
