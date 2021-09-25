@@ -1432,16 +1432,16 @@ Commands:
 (defun helm-ls-git-rebase-action (action)
   (let* ((assocs helm-ls-git-rebase-actions)
          (regexp (cl-loop with len = (length assocs)
-                          for (k . v) in assocs
+                          for (_k . v) in assocs
                           for count from 1 to len
-                          concat (concat k (if (= count len) "" "\\|")) into str
-                          finally return (concat "^\\(" "pick\\|" str "\\) +")))
+                          concat (concat v (if (= count len) "" "\\|")) into str
+                          finally return (concat "^\\(" str "\\) +")))
          (inhibit-read-only t))
     (goto-char (point-at-bol))
     (save-excursion
       (when (re-search-forward regexp (point-at-eol) t)
         (delete-region (point-at-bol) (match-end 1))))
-    (insert (car (rassoc action assocs)))))
+    (insert (cdr (rassoc action assocs)))))
 
 (cl-defun helm-ls-git-rebase-build-commands ()
   (cl-loop for (k . v) in helm-ls-git-rebase-actions
