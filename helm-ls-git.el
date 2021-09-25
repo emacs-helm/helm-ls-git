@@ -1318,6 +1318,9 @@ See docstring of `helm-ls-git-ls-switches'.
 
 ;;; Emacsclient as git editor
 ;;
+;;;###autoload
+(add-to-list 'auto-mode-alist '("/COMMIT_EDITMSG$" . helm-ls-git-commit-mode))
+
 (defun helm-ls-git-with-editor (&rest args)
   "Binds GIT_EDITOR env var to emacsclient and run git with ARGS."
   (require 'server)
@@ -1329,14 +1332,8 @@ See docstring of `helm-ls-git-ls-switches'.
     (unless (server-running-p)
       (server-start))
     (unwind-protect
-        (progn
-          (add-hook 'find-file-hook 'helm-ls-git-with-editor-setup)
-          (add-hook 'server-done-hook 'helm-ls-git-with-editor-done)
-          (apply #'start-file-process "git" "*helm-ls-git commit*" "git" args))
+        (apply #'start-file-process "git" "*helm-ls-git commit*" "git" args)
       (setenv "GIT_EDITOR" old-editor))))
-
-(defun helm-ls-git-with-editor-done ()
-  (remove-hook 'find-file-hook 'helm-ls-git-with-editor-setup))
 
 (defun helm-ls-git-server-edit ()
   (interactive)
@@ -1360,19 +1357,29 @@ See docstring of `helm-ls-git-ls-switches'.
         (kill-buffer))
     (message "This buffer has no clients")))
 
+(defvar helm-ls-git-commit-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-c") 'helm-ls-git-server-edit)
+    (define-key map (kbd "C-c C-k") 'helm-ls-git-server-edit-abort)
+    map))
+
+(define-derived-mode helm-ls-git-commit-mode diff-mode "helm-ls-git-commit"
+  "Mode to edit COMMIT_EDITMSG files.
+
+Commands:
+\\{helm-ls-git-commit-mode-map}
+"
+  (helm-ls-git-with-editor-setup))
+
 (defun helm-ls-git-with-editor-setup ()
-  (let ((diff-default-read-only nil))
-    (diff-mode))
-  (local-set-key (kbd "C-c C-c") 'helm-ls-git-server-edit)
-  (local-set-key (kbd "C-c C-k") 'helm-ls-git-server-edit-abort)
   (setq fill-column 70)
+  (setq buffer-read-only nil)
   (auto-fill-mode 1)
   (run-at-time
    0.1 nil
    (lambda ()
      (message
       "When done with a buffer, type `C-c C-c', to abort type `C-c C-k'"))))
-
 
 ;;; Build sources
 ;;
