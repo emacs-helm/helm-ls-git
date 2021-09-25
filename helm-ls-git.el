@@ -773,15 +773,17 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-branches-delete (candidate)
   (with-helm-default-directory (helm-ls-git-root-dir)
     (let* ((branch (helm-ls-git-normalize-branch-name candidate))
-           (switches (if (string-match "remotes/" candidate)
+           (remote (string-match "remotes/" candidate))
+           (switches (if remote
                          `("-D" "-r" ,branch)
                        `("-D" ,branch))))
       (cl-assert (not (string-match "\\`[*]" candidate))
                  nil "Can't delete current branch")
       (if (= (apply #'process-file "git" nil nil nil "branch" switches) 0)
           (progn
-            (when (or helm-ls-git-delete-branch-on-remote
-                      (y-or-n-p "Deleting %s branch on remote as well ?"))
+            (when (and remote
+                       (or helm-ls-git-delete-branch-on-remote
+                           (y-or-n-p "Deleting %s branch on remote as well ?")))
               (let ((proc (start-file-process
                            "git" "*helm-ls-git branch delete*"
                            "git" "push" "origin" "--delete"
