@@ -1391,6 +1391,22 @@ Commands:
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("/git-rebase-todo$" . helm-ls-git-rebase-todo-mode))
 
+(defconst helm-ls-git-rebase-actions
+  '(("p" . "pick")
+    ("r" . "reword")
+    ("e" . "edit")
+    ("s" . "squash")
+    ("f" . "fixup")
+    ("x" . "exec")
+    ("d" . "drop")))
+
+(defvar helm-ls-git-rebase-todo-font-lock-keywords
+  '(("^\\([a-z]+\\) \\([0-9a-f]+\\) \\(.*\\)$"
+     (1 'font-lock-keyword-face)
+     (2 'font-lock-function-name-face))
+    ("^#.*$" . 'font-lock-comment-face))
+  "Keywords in `helm-ls-git-rebase-todo' mode.")
+
 (defvar helm-ls-git-rebase-todo-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-n") 'helm-ls-git-rebase-todo-move-down)
@@ -1420,15 +1436,6 @@ Commands:
     (insert line)
     (forward-line -1)))
 
-(defconst helm-ls-git-rebase-actions
-  '(("p" . "pick")
-    ("r" . "reword")
-    ("e" . "edit")
-    ("s" . "squash")
-    ("f" . "fixup")
-    ("x" . "exec")
-    ("d" . "drop")))
-
 (defun helm-ls-git-rebase-action (action)
   (let* ((assocs helm-ls-git-rebase-actions)
          (regexp (cl-loop with len = (length assocs)
@@ -1450,13 +1457,6 @@ Commands:
                 (defalias sym `(lambda () (interactive)
                                  (helm-ls-git-rebase-action ,v)))
                 (define-key helm-ls-git-rebase-todo-mode-map (kbd k) sym))))
-
-(defvar helm-ls-git-rebase-todo-font-lock-keywords
-  '(("^\\([a-z]+\\) \\([0-9a-f]+\\) \\(.*\\)$"
-     (1 'font-lock-keyword-face)
-     (2 'font-lock-function-name-face))
-    ("^#.*$" . 'font-lock-comment-face))
-  "Keywords in `helm-ls-git-rebase-todo' mode.")
 
 ;;;###autoload
 (define-derived-mode helm-ls-git-rebase-todo-mode fundamental-mode "helm-ls-git-rebase-todo"
