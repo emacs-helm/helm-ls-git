@@ -573,6 +573,7 @@ See docstring of `helm-ls-git-ls-switches'.
                                ("Cherry-pick" . helm-ls-git-log-cherry-pick)
                                ("Format patches" . helm-ls-git-log-format-patch)
                                ("Git am" . helm-ls-git-log-am)
+                               ("Git rebase" . helm-ls-git-rebase)
                                ("Reset" . helm-ls-git-log-reset))
                      :candidate-transformer
                      (lambda (candidates)
@@ -710,6 +711,10 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-cherry-pick-abort (_candidate)
   (with-helm-default-directory (helm-default-directory)
     (process-file "git" nil nil nil "cherry-pick" "--abort")))
+
+(defun helm-ls-git-rebase (candidate)
+  (let ((hash (car (split-string candidate))))
+    (helm-ls-git-with-editor "rebase" "-i" hash)))
 
 (defun helm-ls-git-run-show-log ()
   (interactive)
@@ -1380,6 +1385,95 @@ Commands:
    (lambda ()
      (message
       "When done with a buffer, type `C-c C-c', to abort type `C-c C-k'"))))
+
+;;; Git rebase
+;;
+;;;###autoload
+(add-to-list 'auto-mode-alist '("/git-rebase-todo$" . helm-ls-git-rebase-todo-mode))
+
+(defvar helm-ls-git-rebase-todo-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "M-n") 'helm-ls-git-rebase-todo-move-down)
+    (define-key map (kbd "M-p") 'helm-ls-git-rebase-todo-move-up)
+    map)
+  "Keymap used in `helm-ls-git-rebase-todo-mode' buffers.")
+
+(defun helm-ls-git-rebase-todo-move-down ()
+  (interactive)
+  (beginning-of-line)
+  (let* ((next (+ 1 (line-end-position)))
+         (line (buffer-substring (point) next)))
+    (delete-region (point) next)
+    (forward-line 1)
+    (insert line)
+    (forward-line -1)))
+
+(defun helm-ls-git-rebase-todo-move-up ()
+  (interactive)
+  (beginning-of-line)
+  (let* ((next (+ 1 (line-end-position)))
+         (line (buffer-substring (point) next)))
+    (delete-region (point) next)
+    (forward-line -1)
+    (insert line)
+    (forward-line -1)))
+
+(defconst helm-ls-git-rebase-actions
+  '(("p" . "pick")
+    ("r" . "reword")
+    ("e" . "edit")
+    ("s" . "squash")
+    ("f" . "fixup")
+    ("x" . "exec")
+    ("d" . "drop")))
+
+(defun helm-ls-git-rebase-action (action)
+  (let* ((assocs helm-ls-git-rebase-actions)
+         (regexp (cl-loop with len = (length assocs)
+                          for (k . v) in assocs
+                          for count from 1 to len
+                          concat (concat k (if (= count len) "" "\\|")) into str
+                          finally return (concat "^\\(" "pick\\|" str "\\) +")))
+         (inhibit-read-only t))
+    (goto-char (point-at-bol))
+    (save-excursion
+      (when (re-search-forward regexp (point-at-eol) t)
+        (delete-region (point-at-bol) (match-end 1))))
+    (insert (car (rassoc action assocs)))))
+
+(cl-defun helm-ls-git-rebase-build-commands ()
+  (cl-loop for (k . v) in helm-ls-git-rebase-actions
+           for sym = (intern (concat "helm-ls-git-rebase-" v))
+           do (progn
+                (defalias sym `(lambda () (interactive)
+                                 (helm-ls-git-rebase-action ,v)))
+                (define-key helm-ls-git-rebase-todo-mode-map (kbd k) sym))))
+
+(defvar helm-ls-git-rebase-todo-font-lock-keywords
+  '(("^\\([a-z]+\\) \\([0-9a-f]+\\) \\(.*\\)$"
+     (1 'font-lock-keyword-face)
+     (2 'font-lock-function-name-face))
+    ("^#.*$" . 'font-lock-comment-face))
+  "Keywords in `helm-ls-git-rebase-todo' mode.")
+
+;;;###autoload
+(define-derived-mode helm-ls-git-rebase-todo-mode fundamental-mode "helm-ls-git-rebase-todo"
+  "Major Mode to edit helm-ls-git rebase-todo files.
+
+These files are the ones on which git launches the editor for
+'git rebase --interactive' commands.
+
+Commands:
+\\{helm-ls-git-rebase-todo-mode-map}
+"
+  (use-local-map helm-ls-git-rebase-todo-mode-map)
+  (set (make-local-variable 'font-lock-defaults)
+       '(helm-ls-git-rebase-todo-font-lock-keywords t))
+  (helm-ls-git-rebase-build-commands)
+  (set (make-local-variable 'comment-start) "#")
+  (set (make-local-variable 'comment-end) "")
+  (run-hooks 'helm-ls-git-rebase-todo-mode-hook))
+
 
 ;;; Build sources
 ;;
