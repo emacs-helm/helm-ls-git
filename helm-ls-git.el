@@ -564,18 +564,16 @@ See docstring of `helm-ls-git-ls-switches'.
                      :marked-with-props 'withprop
                      :action '(("Show commit" . helm-ls-git-log-show-commit)
                                ("Find file at rev" . helm-ls-git-log-find-file)
-                               ("Kill rev as hash" .
-                                (lambda (candidate)
-                                  (kill-new (car (split-string candidate)))))
+                               ("Kill rev as short hash" .
+                                helm-ls-git-log-kill-short-hash)
+                               ("Kill rev as long hash" .
+                                helm-ls-git-log-kill-long-hash)
                                ("Kill rev as <branch~n>" .
-                                (lambda (_candidate)
-                                  (helm-aif (get-text-property
-                                             2 'rev
-                                             (helm-get-selection nil 'withprop))
-                                      (kill-new it))))
+                                helm-ls-git-log-kill-rev)
                                ("Cherry-pick" . helm-ls-git-log-cherry-pick)
                                ("Format patches" . helm-ls-git-log-format-patch)
                                ("Git am" . helm-ls-git-log-am)
+                               ("Git rebase" . helm-ls-git-rebase)
                                ("Reset" . helm-ls-git-log-reset))
                      :candidate-transformer
                      (lambda (candidates)
@@ -603,6 +601,28 @@ See docstring of `helm-ls-git-ls-switches'.
         (goto-char (point-min))
         (diff-mode))
       (display-buffer (current-buffer)))))
+
+(defun helm-ls-git-log-kill-short-hash (candidate)
+  (kill-new (car (split-string candidate))))
+
+(defun helm-ls-git-log-kill-long-hash (_candidate)
+  (helm-aif (get-text-property
+             2 'rev
+             (helm-get-selection nil 'withprop))
+      (kill-new
+       (replace-regexp-in-string
+        "\n" ""
+        (shell-command-to-string
+         (format "git rev-parse --default %s %s"
+                 (replace-regexp-in-string
+                  "~[0-9]+" "" it)
+                 it))))))
+
+(defun helm-ls-git-log-kill-rev (_candidate)
+  (helm-aif (get-text-property
+             2 'rev
+             (helm-get-selection nil 'withprop))
+      (kill-new it)))
 
 (defun helm-ls-git-log-format-patch (_candidate)
   (helm-ls-git-log-format-patch-1))
@@ -692,6 +712,14 @@ See docstring of `helm-ls-git-ls-switches'.
   (with-helm-default-directory (helm-default-directory)
     (process-file "git" nil nil nil "cherry-pick" "--abort")))
 
+(defun helm-ls-git-rebase-abort (_candidate)
+  (with-helm-default-directory (helm-default-directory)
+    (process-file "git" nil nil nil "rebase" "--abort")))
+
+(defun helm-ls-git-rebase (candidate)
+  (let ((hash (car (split-string candidate))))
+    (helm-ls-git-with-editor "rebase" "-i" hash)))
+
 (defun helm-ls-git-run-show-log ()
   (interactive)
   (with-helm-alive-p
@@ -754,15 +782,17 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-branches-delete (candidate)
   (with-helm-default-directory (helm-ls-git-root-dir)
     (let* ((branch (helm-ls-git-normalize-branch-name candidate))
-           (switches (if (string-match "remotes/" candidate)
+           (remote (string-match "remotes/" candidate))
+           (switches (if remote
                          `("-D" "-r" ,branch)
                        `("-D" ,branch))))
       (cl-assert (not (string-match "\\`[*]" candidate))
                  nil "Can't delete current branch")
       (if (= (apply #'process-file "git" nil nil nil "branch" switches) 0)
           (progn
-            (when (or helm-ls-git-delete-branch-on-remote
-                      (y-or-n-p "Deleting %s branch on remote as well ?"))
+            (when (and remote
+                       (or helm-ls-git-delete-branch-on-remote
+                           (y-or-n-p "Deleting %s branch on remote as well ?")))
               (let ((proc (start-file-process
                            "git" "*helm-ls-git branch delete*"
                            "git" "push" "origin" "--delete"
@@ -1191,7 +1221,8 @@ See docstring of `helm-ls-git-ls-switches'.
                                    . helm-ls-git-stage-marked-and-commit))))
           ;; Conflict
           ((string-match "^U+ +" disp)
-           (append actions (list '("Git cherry-pick abort" . helm-ls-git-cherry-pick-abort))))
+           (append actions (list '("Git cherry-pick abort" . helm-ls-git-cherry-pick-abort)
+                                 '("Git rebase abort" . helm-ls-git-rebase-abort))))
           (t actions))))
 
 
@@ -1297,6 +1328,9 @@ See docstring of `helm-ls-git-ls-switches'.
 
 ;;; Emacsclient as git editor
 ;;
+;;;###autoload
+(add-to-list 'auto-mode-alist '("/COMMIT_EDITMSG$" . helm-ls-git-commit-mode))
+
 (defun helm-ls-git-with-editor (&rest args)
   "Binds GIT_EDITOR env var to emacsclient and run git with ARGS."
   (require 'server)
@@ -1308,14 +1342,8 @@ See docstring of `helm-ls-git-ls-switches'.
     (unless (server-running-p)
       (server-start))
     (unwind-protect
-        (progn
-          (add-hook 'find-file-hook 'helm-ls-git-with-editor-setup)
-          (add-hook 'server-done-hook 'helm-ls-git-with-editor-done)
-          (apply #'start-file-process "git" "*helm-ls-git commit*" "git" args))
+        (apply #'start-file-process "git" "*helm-ls-git commit*" "git" args)
       (setenv "GIT_EDITOR" old-editor))))
-
-(defun helm-ls-git-with-editor-done ()
-  (remove-hook 'find-file-hook 'helm-ls-git-with-editor-setup))
 
 (defun helm-ls-git-server-edit ()
   (interactive)
@@ -1339,13 +1367,118 @@ See docstring of `helm-ls-git-ls-switches'.
         (kill-buffer))
     (message "This buffer has no clients")))
 
+(defvar helm-ls-git-commit-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-c") 'helm-ls-git-server-edit)
+    (define-key map (kbd "C-c C-k") 'helm-ls-git-server-edit-abort)
+    map))
+
+(define-derived-mode helm-ls-git-commit-mode diff-mode "helm-ls-git-commit"
+  "Mode to edit COMMIT_EDITMSG files.
+
+Commands:
+\\{helm-ls-git-commit-mode-map}
+"
+  (helm-ls-git-with-editor-setup))
+
 (defun helm-ls-git-with-editor-setup ()
-  (let ((diff-default-read-only nil))
-    (diff-mode))
-  (local-set-key (kbd "C-c C-c") 'helm-ls-git-server-edit)
-  (local-set-key (kbd "C-c C-k") 'helm-ls-git-server-edit-abort)
   (setq fill-column 70)
+  (setq buffer-read-only nil)
   (auto-fill-mode 1)
+  (run-at-time
+   0.1 nil
+   (lambda ()
+     (message
+      "When done with a buffer, type `C-c C-c', to abort type `C-c C-k'"))))
+
+;;; Git rebase
+;;
+;;;###autoload
+(add-to-list 'auto-mode-alist '("/git-rebase-todo$" . helm-ls-git-rebase-todo-mode))
+
+(defconst helm-ls-git-rebase-actions
+  '(("p" . "pick")
+    ("r" . "reword")
+    ("e" . "edit")
+    ("s" . "squash")
+    ("f" . "fixup")
+    ("x" . "exec")
+    ("d" . "drop")))
+
+(defvar helm-ls-git-rebase-todo-font-lock-keywords
+  '(("^\\([a-z]+\\) \\([0-9a-f]+\\) \\(.*\\)$"
+     (1 'font-lock-keyword-face)
+     (2 'font-lock-function-name-face))
+    ("^#.*$" . 'font-lock-comment-face))
+  "Keywords in `helm-ls-git-rebase-todo' mode.")
+
+(defvar helm-ls-git-rebase-todo-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "M-n") 'helm-ls-git-rebase-todo-move-down)
+    (define-key map (kbd "M-p") 'helm-ls-git-rebase-todo-move-up)
+    (define-key map (kbd "C-c C-c") 'helm-ls-git-server-edit)
+    (define-key map (kbd "C-c C-k") 'helm-ls-git-server-edit-abort)
+    map)
+  "Keymap used in `helm-ls-git-rebase-todo-mode' buffers.")
+
+(defun helm-ls-git-rebase-todo-move-down ()
+  (interactive)
+  (beginning-of-line)
+  (let* ((next (+ 1 (line-end-position)))
+         (line (buffer-substring (point) next)))
+    (delete-region (point) next)
+    (forward-line 1)
+    (insert line)
+    (forward-line -1)))
+
+(defun helm-ls-git-rebase-todo-move-up ()
+  (interactive)
+  (beginning-of-line)
+  (let* ((next (+ 1 (line-end-position)))
+         (line (buffer-substring (point) next)))
+    (delete-region (point) next)
+    (forward-line -1)
+    (insert line)
+    (forward-line -1)))
+
+(defun helm-ls-git-rebase-action (action)
+  (let* ((assocs helm-ls-git-rebase-actions)
+         (regexp (cl-loop with len = (length assocs)
+                          for (_k . v) in assocs
+                          for count from 1 to len
+                          concat (concat v (if (= count len) "" "\\|")) into str
+                          finally return (concat "^\\(" str "\\) +")))
+         (inhibit-read-only t))
+    (goto-char (point-at-bol))
+    (save-excursion
+      (when (re-search-forward regexp (point-at-eol) t)
+        (delete-region (point-at-bol) (match-end 1))))
+    (insert (cdr (rassoc action assocs)))))
+
+(cl-defun helm-ls-git-rebase-build-commands ()
+  (cl-loop for (k . v) in helm-ls-git-rebase-actions
+           for sym = (intern (concat "helm-ls-git-rebase-" v))
+           do (progn
+                (defalias sym `(lambda () (interactive)
+                                 (helm-ls-git-rebase-action ,v)))
+                (define-key helm-ls-git-rebase-todo-mode-map (kbd k) sym))))
+
+;;;###autoload
+(define-derived-mode helm-ls-git-rebase-todo-mode fundamental-mode "helm-ls-git-rebase-todo"
+  "Major Mode to edit helm-ls-git rebase-todo files.
+
+These files are the ones on which git launches the editor for
+'git rebase --interactive' commands.
+
+Commands:
+\\{helm-ls-git-rebase-todo-mode-map}
+"
+  (set (make-local-variable 'font-lock-defaults)
+       '(helm-ls-git-rebase-todo-font-lock-keywords t))
+  (helm-ls-git-rebase-build-commands)
+  (set (make-local-variable 'comment-start) "#")
+  (set (make-local-variable 'comment-end) "")
+  (run-hooks 'helm-ls-git-rebase-todo-mode-hook)
   (run-at-time
    0.1 nil
    (lambda ()
