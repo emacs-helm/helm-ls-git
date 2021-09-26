@@ -938,8 +938,13 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 
 (defun helm-ls-git-branch-rebase (candidate)
   "Rebase CANDIDATE branch on current branch."
-  (let ((branch (helm-ls-git-normalize-branch-name candidate)))
-    (helm-ls-git-with-editor "rebase" branch)))
+  (let ((branch (helm-ls-git-normalize-branch-name candidate))
+        (current (helm-ls-git--branch)))
+    (when (y-or-n-p (format "Rebase branch %s from %s?" current branch))
+      (if (= (process-file "git" nil nil nil "rebase" branch) 0)
+          (progn (message "Branch %s rebased successfully from %s" current branch)
+                 (helm-ls-git-revert-buffers-in-project))
+        (message "failed to rebase from branch %s, try to abort rebasing or resolve conflicts" branch)))))
 
 (defvar helm-ls-git-branches-source
   (helm-build-in-buffer-source "Git branches"
