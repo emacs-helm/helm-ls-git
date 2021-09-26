@@ -1476,17 +1476,16 @@ ACTION is the cdr entry of one of `helm-ls-git-rebase-actions'."
 Bind it to the car of each entry of `helm-ls-git-rebase-actions'."
   (cl-loop for (k . v) in helm-ls-git-rebase-actions
            for sym = (intern (concat "helm-ls-git-rebase-" v))
+           for doc = (format "Replace current rebase command at bol by `%s'." v)
            do (progn
                 (defalias sym `(lambda () (interactive)
-                                 (helm-ls-git-rebase-action ,v)))
+                                 (helm-ls-git-rebase-action ,v))
+                  doc)
                 (define-key helm-ls-git-rebase-todo-mode-map (kbd k) sym))))
 
 ;;;###autoload
 (define-derived-mode helm-ls-git-rebase-todo-mode fundamental-mode "helm-ls-git-rebase-todo"
-  "Major Mode to edit helm-ls-git rebase-todo files.
-
-These files are the ones on which git launches the editor for
-'git rebase --interactive' commands.
+  "Major Mode to edit git-rebase-todo files when using git rebase -i.
 
 Commands:
 \\{helm-ls-git-rebase-todo-mode-map}
