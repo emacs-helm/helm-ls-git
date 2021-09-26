@@ -763,12 +763,35 @@ See docstring of `helm-ls-git-ls-switches'.
   (with-helm-default-directory (helm-default-directory)
     (process-file "git" nil nil nil "rebase" "--abort")))
 
+(defun helm-ls-git-merge-abort (_candidate)
+  (with-helm-default-directory (helm-default-directory)
+    (process-file "git" nil nil nil "merge" "--abort")))
+
+(defun helm-ls-git-rebase-continue (_candidate)
+  (with-helm-default-directory (helm-default-directory)
+    (process-file "git" nil nil nil "rebase" "--continue")))
+
+(defun helm-ls-git-merge-continue (_candidate)
+  (with-helm-default-directory (helm-default-directory)
+    (process-file "git" nil nil nil "merge" "--continue")))
+
+(defun helm-ls-git-rebase-running-p ()
+  (with-helm-buffer
+    (with-helm-default-directory (helm-ls-git-root-dir)
+      (let ((git-dir (expand-file-name ".git" default-directory)))
+        (or (file-exists-p (expand-file-name "rebase-merge" git-dir))
+            (file-exists-p (expand-file-name "rebase-apply/onto" git-dir)))))))
+
 (defun helm-ls-git-log-interactive-rebase (_candidate)
   "Rebase interactively current branch from CANDIDATE.
 Where CANDIDATE is a candidate from git log source and its commit
 object will be passed git rebase i.e. git rebase -i <hash>."
+  (if (helm-ls-git-rebase-running-p)
+      (if (y-or-n-p "A rebase is already running, continue ?")
+          (helm-ls-git-rebase-continue nil)
+        (helm-ls-git-rebase-abort nil))
   (let ((hash (helm-ls-git-log-get-long-hash)))
-    (helm-ls-git-with-editor "rebase" "-i" hash)))
+    (helm-ls-git-with-editor "rebase" "-i" hash))))
 
 (defun helm-ls-git-run-show-log ()
   (interactive)
@@ -985,13 +1008,17 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 
 (defun helm-ls-git-branch-rebase (candidate)
   "Rebase CANDIDATE branch on current branch."
-  (let ((branch (helm-ls-git-normalize-branch-name candidate))
-        (current (helm-ls-git--branch)))
-    (when (y-or-n-p (format "Rebase branch %s from %s?" current branch))
-      (if (= (process-file "git" nil nil nil "rebase" branch) 0)
-          (progn (message "Branch %s rebased successfully from %s" current branch)
-                 (helm-ls-git-revert-buffers-in-project))
-        (message "failed to rebase from branch %s, try to abort rebasing or resolve conflicts" branch)))))
+  (if (helm-ls-git-rebase-running-p)
+      (if (y-or-n-p "A rebase is already running, continue ?")
+          (helm-ls-git-rebase-continue nil)
+        (helm-ls-git-rebase-abort nil))
+    (let ((branch (helm-ls-git-normalize-branch-name candidate))
+          (current (helm-ls-git--branch)))
+      (when (y-or-n-p (format "Rebase branch %s from %s?" current branch))
+        (if (= (process-file "git" nil nil nil "rebase" branch) 0)
+            (progn (message "Branch %s rebased successfully from %s" current branch)
+                   (helm-ls-git-revert-buffers-in-project))
+          (message "failed to rebase from branch %s, try to abort rebasing or resolve conflicts" branch))))))
 
 (defvar helm-ls-git-branches-source
   (helm-build-in-buffer-source "Git branches"
@@ -1272,7 +1299,11 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                               ("Amend commit"
                                . helm-ls-git-amend-commit)
                               ("Unstage file(s)"
-                               . helm-ls-git-unstage-files))
+                               . helm-ls-git-unstage-files)
+                              ("Git rebase continue" .
+                               helm-ls-git-rebase-continue)
+                              ("Git merge continue" .
+                               helm-ls-git-merge-continue))
                             1)))
           ;; Deleted
           ((string-match "^ D " disp)
@@ -1289,7 +1320,8 @@ object will be passed git rebase i.e. git rebase -i <hash>."
           ((string-match "^U+ +" disp)
            (append actions (list '("Git cherry-pick abort" . helm-ls-git-cherry-pick-abort)
                                  '("Git rebase abort" . helm-ls-git-rebase-abort)
-                                 '("Git AM abort" . helm-ls-git-am-abort))))
+                                 '("Git AM abort" . helm-ls-git-am-abort)
+                                 '("Git merge abort" . helm-ls-git-merge-abort))))
           (t actions))))
 
 (defun helm-ls-git-am-files (_candidate)
