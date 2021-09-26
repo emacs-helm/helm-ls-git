@@ -763,10 +763,6 @@ See docstring of `helm-ls-git-ls-switches'.
   (with-helm-default-directory (helm-default-directory)
     (process-file "git" nil nil nil "rebase" "--abort")))
 
-(defun helm-ls-git-AM-abort (_candidate)
-  (with-helm-default-directory (helm-default-directory)
-    (process-file "git" nil nil nil "am" "--abort")))
-
 (defun helm-ls-git-log-interactive-rebase (_candidate)
   "Rebase interactively current branch from CANDIDATE.
 Where CANDIDATE is a candidate from git log source and its commit
@@ -1293,7 +1289,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
           ((string-match "^U+ +" disp)
            (append actions (list '("Git cherry-pick abort" . helm-ls-git-cherry-pick-abort)
                                  '("Git rebase abort" . helm-ls-git-rebase-abort)
-                                 '("Git AM abort" . helm-ls-git-AM-abort))))
+                                 '("Git AM abort" . helm-ls-git-am-abort))))
           (t actions))))
 
 (defun helm-ls-git-am-files (_candidate)
@@ -1306,6 +1302,10 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                                                    (preserve-size . (nil . t)))
         nil
       (apply #'process-file "git" nil t nil "am" files))))
+
+(defun helm-ls-git-am-abort (_candidate)
+  (with-helm-default-directory (helm-default-directory)
+    (process-file "git" nil nil nil "am" "--abort")))
 
 ;;; Stage and commit
 ;;
