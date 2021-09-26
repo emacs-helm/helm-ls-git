@@ -1394,6 +1394,8 @@ Commands:
 (defun helm-ls-git-with-editor-setup ()
   (setq fill-column 70)
   (setq buffer-read-only nil)
+  (set (make-local-variable 'comment-start) "#")
+  (set (make-local-variable 'comment-end) "")
   (auto-fill-mode 1)
   (run-at-time
    0.1 nil
