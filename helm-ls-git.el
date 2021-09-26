@@ -573,7 +573,7 @@ See docstring of `helm-ls-git-ls-switches'.
                                ("Cherry-pick" . helm-ls-git-log-cherry-pick)
                                ("Format patches" . helm-ls-git-log-format-patch)
                                ("Git am" . helm-ls-git-log-am)
-                               ("Git rebase" . helm-ls-git-rebase)
+                               ("Git rebase" . helm-ls-git-log-interactive-rebase)
                                ("Reset" . helm-ls-git-log-reset))
                      :candidate-transformer
                      (lambda (candidates)
@@ -716,7 +716,10 @@ See docstring of `helm-ls-git-ls-switches'.
   (with-helm-default-directory (helm-default-directory)
     (process-file "git" nil nil nil "rebase" "--abort")))
 
-(defun helm-ls-git-rebase (candidate)
+(defun helm-ls-git-log-interactive-rebase (candidate)
+  "Rebase interactively current branch from CANDIDATE.
+Where CANDIDATE is a candidate from git log source and its commit
+object will be passed git rebase i.e. git rebase -i <hash>."
   (let ((hash (car (split-string candidate))))
     (helm-ls-git-with-editor "rebase" "-i" hash)))
 
@@ -933,6 +936,11 @@ See docstring of `helm-ls-git-ls-switches'.
     (helm-execute-persistent-action 'pull)))
 (put 'helm-ls-git-run-pull 'no-helm-mx t)
 
+(defun helm-ls-git-branch-rebase (candidate)
+  "Rebase CANDIDATE branch on current branch."
+  (let ((branch (helm-ls-git-normalize-branch-name candidate)))
+    (helm-ls-git-with-editor "rebase" branch)))
+
 (defvar helm-ls-git-branches-source
   (helm-build-in-buffer-source "Git branches"
     :init (lambda ()
@@ -946,7 +954,9 @@ See docstring of `helm-ls-git-ls-switches'.
                                '(("Checkout" . helm-ls-git-checkout)
                                  ("Delete branche(s)" . helm-ls-git-delete-marked-branches)
                                  ("Merge in current" .
-                                  helm-ls-git-branches-merge))
+                                  helm-ls-git-branches-merge)
+                                 ("Rebase in current" .
+                                  helm-ls-git-branch-rebase))
                                actions)
                             (helm-append-at-nth
                              actions
