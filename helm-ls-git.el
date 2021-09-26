@@ -1495,7 +1495,6 @@ Commands:
   (helm-ls-git-rebase-build-commands)
   (set (make-local-variable 'comment-start) "#")
   (set (make-local-variable 'comment-end) "")
-  (run-hooks 'helm-ls-git-rebase-todo-mode-hook)
   (run-at-time
    0.1 nil
    (lambda ()
