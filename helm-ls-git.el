@@ -646,17 +646,24 @@ See docstring of `helm-ls-git-ls-switches'.
   (kill-new (car (split-string candidate))))
 
 (defun helm-ls-git-log-kill-long-hash (_candidate)
-  (helm-aif (get-text-property
-             2 'rev
-             (helm-get-selection nil 'withprop))
-      (kill-new
-       (replace-regexp-in-string
-        "\n" ""
-        (shell-command-to-string
-         (format "git rev-parse --default %s %s"
-                 (replace-regexp-in-string
-                  "~[0-9]+" "" it)
-                 it))))))
+  (helm-ls-git-log-get-long-hash 'kill))
+
+(defun helm-ls-git-log-get-long-hash (&optional kill)
+  (with-helm-buffer
+    (let (str)
+      (helm-aif (get-text-property
+                 2 'rev
+                 (helm-get-selection nil 'withprop))
+          (setq str
+                (replace-regexp-in-string
+                 "\n" ""
+                 (shell-command-to-string
+                  (format "git rev-parse --default %s %s"
+                          (replace-regexp-in-string
+                           "~[0-9]+" "" it)
+                          it)))))
+      (when str
+        (if kill (kill-new str) str)))))
 
 (defun helm-ls-git-log-kill-rev (_candidate)
   (helm-aif (get-text-property
@@ -760,11 +767,11 @@ See docstring of `helm-ls-git-ls-switches'.
   (with-helm-default-directory (helm-default-directory)
     (process-file "git" nil nil nil "am" "--abort")))
 
-(defun helm-ls-git-log-interactive-rebase (candidate)
+(defun helm-ls-git-log-interactive-rebase (_candidate)
   "Rebase interactively current branch from CANDIDATE.
 Where CANDIDATE is a candidate from git log source and its commit
 object will be passed git rebase i.e. git rebase -i <hash>."
-  (let ((hash (car (split-string candidate))))
+  (let ((hash (helm-ls-git-log-get-long-hash)))
     (helm-ls-git-with-editor "rebase" "-i" hash)))
 
 (defun helm-ls-git-run-show-log ()
