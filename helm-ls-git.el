@@ -756,6 +756,10 @@ See docstring of `helm-ls-git-ls-switches'.
   (with-helm-default-directory (helm-default-directory)
     (process-file "git" nil nil nil "rebase" "--abort")))
 
+(defun helm-ls-git-AM-abort (_candidate)
+  (with-helm-default-directory (helm-default-directory)
+    (process-file "git" nil nil nil "am" "--abort")))
+
 (defun helm-ls-git-log-interactive-rebase (candidate)
   "Rebase interactively current branch from CANDIDATE.
 Where CANDIDATE is a candidate from git log source and its commit
@@ -1209,6 +1213,10 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                                         (and (string-match "\\`[?]\\{2\\}.*\\.patch\\|diff" disp)
                                              "Apply patch"))
                                       'helm-ls-git-apply-patch
+                                      (lambda ()
+                                        (and (string-match "\\`[?]\\{2\\}.*\\.patch" disp)
+                                             "Git AM patches"))
+                                      'helm-ls-git-am-files
                                       "Copy bnames to .gitignore"
                                       (lambda (candidate)
                                         (let ((default-directory
@@ -1277,9 +1285,20 @@ object will be passed git rebase i.e. git rebase -i <hash>."
           ;; Conflict
           ((string-match "^U+ +" disp)
            (append actions (list '("Git cherry-pick abort" . helm-ls-git-cherry-pick-abort)
-                                 '("Git rebase abort" . helm-ls-git-rebase-abort))))
+                                 '("Git rebase abort" . helm-ls-git-rebase-abort)
+                                 '("Git AM abort" . helm-ls-git-AM-abort))))
           (t actions))))
 
+(defun helm-ls-git-am-files (_candidate)
+  (let ((files (helm-marked-candidates)))
+    (cl-assert (cl-loop for f in files
+                        for ext = (file-name-extension f)
+                        always (and ext (string= ext "patch"))))
+    (with-current-buffer-window "*git am*" '(display-buffer-below-selected
+                                                   (window-height . fit-window-to-buffer)
+                                                   (preserve-size . (nil . t)))
+        nil
+      (apply #'process-file "git" nil t nil "am" files))))
 
 ;;; Stage and commit
 ;;
