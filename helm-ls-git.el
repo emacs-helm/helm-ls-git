@@ -445,7 +445,7 @@ See docstring of `helm-ls-git-ls-switches'.
    (update :initform (lambda ()
                        (helm-set-local-variable
                         'helm-ls-git--current-branch nil)))
-   (keymap :initform helm-ls-git-map)
+   (keymap :initform 'helm-ls-git-map)
    (help-message :initform helm-ls-git-help-message)
    (match-part :initform 'helm-ls-git-match-part)
    (filtered-candidate-transformer
@@ -460,7 +460,7 @@ See docstring of `helm-ls-git-ls-switches'.
          (lambda ()
            (helm-init-candidates-in-buffer 'global
              (helm-ls-git-status))))
-   (keymap :initform helm-ls-git-status-map)
+   (keymap :initform 'helm-ls-git-status-map)
    (filtered-candidate-transformer :initform 'helm-ls-git-status-transformer)
    (persistent-action :initform 'helm-ls-git-diff)
    (persistent-help :initform "Diff")
@@ -1552,7 +1552,7 @@ Do nothing when `helm-source-ls-git-buffers' is not member of
          :header-name #'helm-ls-git-header-name
          :buffer-list (lambda () (helm-browse-project-get-buffers
                                   (helm-ls-git-root-dir)))
-         :keymap helm-ls-git-buffer-map)))
+         :keymap 'helm-ls-git-buffer-map)))
 
 
 ;;;###autoload
