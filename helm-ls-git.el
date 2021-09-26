@@ -573,7 +573,7 @@ See docstring of `helm-ls-git-ls-switches'.
                                ("Cherry-pick" . helm-ls-git-log-cherry-pick)
                                ("Format patches" . helm-ls-git-log-format-patch)
                                ("Git am" . helm-ls-git-log-am)
-                               ("Git rebase" . helm-ls-git-log-interactive-rebase)
+                               ("Git interactive rebase" . helm-ls-git-log-interactive-rebase)
                                ("Reset" . helm-ls-git-log-reset))
                      :candidate-transformer
                      (lambda (candidates)
