@@ -262,8 +262,47 @@ other use follow-mode (C-c C-f).
 *** Git commit
 
 If magit is installed commits will be done with magit, otherwise
-they will be done using emacsclient as GIT_EDITOR, you can use
-there C-c C-c to commit or C-c C-k to abort commit.
+they will be done using emacsclient as GIT_EDITOR, with
+major-mode `helm-ls-git-commmit-mode' which provide following commands:
+
+\\<helm-ls-git-commit-mode-map>
+|Keys|Description
+|-------------+--------------|
+|\\[helm-ls-git-server-edit]|Exit when done
+|\\[helm-ls-git-server-edit-abort]|Abort
+
+NOTE: This mode is based on diff-mode, this to show a colorized
+diff of your commit, you can use any regular emacs editing
+commands from there.
+
+*** Git rebase
+
+helm-ls-git provide two rebase actions, one that run
+interactively from git log source and one that work
+non-interactively from branches source.  With the former you can
+rebase interactively from a given commit you selected from git log
+and this ONLY for current branch, once done you can rebase one
+branch into the other from branches source.  This is one workflow
+that helm-ls-git provide, other workflows may not work, so for
+more complex usage switch to command line or a more enhaced tool
+like Magit.  For editing the first file git rebase use for
+rebasing (\"git-rebase-todo\") helm-ls-git use a major-mode
+called `helm-ls-git-rebase-todo-mode' which provide several commands:
+
+\\<helm-ls-git-rebase-todo-mode-map>
+|Keys|Description
+|-------------+--------------|
+|p|pick
+|r|reword
+|e|edit
+|s|squash
+|f|fixup 
+|x|exec
+|d|drop
+|\\[helm-ls-git-rebase-todo-move-down]|Move line down
+|\\[helm-ls-git-rebase-todo-move-up]|Move line up
+|\\[helm-ls-git-server-edit]|Exit when done
+|\\[helm-ls-git-server-edit-abort]|Abort
 
 *** Git grep usage
 
@@ -562,6 +601,7 @@ See docstring of `helm-ls-git-ls-switches'.
                      :data str
                      :get-line 'buffer-substring
                      :marked-with-props 'withprop
+                     :help-message 'helm-ls-git-help-message
                      :action '(("Show commit" . helm-ls-git-log-show-commit)
                                ("Find file at rev" . helm-ls-git-log-find-file)
                                ("Kill rev as short hash" .
@@ -574,7 +614,7 @@ See docstring of `helm-ls-git-ls-switches'.
                                ("Format patches" . helm-ls-git-log-format-patch)
                                ("Git am" . helm-ls-git-log-am)
                                ("Git interactive rebase" . helm-ls-git-log-interactive-rebase)
-                               ("Reset" . helm-ls-git-log-reset))
+                               ("Hard reset" . helm-ls-git-log-reset))
                      :candidate-transformer
                      (lambda (candidates)
                        (cl-loop for c in candidates
