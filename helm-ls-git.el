@@ -962,7 +962,8 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 (defun helm-ls-git-run-push ()
   (interactive)
   (with-helm-alive-p
-    (helm-exit-and-execute-action #'helm-ls-git-push)))
+    (when (y-or-n-p "Push on remote ?")
+      (helm-exit-and-execute-action #'helm-ls-git-push))))
 (put 'helm-ls-git-run-push 'no-helm-mx t)
 
 (defun helm-ls-git-remotes ()
