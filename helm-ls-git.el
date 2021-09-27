@@ -768,12 +768,10 @@ See docstring of `helm-ls-git-ls-switches'.
     (process-file "git" nil nil nil "merge" "--abort")))
 
 (defun helm-ls-git-rebase-continue (_candidate)
-  (with-helm-default-directory (helm-default-directory)
-    (process-file "git" nil nil nil "rebase" "--continue")))
+  (helm-ls-git-with-editor "rebase" "--continue"))
 
 (defun helm-ls-git-merge-continue (_candidate)
-  (with-helm-default-directory (helm-default-directory)
-    (process-file "git" nil nil nil "merge" "--continue")))
+  (helm-ls-git-with-editor "merge" "--continue"))
 
 (defun helm-ls-git-rebase-running-p ()
   (with-helm-buffer
