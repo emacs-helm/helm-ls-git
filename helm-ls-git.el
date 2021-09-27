@@ -1570,7 +1570,8 @@ ACTION is the cdr entry of one of `helm-ls-git-rebase-actions'."
     (save-excursion
       (when (re-search-forward regexp (point-at-eol) t)
         (delete-region (point-at-bol) (match-end 1))))
-    (insert (cdr (rassoc action assocs)))))
+    (insert (cdr (rassoc action assocs)))
+    (forward-line 1)))
 
 (cl-defun helm-ls-git-rebase-build-commands ()
   "build a function for each `helm-ls-git-rebase-actions' entry.
