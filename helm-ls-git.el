@@ -30,12 +30,8 @@
 (defvaralias 'helm-c-source-ls-git-status 'helm-source-ls-git-status)
 (make-obsolete-variable 'helm-c-source-ls-git-status 'helm-source-ls-git-status "1.5.1")
 
-(defvar magit-inhibit-refresh)
 (defvar server-clients)
 (declare-function helm-comp-read "ext:helm-mode.el")
-(declare-function magit-stage-file "ext:magit-apply")
-(declare-function magit-unstage-file "ext:magit-apply")
-(declare-function magit-commit-create "ext:magit-commit")
 (declare-function server-running-p "server.el")
 (declare-function server-edit        "server.el")
 (declare-function server-send-string "server.el")
@@ -261,8 +257,7 @@ other use follow-mode (C-c C-f).
 
 *** Git commit
 
-If magit is installed commits will be done with magit, otherwise
-they will be done using emacsclient as GIT_EDITOR, with
+Commits will be done using emacsclient as GIT_EDITOR, with
 major-mode `helm-ls-git-commmit-mode' which provide following commands:
 
 \\<helm-ls-git-commit-mode-map>
@@ -1342,13 +1337,10 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 ;;
 (defun helm-ls-git-stage-files (_candidate)
   "Stage marked files."
-  (require 'magit-apply nil t)
   (let* ((files (helm-marked-candidates))
          (default-directory
            (file-name-directory (car files))))
-    (if (fboundp 'magit-stage-file)
-        (helm-ls-git-magit-stage-files files)
-      (apply #'process-file "git" nil nil nil "stage" files))))
+    (apply #'process-file "git" nil nil nil "stage" files)))
 
 (defun helm-ls-git-run-stage-files (arg)
   (interactive "P")
@@ -1360,12 +1352,9 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 
 (defun helm-ls-git-unstage-files (_candidate)
   "Unstage marked files."
-  (require 'magit-apply nil t)
   (let* ((files (helm-marked-candidates))
          (default-directory (file-name-directory (car files))))
-    (if (fboundp 'magit-unstage-file)
-        (helm-ls-git-magit-unstage-files files)
-      (apply #'process-file "git" nil nil nil "reset" "HEAD" "--" files))))
+    (apply #'process-file "git" nil nil nil "reset" "HEAD" "--" files)))
 
 (defun helm-ls-git-stage-marked-and-commit (_candidate)
   "Stage marked files and commit."
@@ -1401,41 +1390,21 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 (put 'helm-ls-git-run-stage-marked-and-amend-commit 'no-helm-mx t)
 
 (defun helm-ls-git-extend-commit (candidate)
-  (require 'magit-commit nil t)
   (let ((default-directory (file-name-directory candidate)))
-    (if (fboundp 'magit-commit-extend)
-        (let ((magit-inhibit-refresh t))
-          (magit-commit-extend))
-      (process-file "git" nil nil nil "commit" "--amend" "--no-edit"))))
+    (process-file "git" nil nil nil "commit" "--amend" "--no-edit")))
 
 (defun helm-ls-git-amend-commit (_candidate)
   "Amend last commit."
-  (require 'magit-commit nil t)
   (let ((default-directory (expand-file-name
                             (helm-ls-git-root-dir
                              (helm-default-directory)))))
-    (if (fboundp 'magit-commit-amend)
-        (let ((magit-inhibit-refresh t))
-          (magit-commit-amend))
-      ;; An async process is needed for commands invoking $EDITOR.
-      (helm-ls-git-with-editor "commit" "-v" "--amend"))))
+    ;; An async process is needed for commands invoking $EDITOR.
+    (helm-ls-git-with-editor "commit" "-v" "--amend")))
 
 (defun helm-ls-git-commit (candidate)
   "Commit already staged files."
-  (require 'magit-commit nil t)
   (let ((default-directory (file-name-directory candidate)))
-    (if (fboundp 'magit-commit)
-        (let ((magit-inhibit-refresh t))
-          (magit-commit-create))
-      (helm-ls-git-with-editor "commit" "-v"))))
-
-(defun helm-ls-git-magit-stage-files (files)
-  (cl-loop for f in files
-           do (magit-stage-file f)))
-
-(defun helm-ls-git-magit-unstage-files (files)
-  (cl-loop for f in files
-           do (magit-unstage-file f)))
+    (helm-ls-git-with-editor "commit" "-v")))
 
 
 ;;; Emacsclient as git editor
