@@ -696,7 +696,7 @@ See docstring of `helm-ls-git-ls-switches'.
           (with-current-buffer-window "*git am*" '(display-buffer-below-selected
                                                    (window-height . fit-window-to-buffer)
                                                    (preserve-size . (nil . t)))
-                                      nil
+              nil
             (process-file-shell-command
              (format "git %s | git am -3 -k"
                      (mapconcat 'identity (helm-append-at-nth switches '("-k --stdout") 1) " "))
@@ -747,7 +747,7 @@ See docstring of `helm-ls-git-ls-switches'.
       (with-current-buffer-window "*git cherry-pick*" '(display-buffer-below-selected
                                                         (window-height . fit-window-to-buffer)
                                                         (preserve-size . (nil . t)))
-                                  nil
+          nil
         (apply #'process-file "git" nil "*git cherry-pick*" nil "cherry-pick" commits)))))
 
 (defun helm-ls-git-cherry-pick-abort (_candidate)
@@ -1147,7 +1147,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
       (with-current-buffer-window "*git apply*" '(display-buffer-below-selected
                                                   (window-height . fit-window-to-buffer)
                                                   (preserve-size . (nil . t)))
-                                  nil
+          nil
         (apply #'process-file "git" nil t t "apply" patchs)))))
 
 (defvar helm-ls-git-stashes-source
@@ -1324,8 +1324,8 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                         for ext = (file-name-extension f)
                         always (and ext (string= ext "patch"))))
     (with-current-buffer-window "*git am*" '(display-buffer-below-selected
-                                                   (window-height . fit-window-to-buffer)
-                                                   (preserve-size . (nil . t)))
+                                             (window-height . fit-window-to-buffer)
+                                             (preserve-size . (nil . t)))
         nil
       (apply #'process-file "git" nil t nil "am" files))))
 
