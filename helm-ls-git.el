@@ -1413,18 +1413,24 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 (add-to-list 'auto-mode-alist '("/COMMIT_EDITMSG$" . helm-ls-git-commit-mode))
 
 (defun helm-ls-git-with-editor (&rest args)
-  "Binds GIT_EDITOR env var to emacsclient and run git with ARGS."
+  "Binds GIT_EDITOR env var to emacsclient and run git with ARGS.
+Bound `default-directory' to the root dir of project determining value
+from the helm-buffer, so don't use this function outside of helm
+context i.e. use it in helm actions."
   (require 'server)
-  (let ((old-editor (getenv "GIT_EDITOR"))
-        (default-directory (expand-file-name
+  (let ((default-directory (expand-file-name
                             (helm-ls-git-root-dir
-                             (helm-default-directory)))))
-    (setenv "GIT_EDITOR" "emacsclient $@")
+                             (helm-default-directory))))
+        (process-environment process-environment))
+    ;; It seems git once it knows GIT_EDITOR reuse the same value
+    ;; along its whole process e.g. when squashing in a rebase
+    ;; process, so even if the env setting goes away after initial
+    ;; process, git should reuse same GIT_EDITOR in subsequent
+    ;; commits.
+    (push "GIT_EDITOR=emacsclient $@" process-environment)
     (unless (server-running-p)
       (server-start))
-    (unwind-protect
-        (apply #'start-file-process "git" "*helm-ls-git commit*" "git" args)
-      (setenv "GIT_EDITOR" old-editor))))
+    (apply #'start-file-process "git" "*helm-ls-git commit*" "git" args)))
 
 (defun helm-ls-git-server-edit ()
   (interactive)
