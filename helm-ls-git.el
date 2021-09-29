@@ -1454,6 +1454,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
     (define-key map (kbd "C-c C-k") 'helm-ls-git-server-edit-abort)
     map))
 
+;;;###autoload
 (define-derived-mode helm-ls-git-commit-mode diff-mode "helm-ls-git-commit"
   "Mode to edit COMMIT_EDITMSG files.
 
