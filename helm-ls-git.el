@@ -1407,11 +1407,13 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 
 (defun helm-ls-git-amend-commit (_candidate)
   "Amend last commit."
-  (helm-ls-git-with-editor "commit" "-v" "--amend"))
+  (let ((proc (helm-ls-git-with-editor "commit" "-v" "--amend")))
+    (set-process-sentinel proc 'helm-ls-git-commit-sentinel)))
 
 (defun helm-ls-git-commit (_candidate)
   "Commit already staged files."
-  (helm-ls-git-with-editor "commit" "-v"))
+  (let ((proc (helm-ls-git-with-editor "commit" "-v")))
+    (set-process-sentinel proc 'helm-ls-git-commit-sentinel)))
 
 
 ;;; Emacsclient as git editor
