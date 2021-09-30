@@ -1395,16 +1395,11 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 
 (defun helm-ls-git-amend-commit (_candidate)
   "Amend last commit."
-  (let ((default-directory (expand-file-name
-                            (helm-ls-git-root-dir
-                             (helm-default-directory)))))
-    ;; An async process is needed for commands invoking $EDITOR.
-    (helm-ls-git-with-editor "commit" "-v" "--amend")))
+  (helm-ls-git-with-editor "commit" "-v" "--amend"))
 
 (defun helm-ls-git-commit (candidate)
   "Commit already staged files."
-  (let ((default-directory (file-name-directory candidate)))
-    (helm-ls-git-with-editor "commit" "-v")))
+  (helm-ls-git-with-editor "commit" "-v"))
 
 
 ;;; Emacsclient as git editor
