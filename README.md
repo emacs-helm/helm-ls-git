@@ -10,13 +10,15 @@ Yet another helm for listing the files in a git repo.
 
 * Display list of branches in project and provide related actions.
 
-* Provide git log view from branches source with related actions (diff, patches, find file etc...)
+* Provide git log view from branches source with related actions (diff, patches, reset, find file etc...)
 
 * Display the open buffers in project.
 
 * Display a status source showing state of project (modified files etc...).
 
-* Provide its own commit facilities (commit, amend etc...)
+* Provide its own commit facilities with a mode to edit commit (commit, amend etc...)
+
+* Allow rebasing and provide a mode to edit rebase-todo files
 
 * Display stashes list and provide related actions.
 
