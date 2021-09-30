@@ -1359,7 +1359,19 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 (defun helm-ls-git-stage-marked-and-commit (_candidate)
   "Stage marked files and commit."
   (helm-ls-git-stage-files nil)
-  (helm-ls-git-with-editor "commit" "-v"))
+  (let ((proc (helm-ls-git-with-editor "commit" "-v")))
+    (set-process-sentinel proc 'helm-ls-git-commit-sentinel)))
+
+(defun helm-ls-git-commit-sentinel (_process event)
+  (when (string= event "finished\n")
+    (let ((commit (helm-ls-git-oneline-log (helm-ls-git--branch))))
+      (when (string-match "\\`\\([^ ]+\\)+ +\\(.*\\)" commit)
+        (add-face-text-property 0 (match-end 1)
+                                'font-lock-type-face nil commit)
+        (add-face-text-property (1+ (match-end 1))
+                                (match-end 2)
+                                'font-lock-function-name-face nil commit))
+      (message "Commit done, now at `%s'" commit))))
 
 (defun helm-ls-git-run-stage-marked-and-commit ()
   (interactive)
@@ -1397,7 +1409,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
   "Amend last commit."
   (helm-ls-git-with-editor "commit" "-v" "--amend"))
 
-(defun helm-ls-git-commit (candidate)
+(defun helm-ls-git-commit (_candidate)
   "Commit already staged files."
   (helm-ls-git-with-editor "commit" "-v"))
 
