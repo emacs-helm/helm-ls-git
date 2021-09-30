@@ -707,10 +707,10 @@ See docstring of `helm-ls-git-ls-switches'.
   (let ((rev (get-text-property 1 'rev (helm-get-selection nil 'withprop))))
     (with-helm-default-directory (helm-ls-git-root-dir
                                   (helm-default-directory))
-      (when (y-or-n-p (format "Hard reset to <%s>?" rev))
-        (if (= (process-file "git" nil nil nil "reset" "--hard" rev) 0)
-            (message "Now at `%s'" (helm-ls-git-oneline-log
-                                    (helm-ls-git--branch))))))))
+      (when (and (y-or-n-p (format "Hard reset to <%s>?" rev))
+                 (= (process-file "git" nil nil nil "reset" "--hard" rev) 0))
+        (message "Now at `%s'" (helm-ls-git-oneline-log
+                                (helm-ls-git--branch)))))))
 
 (defun helm-ls-git-log-show-commit (candidate)
   (if (and (eq last-command 'helm-execute-persistent-action)
