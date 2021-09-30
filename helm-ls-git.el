@@ -858,7 +858,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
           (progn
             (when (and remote
                        (or helm-ls-git-delete-branch-on-remote
-                           (y-or-n-p "Deleting %s branch on remote as well ?")))
+                           (y-or-n-p (format "Delete `%s' branch on remote as well ?" branch))))
               (let ((proc (start-file-process
                            "git" "*helm-ls-git branch delete*"
                            "git" "push" "origin" "--delete"
