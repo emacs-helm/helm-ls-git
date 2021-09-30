@@ -207,6 +207,7 @@ This happen only when deleting a remote branch e.g. remotes/origin/foo."
     (define-key map (kbd "M-L") 'helm-ls-git-run-show-log)
     (define-key map (kbd "C-c P") 'helm-ls-git-run-push)
     (define-key map (kbd "C-c F") 'helm-ls-git-run-pull)
+    (define-key map (kbd "C-c f") 'helm-ls-git-run-fetch)
     map))
 
 (defvar helm-ls-git-status-map
@@ -967,31 +968,38 @@ object will be passed git rebase i.e. git rebase -i <hash>."
       (with-current-buffer standard-output
         (process-file "git" nil t nil "remote")))))
 
-(defun helm-ls-git-pull (_candidate)
+(defun helm-ls-git--pull-or-fetch (command)
   (with-helm-default-directory (helm-default-directory)
-    (let ((remote "origin"))
+    (let ((remote "origin")
+          (pcommand (capitalize command)))
       ;; A `C-g' in helm-comp-read will quit function as well.
       (let* ((switches (if current-prefix-arg
-                           (list "pull"
+                           (list command
                                  (setq remote
                                        (helm-comp-read
-                                        "Pull from: "
+                                        (format "%s from: " pcommand)
                                         (split-string
                                          (helm-ls-git-remotes)
                                          "\n")
                                         :allow-nest t))
                                  (helm-ls-git--branch))
-                         '("pull")))
-             (proc (apply #'start-file-process
-                          "git" "*helm-ls-git pull*" "git" switches)))
-        (message "Pulling from `%s'..." remote)
+                         (list command)))
+             (bufname (format "*helm-ls-git %s*" command))
+             (proc (apply #'start-file-process "git" bufname "git" switches)))
+        (message "%sing from `%s'..." pcommand remote)
         (set-process-sentinel
          proc (lambda (_process event)
                 (if (string= event "finished\n")
-                    (progn (message "Pulling from %s done" remote)
+                    (progn (message "%sing from %s done" pcommand remote)
                            (when helm-alive-p
                              (with-helm-window (helm-force-update "^\\*"))))
-                  (error "Failed pulling from %s" remote))))))))
+                  (error "Failed %sing from %s" command remote))))))))
+
+(defun helm-ls-git-pull (_candidate)
+  (helm-ls-git--pull-or-fetch "pull"))
+
+(defun helm-ls-git-fetch (_candidate)
+  (helm-ls-git--pull-or-fetch "fetch"))
 
 (defun helm-ls-git-run-pull ()
   (interactive)
@@ -999,6 +1007,13 @@ object will be passed git rebase i.e. git rebase -i <hash>."
     (helm-set-attr 'pull '(helm-ls-git-pull . never-split))
     (helm-execute-persistent-action 'pull)))
 (put 'helm-ls-git-run-pull 'no-helm-mx t)
+
+(defun helm-ls-git-run-fetch ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-set-attr 'fetch '(helm-ls-git-fetch . never-split))
+    (helm-execute-persistent-action 'fetch)))
+(put 'helm-ls-git-run-fetch 'no-helm-mx t)
 
 (defun helm-ls-git-branch-rebase (candidate)
   "Rebase CANDIDATE branch on current branch."
