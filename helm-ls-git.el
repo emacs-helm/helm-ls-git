@@ -970,30 +970,30 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 
 (defun helm-ls-git--pull-or-fetch (command)
   (with-helm-default-directory (helm-default-directory)
-    (let ((remote "origin")
-          (pcommand (capitalize command)))
-      ;; A `C-g' in helm-comp-read will quit function as well.
-      (let* ((switches (if current-prefix-arg
-                           (list command
-                                 (setq remote
-                                       (helm-comp-read
-                                        (format "%s from: " pcommand)
-                                        (split-string
-                                         (helm-ls-git-remotes)
-                                         "\n")
-                                        :allow-nest t))
-                                 (helm-ls-git--branch))
-                         (list command)))
-             (bufname (format "*helm-ls-git %s*" command))
-             (proc (apply #'start-file-process "git" bufname "git" switches)))
-        (message "%sing from `%s'..." pcommand remote)
-        (set-process-sentinel
-         proc (lambda (_process event)
-                (if (string= event "finished\n")
-                    (progn (message "%sing from %s done" pcommand remote)
-                           (when helm-alive-p
-                             (with-helm-window (helm-force-update "^\\*"))))
-                  (error "Failed %sing from %s" command remote))))))))
+    (let* ((remote "origin")
+           (pcommand (capitalize command))
+           ;; A `C-g' in helm-comp-read will quit function as well.
+           (switches (if current-prefix-arg
+                         (list command
+                               (setq remote
+                                     (helm-comp-read
+                                      (format "%s from: " pcommand)
+                                      (split-string
+                                       (helm-ls-git-remotes)
+                                       "\n")
+                                      :allow-nest t))
+                               (helm-ls-git--branch))
+                       (list command)))
+           (bufname (format "*helm-ls-git %s*" command))
+           (proc (apply #'start-file-process "git" bufname "git" switches)))
+      (message "%sing from `%s'..." pcommand remote)
+      (set-process-sentinel
+       proc (lambda (_process event)
+              (if (string= event "finished\n")
+                  (progn (message "%sing from %s done" pcommand remote)
+                         (when helm-alive-p
+                           (with-helm-window (helm-force-update "^\\*"))))
+                (error "Failed %sing from %s" command remote)))))))
 
 (defun helm-ls-git-pull (_candidate)
   (helm-ls-git--pull-or-fetch "pull"))
