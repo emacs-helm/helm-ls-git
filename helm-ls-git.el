@@ -986,6 +986,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                                  (list (helm-ls-git--branch)))
                        (append (list command) args)))
            (bufname (format "*helm-ls-git %s*" command))
+           process-connection-type
            proc)
       (when (get-buffer bufname) (kill-buffer bufname))
       (setq proc (apply #'start-file-process "git" bufname "git" switches))
