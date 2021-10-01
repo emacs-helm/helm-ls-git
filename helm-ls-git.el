@@ -968,25 +968,31 @@ object will be passed git rebase i.e. git rebase -i <hash>."
       (with-current-buffer standard-output
         (process-file "git" nil t nil "remote")))))
 
-(defun helm-ls-git--pull-or-fetch (command)
+(defun helm-ls-git--pull-or-fetch (command &rest args)
   (with-helm-default-directory (helm-default-directory)
     (let* ((remote "origin")
            (pcommand (capitalize command))
            ;; A `C-g' in helm-comp-read will quit function as well.
            (switches (if current-prefix-arg
-                         (list command
-                               (setq remote
-                                     (helm-comp-read
-                                      (format "%s from: " pcommand)
-                                      (split-string
-                                       (helm-ls-git-remotes)
-                                       "\n")
-                                      :allow-nest t))
-                               (helm-ls-git--branch))
-                       (list command)))
+                         (append (list command)
+                                 args
+                                 (list (setq remote
+                                             (helm-comp-read
+                                              (format "%s from: " pcommand)
+                                              (split-string
+                                               (helm-ls-git-remotes)
+                                               "\n")
+                                              :allow-nest t)))
+                                 (list (helm-ls-git--branch)))
+                       (append (list command) args)))
            (bufname (format "*helm-ls-git %s*" command))
-           (proc (apply #'start-file-process "git" bufname "git" switches)))
+           proc)
+      (when (get-buffer bufname) (kill-buffer bufname))
+      (setq proc (apply #'start-file-process "git" bufname "git" switches))
       (message "%sing from `%s'..." pcommand remote)
+      (set-process-filter proc 'helm-ls-git-pull-or-fetch-filter)
+      (save-selected-window
+        (display-buffer (process-buffer proc)))
       (set-process-sentinel
        proc (lambda (_process event)
               (if (string= event "finished\n")
@@ -995,8 +1001,20 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                            (with-helm-window (helm-force-update "^\\*"))))
                 (error "Failed %sing from %s" command remote)))))))
 
+(defun helm-ls-git-pull-or-fetch-filter (proc string)
+  (when (buffer-live-p (process-buffer proc))
+    (with-current-buffer (process-buffer proc)
+      (let ((moving (= (point) (process-mark proc))))
+        (save-excursion
+          ;; Insert the text, advancing the process marker.
+          (goto-char (process-mark proc))
+          (insert string)
+          (set-marker (process-mark proc) (point)))
+        (when moving
+          (goto-char (process-mark proc)))))))
+
 (defun helm-ls-git-pull (_candidate)
-  (helm-ls-git--pull-or-fetch "pull"))
+  (helm-ls-git--pull-or-fetch "pull" "--stat"))
 
 (defun helm-ls-git-fetch (_candidate)
   (helm-ls-git--pull-or-fetch "fetch"))
@@ -1004,7 +1022,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 (defun helm-ls-git-run-pull ()
   (interactive)
   (with-helm-alive-p
-    (helm-set-attr 'pull '(helm-ls-git-pull . never-split))
+    (helm-set-attr 'pull 'helm-ls-git-pull)
     (helm-execute-persistent-action 'pull)))
 (put 'helm-ls-git-run-pull 'no-helm-mx t)
 
