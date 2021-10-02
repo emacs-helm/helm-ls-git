@@ -1009,7 +1009,8 @@ object will be passed git rebase i.e. git rebase -i <hash>."
         (save-excursion
           ;; Insert the text, advancing the process marker.
           (goto-char (process-mark proc))
-          (insert string)
+          (unless (string-match-p "\\'" string)
+            (insert string))
           (set-marker (process-mark proc) (point)))
         (when moving
           (goto-char (process-mark proc)))))))
