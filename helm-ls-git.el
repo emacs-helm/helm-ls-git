@@ -1076,7 +1076,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
     :persistent-help "Checkout"
     :persistent-action (lambda (candidate)
                          (helm-ls-git-checkout candidate)
-                         (helm-force-update))
+                         (helm-force-update "^\\*"))
     :action '(("Git status" . (lambda (_candidate)
                                 (funcall helm-ls-git-status-command
                                          (helm-default-directory))))
