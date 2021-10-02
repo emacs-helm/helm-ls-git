@@ -990,7 +990,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
       (setq proc (apply #'helm-ls-git-with-editor switches))
       (with-current-buffer (process-buffer proc) (erase-buffer))
       (message "%sing from `%s'..." pcommand remote)
-      (set-process-filter proc 'helm-ls-git-pull-or-fetch-filter)
+      (set-process-filter proc 'helm-ls-git--filter-process)
       (save-selected-window
         (display-buffer (process-buffer proc)))
       (set-process-sentinel
@@ -1001,7 +1001,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                            (with-helm-window (helm-force-update "^\\*"))))
                 (error "Failed %sing from %s" command remote)))))))
 
-(defun helm-ls-git-pull-or-fetch-filter (proc string)
+(defun helm-ls-git--filter-process (proc string)
   (when (buffer-live-p (process-buffer proc))
     (with-current-buffer (process-buffer proc)
       (let ((moving (= (point) (process-mark proc))))
