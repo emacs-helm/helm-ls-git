@@ -985,11 +985,10 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                                               :allow-nest t)))
                                  (list (helm-ls-git--branch)))
                        (append (list command) args)))
-           (bufname (format "*helm-ls-git %s*" command))
            process-connection-type
            proc)
-      (when (get-buffer bufname) (kill-buffer bufname))
-      (setq proc (apply #'start-file-process "git" bufname "git" switches))
+      (setq proc (apply #'helm-ls-git-with-editor switches))
+      (with-current-buffer (process-buffer proc) (erase-buffer))
       (message "%sing from `%s'..." pcommand remote)
       (set-process-filter proc 'helm-ls-git-pull-or-fetch-filter)
       (save-selected-window
@@ -1465,7 +1464,8 @@ context i.e. use it in helm actions."
   (let ((default-directory (expand-file-name
                             (helm-ls-git-root-dir
                              (helm-default-directory))))
-        (process-environment process-environment))
+        (process-environment process-environment)
+        (bname (format "*helm-ls-git %s*" (car args))))
     ;; It seems git once it knows GIT_EDITOR reuse the same value
     ;; along its whole process e.g. when squashing in a rebase
     ;; process, so even if the env setting goes away after initial
@@ -1474,7 +1474,7 @@ context i.e. use it in helm actions."
     (push "GIT_EDITOR=emacsclient $@" process-environment)
     (unless (server-running-p)
       (server-start))
-    (apply #'start-file-process "git" "*helm-ls-git commit*" "git" args)))
+    (apply #'start-file-process "git" bname "git" args)))
 
 (defun helm-ls-git-server-edit ()
   (interactive)
