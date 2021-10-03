@@ -610,7 +610,8 @@ See docstring of `helm-ls-git-ls-switches'.
                                ("Format patches" . helm-ls-git-log-format-patch)
                                ("Git am" . helm-ls-git-log-am)
                                ("Git interactive rebase" . helm-ls-git-log-interactive-rebase)
-                               ("Hard reset" . helm-ls-git-log-reset))
+                               ("Hard reset" . helm-ls-git-log-reset)
+                               ("Git revert" . helm-ls-git-log-revert))
                      :candidate-transformer
                      (lambda (candidates)
                        (cl-loop for c in candidates
@@ -712,6 +713,17 @@ See docstring of `helm-ls-git-ls-switches'.
                  (= (process-file "git" nil nil nil "reset" "--hard" rev) 0))
         (message "Now at `%s'" (helm-ls-git-oneline-log
                                 (helm-ls-git--branch)))))))
+
+(defun helm-ls-git-log-revert (_candidate)
+  (let ((rev (get-text-property 1 'rev (helm-get-selection nil 'withprop))))
+    (helm-ls-git-with-editor "revert" rev)))
+
+(defun helm-ls-git-log-revert-continue (_candidate)
+  (helm-ls-git-with-editor "revert" "--continue"))
+
+(defun helm-ls-git-revert-abort (_candidate)
+  (with-helm-default-directory (helm-default-directory)
+    (process-file "git" nil nil nil "revert" "--abort")))
 
 (defun helm-ls-git-log-show-commit (candidate)
   (if (and (eq last-command 'helm-execute-persistent-action)
@@ -1332,7 +1344,9 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                               ("Git rebase continue" .
                                helm-ls-git-rebase-continue)
                               ("Git merge continue" .
-                               helm-ls-git-merge-continue))
+                               helm-ls-git-merge-continue)
+                              ("Git revert continue" .
+                               helm-ls-git-log-revert-continue))
                             1)))
           ;; Deleted
           ((string-match "^ D " disp)
@@ -1350,7 +1364,8 @@ object will be passed git rebase i.e. git rebase -i <hash>."
            (append actions (list '("Git cherry-pick abort" . helm-ls-git-cherry-pick-abort)
                                  '("Git rebase abort" . helm-ls-git-rebase-abort)
                                  '("Git AM abort" . helm-ls-git-am-abort)
-                                 '("Git merge abort" . helm-ls-git-merge-abort))))
+                                 '("Git merge abort" . helm-ls-git-merge-abort)
+                                 '("Git revert abort" . helm-ls-git-log-revert-abort))))
           (t actions))))
 
 (defun helm-ls-git-am-files (_candidate)
