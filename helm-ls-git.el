@@ -1422,16 +1422,18 @@ object will be passed git rebase i.e. git rebase -i <hash>."
   (let ((proc (helm-ls-git-with-editor "commit" "-v")))
     (set-process-sentinel proc 'helm-ls-git-commit-sentinel)))
 
-(defun helm-ls-git-commit-sentinel (_process event)
-  (when (string= event "finished\n")
-    (let ((commit (helm-ls-git-oneline-log (helm-ls-git--branch))))
-      (when (string-match "\\`\\([^ ]+\\)+ +\\(.*\\)" commit)
-        (add-face-text-property 0 (match-end 1)
-                                'font-lock-type-face nil commit)
-        (add-face-text-property (1+ (match-end 1))
-                                (match-end 2)
-                                'font-lock-function-name-face nil commit))
-      (message "Commit done, now at `%s'" commit))))
+(defun helm-ls-git-commit-sentinel (process event)
+  (let ((default-directory (with-current-buffer (process-buffer process)
+                             default-directory)))
+    (when (string= event "finished\n")
+      (let ((commit (helm-ls-git-oneline-log (helm-ls-git--branch))))
+        (when (string-match "\\`\\([^ ]+\\)+ +\\(.*\\)" commit)
+          (add-face-text-property 0 (match-end 1)
+                                  'font-lock-type-face nil commit)
+          (add-face-text-property (1+ (match-end 1))
+                                  (match-end 2)
+                                  'font-lock-function-name-face nil commit))
+        (message "Commit done, now at `%s'" commit)))))
 
 (defun helm-ls-git-run-stage-marked-and-commit ()
   (interactive)
@@ -1497,6 +1499,7 @@ context i.e. use it in helm actions."
     ;; process, so even if the env setting goes away after initial
     ;; process, git should reuse same GIT_EDITOR in subsequent
     ;; commits.
+    (when (get-buffer bname) (kill-buffer bname))
     (push "GIT_EDITOR=emacsclient $@" process-environment)
     (unless (server-running-p)
       (server-start))
