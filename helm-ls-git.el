@@ -778,6 +778,12 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-rebase-continue (_candidate)
   (helm-ls-git-with-editor "rebase" "--continue"))
 
+(defun helm-ls-git-cherry-pick-continue (_candidate)
+  (helm-ls-git-with-editor "cherry-pick" "--continue"))
+
+(defun helm-ls-git-am-continue (_candidate)
+  (helm-ls-git-with-editor "am" "--continue"))
+
 (defun helm-ls-git-merge-continue (_candidate)
   (helm-ls-git-with-editor "merge" "--continue"))
 
@@ -1343,6 +1349,10 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                                . helm-ls-git-unstage-files)
                               ("Git rebase continue" .
                                helm-ls-git-rebase-continue)
+                              ("Git cherry-pick continue" .
+                               helm-ls-git-cherry-pick-continue)
+                              ("Git AM continue" .
+                               helm-ls-git-am-continue)
                               ("Git merge continue" .
                                helm-ls-git-merge-continue)
                               ("Git revert continue" .
