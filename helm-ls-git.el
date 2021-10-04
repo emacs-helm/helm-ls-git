@@ -1081,7 +1081,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                             (helm-append-at-nth
                              actions
                              '(("Git amend" . helm-ls-git-amend-commit)
-                               ("Git push" . helm-ls-git-push))
+                               ("Git push (C-c P)" . helm-ls-git-push))
                              2)))
     :help-message 'helm-ls-git-help-message
     :cleanup (lambda () (setq helm-ls-git-branches-show-all nil))
@@ -1092,7 +1092,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
     :action '(("Git status" . (lambda (_candidate)
                                 (funcall helm-ls-git-status-command
                                          (helm-default-directory))))
-              ("Git log" . helm-ls-git-show-log))
+              ("Git log (M-L)" . helm-ls-git-show-log))
     :keymap 'helm-ls-git-branches-map))
 
 
@@ -1318,16 +1318,16 @@ object will be passed git rebase i.e. git rebase -i <hash>."
           ((string-match "^ M+ *" disp)
            (append actions (helm-append-at-nth
                             mofified-actions
-                            '(("Stage file(s)"
+                            '(("Stage file(s) (C-c s)"
                                . helm-ls-git-stage-files)
-                              ("Stage marked file(s) and commit"
+                              ("Stage marked file(s) and commit (C-c c)"
                                . helm-ls-git-stage-marked-and-commit)
-                              ("Stage marked file(s) and extend commit"
+                              ("Stage marked file(s) and extend commit (C-c e)"
                                . helm-ls-git-stage-marked-and-extend-commit)
-                              ("Stage marked file(s) and amend commit"
+                              ("Stage marked file(s) and amend commit (C-c a)"
                                . helm-ls-git-stage-marked-and-amend-commit)
-                              ("Stash" . helm-ls-git-stash)
-                              ("Stash snapshot" . helm-ls-git-stash-snapshot))
+                              ("Stash (C-c z)" . helm-ls-git-stash)
+                              ("Stash snapshot (C-c Z)" . helm-ls-git-stash-snapshot))
                             1)))
           ;; Modified and staged
           ((string-match "^M+ +" disp)
