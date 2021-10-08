@@ -610,7 +610,8 @@ See docstring of `helm-ls-git-ls-switches'.
                                ("Format patches" . helm-ls-git-log-format-patch)
                                ("Git am" . helm-ls-git-log-am)
                                ("Git interactive rebase" . helm-ls-git-log-interactive-rebase)
-                               ("Hard reset" . helm-ls-git-log-reset)
+                               ("Hard reset" . helm-ls-git-log-hard-reset)
+                               ("Soft reset" . helm-ls-git-log-soft-reset)
                                ("Git revert" . helm-ls-git-log-revert))
                      :candidate-transformer
                      (lambda (candidates)
@@ -705,14 +706,24 @@ See docstring of `helm-ls-git-ls-switches'.
              nil t t))
         (apply #'process-file "git" nil "*git format-patch*" nil switches)))))
 
-(defun helm-ls-git-log-reset (_candidate)
-  (let ((rev (get-text-property 1 'rev (helm-get-selection nil 'withprop))))
+(defun helm-ls-git-log-reset-1 (hard-or-soft)
+  (let ((rev (get-text-property 1 'rev (helm-get-selection nil 'withprop)))
+        (arg (cl-case hard-or-soft
+               (hard "--hard")
+               (soft "--soft"))))
     (with-helm-default-directory (helm-ls-git-root-dir
                                   (helm-default-directory))
-      (when (and (y-or-n-p (format "Hard reset to <%s>?" rev))
-                 (= (process-file "git" nil nil nil "reset" "--hard" rev) 0))
+      (when (and (y-or-n-p (format "%s reset to <%s>?"
+                                   (capitalize (symbol-name hard-or-soft)) rev))
+                 (= (process-file "git" nil nil nil "reset" arg rev) 0))
         (message "Now at `%s'" (helm-ls-git-oneline-log
                                 (helm-ls-git--branch)))))))
+
+(defun helm-ls-git-log-hard-reset (_candidate)
+  (helm-ls-git-log-reset-1 'hard))
+
+(defun helm-ls-git-log-soft-reset (_candidate)
+  (helm-ls-git-log-reset-1 'soft))
 
 (defun helm-ls-git-log-revert (_candidate)
   (let ((rev (get-text-property 1 'rev (helm-get-selection nil 'withprop))))
