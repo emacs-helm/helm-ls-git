@@ -1212,7 +1212,8 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                                                   (window-height . fit-window-to-buffer)
                                                   (preserve-size . (nil . t)))
           nil
-        (apply #'process-file "git" nil t t "apply" patchs)))))
+        (apply #'process-file "git" nil t t "apply" patchs)
+        (helm-ls-git-revert-buffers-in-project)))))
 
 (defvar helm-ls-git-stashes-source
   (helm-build-in-buffer-source "Stashes"
