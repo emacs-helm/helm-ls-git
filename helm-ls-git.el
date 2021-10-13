@@ -617,7 +617,7 @@ See docstring of `helm-ls-git-ls-switches'.
                      (lambda (candidates)
                        (cl-loop for c in candidates
                                 for count from 0
-                                for cand = (helm--ansi-color-apply c)
+                                for cand = (ansi-color-apply c)
                                 collect (propertize
                                          cand 'rev (if (zerop count)
                                                        name
