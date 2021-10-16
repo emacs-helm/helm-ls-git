@@ -1375,7 +1375,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
            (append actions (list '("Git delete" . (lambda (_candidate)
                                                     (let ((mkd (helm-marked-candidates)))
                                                       (cl-loop for c in mkd
-                                                               do (vc-git-delete-file c)))))
+                                                               do (helm-ls-git-rm c)))))
                                  '("Stage file(s)"
                                    . helm-ls-git-stage-files))))
           ;; Deleted and staged
@@ -1407,6 +1407,11 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 (defun helm-ls-git-am-abort (_candidate)
   (with-helm-default-directory (helm-default-directory)
     (process-file "git" nil nil nil "am" "--abort")))
+
+(defun helm-ls-git-rm (_candidate)
+  (with-helm-default-directory (helm-default-directory)
+    (let ((files (helm-marked-candidates)))
+    (apply #'process-file "git" nil nil nil "rm" files))))
 
 ;;; Stage and commit
 ;;
