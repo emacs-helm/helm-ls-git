@@ -1372,7 +1372,10 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                             1)))
           ;; Deleted
           ((string-match "^ D " disp)
-           (append actions (list '("Git delete" . vc-git-delete-file)
+           (append actions (list '("Git delete" . (lambda (_candidate)
+                                                    (let ((mkd (helm-marked-candidates)))
+                                                      (cl-loop for c in mkd
+                                                               do (vc-git-delete-file c)))))
                                  '("Stage file(s)"
                                    . helm-ls-git-stage-files))))
           ;; Deleted and staged
@@ -1410,8 +1413,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 (defun helm-ls-git-stage-files (_candidate)
   "Stage marked files."
   (let* ((files (helm-marked-candidates))
-         (default-directory
-           (file-name-directory (car files))))
+         (default-directory (helm-default-directory)))
     (apply #'process-file "git" nil nil nil "stage" files)))
 
 (defun helm-ls-git-run-stage-files (arg)
