@@ -4,7 +4,10 @@
 
 # helm-ls-git
 
-Yet another helm for listing the files in a git repo.
+Helm Git project manager.
+
+![directories](images/helm-ls-git-1.png)
+![directories](images/helm-ls-git-2.png)
 
 ## Features:
 
