@@ -1563,7 +1563,9 @@ Commands:
 
 (defun helm-ls-git-with-editor-setup ()
   (setq fill-column 70)
-  (setq buffer-read-only nil)
+  ;; For some reasons, using (setq buffer-read-only nil) in emacs-29
+  ;; doesn't work anymore.
+  (read-only-mode -1)
   (set (make-local-variable 'comment-start) "#")
   (set (make-local-variable 'comment-end) "")
   (auto-fill-mode 1)
