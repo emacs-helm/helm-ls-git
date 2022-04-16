@@ -481,13 +481,12 @@ See docstring of `helm-ls-git-ls-switches'.
                        (helm-set-local-variable
                         'helm-ls-git--current-branch nil)))
    (keymap :initform 'helm-ls-git-map)
-   (help-message :initform helm-ls-git-help-message)
+   (help-message :initform 'helm-ls-git-help-message)
    (match-part :initform 'helm-ls-git-match-part)
    (filtered-candidate-transformer
     :initform '(helm-ls-git-transformer
                 helm-ls-git-sort-fn))
-   (action-transformer :initform 'helm-transform-file-load-el)
-   (action :initform (helm-ls-git-actions-list helm-type-file-actions))))
+   (action-transformer :initform 'helm-transform-file-load-el)))
 
 (defclass helm-ls-git-status-source (helm-source-in-buffer)
   ((header-name :initform 'helm-ls-git-header-name)
@@ -499,7 +498,7 @@ See docstring of `helm-ls-git-ls-switches'.
    (filtered-candidate-transformer :initform 'helm-ls-git-status-transformer)
    (persistent-action :initform 'helm-ls-git-diff)
    (persistent-help :initform "Diff")
-   (help-message :initform helm-ls-git-help-message)
+   (help-message :initform 'helm-ls-git-help-message)
    (action-transformer :initform 'helm-ls-git-status-action-transformer)
    (action :initform
            (helm-make-actions
@@ -1708,6 +1707,7 @@ Do nothing when `helm-source-ls-git' is not member of
   (and (memq 'helm-source-ls-git helm-ls-git-default-sources)
        (helm-make-source "Git files" 'helm-ls-git-source
          :fuzzy-match helm-ls-git-fuzzy-match
+         :action (helm-ls-git-actions-list helm-type-file-actions)
          :group 'helm-ls-git)))
 
 (defun helm-ls-git-build-buffers-source ()
