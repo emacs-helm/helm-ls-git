@@ -192,6 +192,7 @@ This happen only when deleting a remote branch e.g. remotes/origin/foo."
     (define-key map (kbd "M-g g") 'helm-ls-git-run-grep)
     (define-key map (kbd "C-c g") 'helm-ff-run-gid)
     (define-key map (kbd "C-c i") 'helm-ls-git-ls-files-show-others)
+    (define-key map (kbd "M-e") 'helm-ls-git-run-switch-to-shell)
     map))
 
 (defvar helm-ls-git-buffer-map
@@ -208,6 +209,7 @@ This happen only when deleting a remote branch e.g. remotes/origin/foo."
     (define-key map (kbd "C-c P") 'helm-ls-git-run-push)
     (define-key map (kbd "C-c F") 'helm-ls-git-run-pull)
     (define-key map (kbd "C-c f") 'helm-ls-git-run-fetch)
+    (define-key map (kbd "M-e") 'helm-ls-git-run-switch-to-shell)
     map))
 
 (defvar helm-ls-git-status-map
@@ -219,6 +221,7 @@ This happen only when deleting a remote branch e.g. remotes/origin/foo."
     (define-key map (kbd "C-c e") 'helm-ls-git-run-stage-marked-and-extend-commit)
     (define-key map (kbd "C-c z") 'helm-ls-git-run-stash)
     (define-key map (kbd "C-c Z") 'helm-ls-git-run-stash-snapshot)
+    (define-key map (kbd "M-e") 'helm-ls-git-run-switch-to-shell)
     map))
 
 (defvar helm-ls-git-help-message
@@ -335,6 +338,7 @@ See docstring of `helm-ls-git-ls-switches'.
 |\\[helm-ls-git-run-grep]|Run git-grep.
 |\\[helm-ff-run-gid]|Run Gid.
 |\\[helm-ls-git-ls-files-show-others]|Toggle tracked/non tracked files view.
+|\\[helm-ls-git-run-switch-to-shell]|Switch to shell
 |\\<helm-generic-files-map>
 |\\[helm-ff-run-toggle-basename]|Toggle basename.
 |\\[helm-ff-run-zgrep]|Run zgrep.
@@ -464,7 +468,8 @@ See docstring of `helm-ls-git-ls-switches'.
                       'helm-ls-git-grep
                       "Gid" 'helm-ff-gid
                       "Search in Git log (C-u show patch)"
-                      'helm-ls-git-search-log)
+                      'helm-ls-git-search-log
+                      "Switch to shell" 'helm-ls-git-switch-to-shell)
    1))
 
 (defun helm-ls-git-match-part (candidate)
@@ -505,7 +510,8 @@ See docstring of `helm-ls-git-ls-switches'.
             "Find file" 'helm-find-many-files
             "Git status" (lambda (_candidate)
                            (funcall helm-ls-git-status-command
-                                    (helm-default-directory)))))))
+                                    (helm-default-directory)))
+            "Switch to shell" #'helm-ls-git-switch-to-shell))))
 
 (defun helm-ls-git-revert-buffers-in-project ()
   (cl-loop for buf in (helm-browse-project-get-buffers (helm-ls-git-root-dir))
@@ -1108,7 +1114,8 @@ object will be passed git rebase i.e. git rebase -i <hash>."
     :action '(("Git status" . (lambda (_candidate)
                                 (funcall helm-ls-git-status-command
                                          (helm-default-directory))))
-              ("Git log (M-L)" . helm-ls-git-show-log))
+              ("Git log (M-L)" . helm-ls-git-show-log)
+              ("Switch to shell" . helm-ls-git-switch-to-shell))
     :keymap 'helm-ls-git-branches-map))
 
 
@@ -1411,6 +1418,18 @@ object will be passed git rebase i.e. git rebase -i <hash>."
   (with-helm-default-directory (helm-default-directory)
     (let ((files (helm-marked-candidates)))
     (apply #'process-file "git" nil nil nil "rm" files))))
+
+(defun helm-ls-git-switch-to-shell (_candidate)
+  (let ((helm-ff-default-directory
+         (helm-ls-git-root-dir)))
+    (helm-ff-switch-to-shell nil)))
+
+(defun helm-ls-git-run-switch-to-shell ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'helm-ls-git-switch-to-shell)))
+(put 'helm-ls-git-run-switch-to-shell 'no-helm-mx t)
+
 
 ;;; Stage and commit
 ;;
