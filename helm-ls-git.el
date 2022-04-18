@@ -491,7 +491,8 @@ See docstring of `helm-ls-git-ls-switches'.
    (filtered-candidate-transformer
     :initform '(helm-ls-git-transformer
                 helm-ls-git-sort-fn))
-   (action-transformer :initform 'helm-transform-file-load-el)))
+   (action-transformer :initform 'helm-transform-file-load-el)
+   (group :initform 'helm-ls-git)))
 
 (defclass helm-ls-git-status-source (helm-source-in-buffer)
   ((header-name :initform 'helm-ls-git-header-name)
@@ -511,7 +512,8 @@ See docstring of `helm-ls-git-ls-switches'.
             "Git status" (lambda (_candidate)
                            (funcall helm-ls-git-status-command
                                     (helm-default-directory)))
-            "Switch to shell" #'helm-ls-git-switch-to-shell))))
+            "Switch to shell" #'helm-ls-git-switch-to-shell))
+   (group :initform 'helm-ls-git)))
 
 (defun helm-ls-git-revert-buffers-in-project ()
   (cl-loop for buf in (helm-browse-project-get-buffers (helm-ls-git-root-dir))
@@ -626,7 +628,8 @@ See docstring of `helm-ls-git-ls-switches'.
                                 collect (propertize
                                          cand 'rev (if (zerop count)
                                                        name
-                                                     (format "%s~%s" name count))))))
+                                                     (format "%s~%s" name count)))))
+                     :group 'helm-ls-git)
           :buffer "*helm-ls-git log*")))
 
 (defun helm-ls-git-log-show-commit-1 (candidate)
@@ -1116,7 +1119,8 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                                          (helm-default-directory))))
               ("Git log (M-L)" . helm-ls-git-show-log)
               ("Switch to shell" . helm-ls-git-switch-to-shell))
-    :keymap 'helm-ls-git-branches-map))
+    :keymap 'helm-ls-git-branches-map
+    :group 'helm-ls-git))
 
 
 ;;; Stashing
@@ -1227,7 +1231,8 @@ object will be passed git rebase i.e. git rebase -i <hash>."
     :persistent-action 'helm-ls-git-stash-show
     :action '(("Apply stash" . helm-ls-git-stash-apply)
               ("Pop stash" . helm-ls-git-stash-pop)
-              ("Drop stashe(s)" . helm-ls-git-stash-drop-marked))))
+              ("Drop stashe(s)" . helm-ls-git-stash-drop-marked))
+    :group 'helm-ls-git))
 
 ;;; Git status
 (defun helm-ls-git-status (&optional ignore-untracked)
