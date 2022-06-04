@@ -1535,7 +1535,10 @@ context i.e. use it in helm actions."
                             (helm-ls-git-root-dir
                              (helm-default-directory))))
         (process-environment process-environment)
-        (bname (format "*helm-ls-git %s*" (car args))))
+        (bname (format "*helm-ls-git %s*" (car args)))
+        (alt-auth (and helm-current-prefix-arg
+                       (list (read-string "Author name: ")
+                             (read-string "Author email: ")))))
     ;; It seems git once it knows GIT_EDITOR reuse the same value
     ;; along its whole process e.g. when squashing in a rebase
     ;; process, so even if the env setting goes away after initial
@@ -1543,6 +1546,9 @@ context i.e. use it in helm actions."
     ;; commits.
     (when (get-buffer bname) (kill-buffer bname))
     (push "GIT_EDITOR=emacsclient $@" process-environment)
+    (when alt-auth
+      (push (format "GIT_AUTHOR_NAME=%s" (car alt-auth)) process-environment)
+      (push (format "GIT_AUTHOR_EMAIL=%s" (cadr alt-auth)) process-environment))
     (unless (server-running-p)
       (server-start))
     (apply #'start-file-process "git" bname "git" args)))
