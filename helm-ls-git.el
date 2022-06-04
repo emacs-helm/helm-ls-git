@@ -1546,7 +1546,7 @@ context i.e. use it in helm actions."
     ;; commits.
     (when (get-buffer bname) (kill-buffer bname))
     (push "GIT_EDITOR=emacsclient $@" process-environment)
-    (when alt-auth
+    (when (and alt-auth (not (member "" alt-auth)))
       (push (format "GIT_AUTHOR_NAME=%s" (car alt-auth)) process-environment)
       (push (format "GIT_AUTHOR_EMAIL=%s" (cadr alt-auth)) process-environment))
     (unless (server-running-p)
