@@ -270,6 +270,10 @@ major-mode `helm-ls-git-commmit-mode' which provide following commands:
 |\\[helm-ls-git-server-edit]|Exit when done
 |\\[helm-ls-git-server-edit-abort]|Abort
 
+If you want to specify another author, use a prefix arg when
+calling commit action, you will be prompted for author name and
+email.
+
 NOTE: This mode is based on diff-mode, this to show a colorized
 diff of your commit, you can use any regular emacs editing
 commands from there.
