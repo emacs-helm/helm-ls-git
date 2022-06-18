@@ -1026,20 +1026,23 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                                               :allow-nest t)))
                                  (list (helm-ls-git--branch)))
                        (append (list command) args)))
+           (pr (make-progress-reporter
+                (format "%sing from `%s' " pcommand remote)))
+           (tm (run-at-time 1 0.1 (lambda () (progress-reporter-update pr))))
            process-connection-type
            proc)
       (setq proc (apply #'helm-ls-git-with-editor switches))
       (with-current-buffer (process-buffer proc) (erase-buffer))
-      (message "%sing from `%s'..." pcommand remote)
       (set-process-filter proc 'helm-ls-git--filter-process)
       (save-selected-window
         (display-buffer (process-buffer proc)))
       (set-process-sentinel
        proc (lambda (_process event)
               (if (string= event "finished\n")
-                  (progn (message "%sing from %s done" pcommand remote)
+                  (progn (progress-reporter-done pr)
+                         (when tm (cancel-timer tm)
                          (when helm-alive-p
-                           (with-helm-window (helm-force-update "^\\*"))))
+                           (with-helm-window (helm-force-update "^\\*")))))
                 (error "Failed %sing from %s" command remote)))))))
 
 (defun helm-ls-git--filter-process (proc string)
