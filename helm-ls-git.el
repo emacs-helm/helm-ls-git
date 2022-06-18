@@ -1040,10 +1040,10 @@ object will be passed git rebase i.e. git rebase -i <hash>."
        proc (lambda (_process event)
               (if (string= event "finished\n")
                   (progn (progress-reporter-done pr)
-                         (when tm (cancel-timer tm)
                          (when helm-alive-p
-                           (with-helm-window (helm-force-update "^\\*")))))
-                (error "Failed %sing from %s" command remote)))))))
+                           (with-helm-window (helm-force-update "^\\*"))))
+                (error "Failed %sing from %s" command remote))
+              (and tm (cancel-timer tm)))))))
 
 (defun helm-ls-git--filter-process (proc string)
   (when (buffer-live-p (process-buffer proc))
