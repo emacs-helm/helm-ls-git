@@ -1272,16 +1272,18 @@ object will be passed git rebase i.e. git rebase -i <hash>."
   (when (and helm-ls-git-log-file
              (file-exists-p helm-ls-git-log-file))
     (delete-file helm-ls-git-log-file))
-  (helm-aif (helm-ls-git-root-dir)
-      (with-helm-default-directory it
-        (with-output-to-string
-          (with-current-buffer standard-output
-            (apply #'process-file
-                   "git"
-                   nil (list t helm-ls-git-log-file) nil
-                   (if ignore-untracked
-                       (list "status" "-uno" "--porcelain")
-                     (list "status" "--porcelain"))))))))
+  (let ((process-environment
+         (cons "GIT_OPTIONAL_LOCKS=0" process-environment)))
+    (helm-aif (helm-ls-git-root-dir)
+        (with-helm-default-directory it
+          (with-output-to-string
+            (with-current-buffer standard-output
+              (apply #'process-file
+                     "git"
+                     nil (list t helm-ls-git-log-file) nil
+                     (if ignore-untracked
+                         (list "status" "-uno" "--porcelain")
+                       (list "status" "--porcelain")))))))))
 
 (defun helm-ls-git-status-transformer (candidates _source)
   (cl-loop with root = (helm-ls-git-root-dir)
