@@ -1547,6 +1547,7 @@ context i.e. use it in helm actions."
         (process-environment process-environment)
         (bname (format "*helm-ls-git %s*" (car args)))
         (alt-auth (and helm-current-prefix-arg
+                       (string= (car args) "commit")
                        (list (read-string "Author name: ")
                              (read-string "Author email: ")))))
     ;; It seems git once it knows GIT_EDITOR reuse the same value
