@@ -581,7 +581,7 @@ See docstring of `helm-ls-git-ls-switches'.
   (diff-mode))
 
 (defun helm-ls-git-log (&optional branch num)
-  (when (string-match "->" branch)
+  (when (and branch (string-match "->" branch))
     (setq branch (car (last (split-string branch "->")))))
   (let* ((commits-number (if num
                              (number-to-string num)
