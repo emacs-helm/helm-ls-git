@@ -1037,14 +1037,16 @@ object will be passed git rebase i.e. git rebase -i <hash>."
       (save-selected-window
         (display-buffer (process-buffer proc)))
       (set-process-sentinel
-       proc (lambda (_process event)
-              (if (string= event "finished\n")
-                  (progn (progress-reporter-done pr)
-                         (when helm-alive-p
-                           (with-helm-window (helm-force-update "^\\*"))))
-                (and tm (cancel-timer tm))
-                (error "Failed %sing from %s" command remote))
-              (and tm (cancel-timer tm)))))))
+       proc (lambda (process event)
+              (let ((status (process-exit-status process)))
+                (if (string= event "finished\n")
+                    (progn (progress-reporter-done pr)
+                           (when helm-alive-p
+                             (with-helm-window (helm-force-update "^\\*"))))
+                  (and tm (cancel-timer tm))
+                  (message "Failed %sing from %s: Process exited with code %s"
+                           command remote status))
+                (and tm (cancel-timer tm))))))))
 
 (defun helm-ls-git--filter-process (proc string)
   (when (buffer-live-p (process-buffer proc))
