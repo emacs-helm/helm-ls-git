@@ -1104,20 +1104,43 @@ object will be passed git rebase i.e. git rebase -i <hash>."
               (helm-init-candidates-in-buffer 'global data)))
     :candidate-transformer 'helm-ls-git-branches-transformer
     :action-transformer (lambda (actions candidate)
-                          (if (not (string-match "\\`[*]" candidate))
-                              (append
-                               '(("Checkout" . helm-ls-git-checkout)
-                                 ("Delete branche(s)" . helm-ls-git-delete-marked-branches)
-                                 ("Merge in current" .
-                                  helm-ls-git-branches-merge)
-                                 ("Rebase in current" .
-                                  helm-ls-git-branch-rebase))
-                               actions)
-                            (helm-append-at-nth
-                             actions
-                             '(("Git amend" . helm-ls-git-amend-commit)
-                               ("Git push (C-c P)" . helm-ls-git-push))
-                             2)))
+                          (cond ((string-match "\\`[*] detached" candidate)
+                                 (append
+                                  actions
+                                  '(("Git rebase continue" .
+                                     helm-ls-git-rebase-continue)
+                                    ("Git cherry-pick continue" .
+                                     helm-ls-git-cherry-pick-continue)
+                                    ("Git AM continue" .
+                                     helm-ls-git-am-continue)
+                                    ("Git merge continue" .
+                                     helm-ls-git-merge-continue)
+                                    ("Git revert continue" .
+                                     helm-ls-git-log-revert-continue)
+                                    ("Git cherry-pick abort" .
+                                     helm-ls-git-cherry-pick-abort)
+                                    ("Git rebase abort" .
+                                     helm-ls-git-rebase-abort)
+                                    ("Git AM abort" .
+                                     helm-ls-git-am-abort)
+                                    ("Git merge abort" .
+                                     helm-ls-git-merge-abort)
+                                    ("Git revert abort" .
+                                     helm-ls-git-log-revert-abort))))
+                                ((not (string-match "\\`[*]" candidate))
+                                 (append
+                                  '(("Checkout" . helm-ls-git-checkout)
+                                    ("Delete branche(s)" . helm-ls-git-delete-marked-branches)
+                                    ("Merge in current" .
+                                     helm-ls-git-branches-merge)
+                                    ("Rebase in current" .
+                                     helm-ls-git-branch-rebase))
+                                  actions))
+                                (t (helm-append-at-nth
+                                    actions
+                                    '(("Git amend" . helm-ls-git-amend-commit)
+                                      ("Git push (C-c P)" . helm-ls-git-push))
+                                    2))))
     :help-message 'helm-ls-git-help-message
     :cleanup (lambda () (setq helm-ls-git-branches-show-all nil))
     :persistent-help "Checkout"
