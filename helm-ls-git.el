@@ -598,14 +598,17 @@ See docstring of `helm-ls-git-ls-switches'.
           (apply #'process-file "git" nil t nil switches))))))
 
 (defun helm-ls-git-show-log (branch)
-  (let* ((name (replace-regexp-in-string "[ *]" "" branch))
-         (str (helm-ls-git-log name (helm-aif helm-current-prefix-arg
-                                        (prefix-numeric-value it)))))
+  (let ((name (replace-regexp-in-string "[ *]" "" branch)))
     (when (buffer-live-p "*git log diff*")
       (kill-buffer "*git log diff*"))
     (helm :sources (helm-build-in-buffer-source "Git log"
                      :header-name (lambda (sname) (format "%s (%s)" sname name))
-                     :data str
+                     :init (lambda ()
+                             (helm-init-candidates-in-buffer 'global
+                               (helm-ls-git-log name (helm-aif (or helm-current-prefix-arg
+                                                                   ;; for force-update.
+                                                                   current-prefix-arg)
+                                                         (prefix-numeric-value it)))))
                      :get-line 'buffer-substring
                      :marked-with-props 'withprop
                      :help-message 'helm-ls-git-help-message
