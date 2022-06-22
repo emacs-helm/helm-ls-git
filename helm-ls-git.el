@@ -592,23 +592,30 @@ See docstring of `helm-ls-git-ls-switches'.
  %C(green)%ad%Creset %<(60,trunc)%s %Cred%an%Creset %C(auto)%d%Creset"
                      "-n" ,commits-number
                      ,(or branch ""))))
+    (message "Running git log `%s' `%s'..." branch commits-number)
     (with-helm-default-directory (helm-ls-git-root-dir)
       (with-output-to-string
         (with-current-buffer standard-output
-          (apply #'process-file "git" nil t nil switches))))))
+          (prog1
+              (apply #'process-file "git" nil t nil switches)
+            (message "Running git log `%s' `%s' done" branch commits-number)))))))
 
 (defun helm-ls-git-show-log (branch)
-  (let ((name (replace-regexp-in-string "[ *]" "" branch)))
+  (let ((name    (replace-regexp-in-string "[ *]" "" branch))
+        ;; Use helm-current-prefix-arg only on first call
+        ;; of init function.
+        (prefarg helm-current-prefix-arg))
     (when (buffer-live-p "*git log diff*")
       (kill-buffer "*git log diff*"))
     (helm :sources (helm-build-in-buffer-source "Git log"
                      :header-name (lambda (sname) (format "%s (%s)" sname name))
                      :init (lambda ()
                              (helm-init-candidates-in-buffer 'global
-                               (helm-ls-git-log name (helm-aif (or helm-current-prefix-arg
+                               (helm-ls-git-log name (helm-aif (or prefarg
                                                                    ;; for force-update.
                                                                    current-prefix-arg)
-                                                         (prefix-numeric-value it)))))
+                                                         (prefix-numeric-value it))))
+                             (setq prefarg nil))
                      :get-line 'buffer-substring
                      :marked-with-props 'withprop
                      :help-message 'helm-ls-git-help-message
