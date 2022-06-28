@@ -244,18 +244,32 @@ perhaps you want to use something better like `magit-status' ?
 *** Git log
 
 From branches source, you can launch git log.  With a numeric
-prefix arg specify the number of commits to show.  Once you are
-in Git log you can specify with 2 marked candidates range of
-commits, specifying more than two marked candidate for actions
-accepting ranges will fail.  When specifying a range of commits,
-the top commit will be included in range whereas the bottom
-commit will not be included, e.g. if you mark commit-2 and
-commit-5, and use the format-patch action, git will make
-01-commit-4.patch, 02-commit-3.patch, and 03-commit-2.patch files
-taking care of naming files in the reverse order for applying
-patches later, commit-5 beeing excluded.
+prefix arg specify the number of commits to show, once you are in
+git log and you want more commits, use a numeric prefix arg with
+\\<helm-map>\\[helm-refresh] to specify the number of commits to show.
 
-Persistent action in git log is to show diff of commits, if you
+**** Specify a range of commits
+
+Once you are in Git log you can specify with 2 marked
+candidates a range of commits, specifying more than two marked
+candidate for actions accepting only ranges will fail.  When
+specifying a range of commits, the top commit will be included in
+range whereas the bottom commit will not be included, e.g. if you
+mark commit-2 and commit-5, and use the format-patch action, git
+will make 01-commit-4.patch, 02-commit-3.patch, and
+03-commit-2.patch files taking care of naming files in the
+reverse order for applying patches later, commit-5 beeing
+excluded.
+
+**** Apply patches from one branch to current
+
+You can apply patches from one branch to current
+branch using git AM action.
+Patches are specified as a range of commits, see [[Specify a range of commits][Specify a range of commits]].
+
+**** Persistent action in git log
+
+Persistent action in git log shows diff of commit(s), if you
 want to always show diff while moving from one commit to the
 other use follow-mode (C-c C-f).
 
@@ -627,7 +641,7 @@ See docstring of `helm-ls-git-ls-switches'.
                                 helm-ls-git-log-kill-long-hash)
                                ("Cherry-pick" . helm-ls-git-log-cherry-pick)
                                ("Format patches (range between 2 marked)" . helm-ls-git-log-format-patch)
-                               ("Git am" . helm-ls-git-log-am)
+                               ("Git am (range between 2 marked)" . helm-ls-git-log-am)
                                ("Git interactive rebase" . helm-ls-git-log-interactive-rebase)
                                ("Hard reset" . helm-ls-git-log-hard-reset)
                                ("Soft reset" . helm-ls-git-log-soft-reset)
