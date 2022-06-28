@@ -670,26 +670,15 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-log-get-long-hash (&optional kill)
   (with-helm-buffer
-    (let (str)
-      (helm-aif (get-text-property
-                 2 'rev
-                 (helm-get-selection nil 'withprop))
-          (setq str
-                (replace-regexp-in-string
-                 "\n" ""
-                 (shell-command-to-string
-                  (format "git rev-parse --default %s %s"
-                          (replace-regexp-in-string
-                           "~[0-9]+" "" it)
-                          it)))))
-      (when str
-        (if kill (kill-new str) str)))))
-
-(defun helm-ls-git-log-kill-rev (_candidate)
-  (helm-aif (get-text-property
-             2 'rev
-             (helm-get-selection nil 'withprop))
-      (kill-new it)))
+    (let* ((cand (helm-get-selection nil 'withprop))
+           (short-hash (car (split-string cand)))
+           str)
+      (setq str
+            (replace-regexp-in-string
+             "\n" ""
+             (shell-command-to-string
+              (format "git rev-parse --default %s" short-hash))))
+      (if kill (kill-new str) str))))
 
 (defun helm-ls-git-log-format-patch (_candidate)
   (helm-ls-git-log-format-patch-1))
