@@ -119,7 +119,13 @@ See Issue #52."
   :group 'helm-ls-git)
 
 (defcustom helm-ls-git-log-max-commits "100"
-  "Max number of commits to show in git log (git log -n option)."
+  "Max number of commits to show in git log (git log -n option).
+NOTE: This reflects the number of candidates fetched and stored, not
+the number of candidates displayed which is relative to
+`helm-candidate-number-limit'.  IOW if `helm-candidate-number-limit'
+== 500 and `helm-ls-git-log-max-commits' == 600, only 500 candidates
+will be displayed but if you search for a candidate which is in the
+range 500/600 you will find it."
   :type 'string
   :group 'helm-ls-git)
 
@@ -594,8 +600,11 @@ See docstring of `helm-ls-git-ls-switches'.
           (cand-number (helm-get-candidate-number t)))
       (when (helm-end-of-source-p)
         (let ((current-prefix-arg (+ cand-number wlines)))
-          (helm-force-update))
-        (setq unread-command-events nil)))))
+          (if (<= current-prefix-arg helm-candidate-number-limit)
+              (progn
+                (helm-force-update)
+                (setq unread-command-events nil))
+            (message "Max candidate number limit reached, force update with a num pref arg for more")))))))
 
 ;; Not related to git log source.
 (defun helm-ls-git-search-log (_candidate)
