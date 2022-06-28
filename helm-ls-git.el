@@ -269,7 +269,7 @@ Patches are specified as a range of commits, see [[Specify a range of commits][S
 
 **** Persistent action in git log
 
-Persistent action in git log shows diff of commit(s), if you
+Persistent action in git log shows diff of selected commit, if you
 want to always show diff while moving from one commit to the
 other use follow-mode (C-c C-f).
 
