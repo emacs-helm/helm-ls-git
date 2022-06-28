@@ -637,12 +637,7 @@ See docstring of `helm-ls-git-ls-switches'.
                      :candidate-transformer
                      (lambda (candidates)
                        (cl-loop for c in candidates
-                                for count from 0
-                                for cand = (ansi-color-apply c)
-                                collect (propertize
-                                         cand 'rev (if (zerop count)
-                                                       name
-                                                     (format "%s~%s" name count)))))
+                                collect (ansi-color-apply c)))
                      :group 'helm-ls-git)
           :buffer "*helm-ls-git log*")))
 
