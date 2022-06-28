@@ -625,8 +625,6 @@ See docstring of `helm-ls-git-ls-switches'.
                                 helm-ls-git-log-kill-short-hash)
                                ("Kill rev as long hash" .
                                 helm-ls-git-log-kill-long-hash)
-                               ("Kill rev as <branch~n>" .
-                                helm-ls-git-log-kill-rev)
                                ("Cherry-pick" . helm-ls-git-log-cherry-pick)
                                ("Format patches" . helm-ls-git-log-format-patch)
                                ("Git am" . helm-ls-git-log-am)
