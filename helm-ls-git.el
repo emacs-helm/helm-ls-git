@@ -688,7 +688,7 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-log-format-patch-1 (&optional am)
   (let ((commits (cl-loop for c in (helm-marked-candidates)
-                          collect (get-text-property 1 'rev c)))
+                          collect (car (split-string c))))
         range switches)
     (cond ((= 2 (length commits))
            ;; Using "..." makes a range from top marked (included) to
@@ -718,7 +718,7 @@ See docstring of `helm-ls-git-ls-switches'.
         (apply #'process-file "git" nil "*git format-patch*" nil switches)))))
 
 (defun helm-ls-git-log-reset-1 (hard-or-soft)
-  (let ((rev (get-text-property 1 'rev (helm-get-selection nil 'withprop)))
+  (let ((rev (car (split-string (helm-get-selection nil 'withprop))))
         (arg (cl-case hard-or-soft
                (hard "--hard")
                (soft "--soft"))))
@@ -737,7 +737,7 @@ See docstring of `helm-ls-git-ls-switches'.
   (helm-ls-git-log-reset-1 'soft))
 
 (defun helm-ls-git-log-revert (_candidate)
-  (let ((rev (get-text-property 1 'rev (helm-get-selection nil 'withprop))))
+  (let ((rev (car (split-string (helm-get-selection nil 'withprop)))))
     (helm-ls-git-with-editor "revert" rev)))
 
 (defun helm-ls-git-log-revert-continue (_candidate)
@@ -755,7 +755,7 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-log-find-file (_candidate)
   (with-helm-default-directory (helm-default-directory)
-    (let* ((rev (get-text-property 1 'rev (helm-get-selection nil 'withprop)))
+    (let* ((rev (car (split-string (helm-get-selection nil 'withprop))))
            (file (helm :sources (helm-build-in-buffer-source "Git cat-file"
                                   :data (helm-ls-git-list-files))
                        :buffer "*helm-ls-git cat-file*"))
@@ -775,7 +775,7 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-log-cherry-pick (_candidate)
   (let* ((commits (cl-loop for c in (helm-marked-candidates)
-                           collect (get-text-property 1 'rev c) into revs
+                           collect (car (split-string c)) into revs
                            finally return (sort revs #'string-greaterp))))
     (with-helm-default-directory (helm-ls-git-root-dir
                                   (helm-default-directory))
