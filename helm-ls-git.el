@@ -128,6 +128,12 @@ See Issue #52."
 This happen only when deleting a remote branch e.g. remotes/origin/foo."
   :type 'boolean
   :group 'helm-ls-git)
+
+(defcustom helm-ls-git-auto-refresh-at-eob nil
+  "Increase git log by `window-height' lines when non nil.
+When non nil this disable `helm-move-to-line-cycle-in-source'."
+  :group 'helm-ls-git
+  :type 'boolean)
 
 (defface helm-ls-git-modified-not-staged-face
   '((t :foreground "yellow"))
@@ -581,6 +587,17 @@ See docstring of `helm-ls-git-ls-switches'.
 
 ;;; Git log
 ;;
+(defun helm-ls-git-auto-refresh-and-scroll ()
+  "Increase git log by `window-height' lines."
+  (with-helm-window
+    (let ((wlines      (window-height))
+          (cand-number (helm-get-candidate-number t)))
+      (when (helm-end-of-source-p)
+        (let ((current-prefix-arg (+ cand-number wlines)))
+          (helm-force-update))
+        (setq unread-command-events nil)))))
+
+;; Not related to git log source.
 (defun helm-ls-git-search-log (_candidate)
   (let* ((query (helm-read-string "Search log: "))
          (coms (if helm-current-prefix-arg
@@ -651,6 +668,10 @@ See docstring of `helm-ls-git-ls-switches'.
                        (cl-loop for c in candidates
                                 collect (ansi-color-apply c)))
                      :group 'helm-ls-git)
+          :move-selection-before-hook (and helm-ls-git-auto-refresh-at-eob
+                                          'helm-ls-git-auto-refresh-and-scroll)
+          :move-to-line-cycle-in-source (unless helm-ls-git-auto-refresh-at-eob
+                                          (default-value 'helm-move-to-line-cycle-in-source))
           :buffer "*helm-ls-git log*")))
 
 (defun helm-ls-git-log-show-commit-1 (candidate)
