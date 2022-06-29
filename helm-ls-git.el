@@ -603,8 +603,9 @@ See docstring of `helm-ls-git-ls-switches'.
         (let ((current-prefix-arg (+ cand-number wlines)))
           (if (<= current-prefix-arg helm-candidate-number-limit)
               (progn
-                (helm-force-update)
-                (setq unread-command-events nil))
+                (with-helm-after-update-hook
+                  (setq unread-command-events nil))
+                (helm-force-update))
             (message "Max candidate number limit reached, force update with a num pref arg for more")))))))
 
 ;; Not related to git log source.
