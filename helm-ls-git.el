@@ -248,10 +248,40 @@ You can start with `helm-ls-git' but you can also use the generic
 a git project (actually supported backends are git and hg though
 helm-ls-hg is no more maintained).
 
-*** You may want to use magit as git status command
+*** Git status command
 
 By default helm-ls-git is using emacs `vc-dir' as `helm-ls-git-status-command',
-perhaps you want to use something better like `magit-status' ?
+but perhaps you want to use something better like `magit-status'.
+
+However helm-ls-git provides most of what you need to basically
+manage your git repo so you may not need to use another tool,
+here an overview of its features:
+
+- Status of modified files
+- List project branches
+- List project files
+- List project buffers
+- List of Stashs
+- Git log for each branches
+- Create a new branch from current one
+- Commit your changes from status source
+- Rebase interactively
+- Amend
+- Diffs
+- Pull and fetch
+- Push
+- Stash
+- Revert
+- Reset
+- Format patches
+- Git AM
+- Cherry pick
+
+etc...
+
+Of course all these features are not enhanced as what you could
+find in a Git specialized tool like Magit but it may fit most of
+your needs.
 
 *** Git log
 
@@ -259,6 +289,18 @@ From branches source, you can launch git log.  With a numeric
 prefix arg specify the number of commits to show, once you are in
 git log and you want more commits, use a numeric prefix arg with
 \\<helm-map>\\[helm-refresh] to specify the number of commits to show.
+
+When scrolling down with an empty pattern, helm can increase
+automatically the number of candidates displayed when you reach
+end of buffer if `helm-ls-git-auto-refresh-at-eob' is non nil.
+
+NOTE: When searching in git log, Helm search in the candidates
+computed initially, this mean that when you have 100 candidates
+displayed (see `helm-ls-git-log-max-commits') and you search for
+a commit containing \"foo\", this commit will not be found if it
+is located in the 101 commit which is not displayed.  So if you
+don't find something you are looking for, increase the number of
+commits with \\<global-map>\\[universal-argument] <n> \\<helm-map>\\[helm-refresh].
 
 **** Specify a range of commits
 
@@ -272,6 +314,10 @@ will make 01-commit-4.patch, 02-commit-3.patch, and
 03-commit-2.patch files taking care of naming files in the
 reverse order for applying patches later, commit-5 beeing
 excluded.
+
+NOTE: For commodity, commits are specified as short hash for all actions, witch
+may clash if more than one commit have the same short ID (rare
+but may happen), you should have an error in such case.
 
 **** Apply patches from one branch to current
 
