@@ -599,6 +599,7 @@ See docstring of `helm-ls-git-ls-switches'.
     (let ((wlines      (window-height))
           (cand-number (helm-get-candidate-number t)))
       (when (and (helm-end-of-source-p)
+                 (string= helm-pattern "")
                  (eq this-command 'helm-next-line))
         (let ((current-prefix-arg (+ cand-number wlines)))
           (if (<= current-prefix-arg helm-candidate-number-limit)
