@@ -606,7 +606,11 @@ See docstring of `helm-ls-git-ls-switches'.
                 (with-helm-after-update-hook
                   (setq unread-command-events nil))
                 (helm-force-update))
-            (message "Max candidate number limit reached, force update with a num pref arg for more")))))))
+            (message "Candidate number limit reached,\
+increasing it to %s" (+ wlines helm-candidate-number-limit))
+            (with-helm-buffer
+              (setq-local helm-candidate-number-limit
+                          (+ wlines helm-candidate-number-limit)))))))))
 
 ;; Not related to git log source.
 (defun helm-ls-git-search-log (_candidate)
