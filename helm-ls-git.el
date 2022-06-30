@@ -1102,6 +1102,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
   (with-helm-default-directory (helm-default-directory)
     (let* ((remote "origin")
            (pcommand (capitalize command))
+           (branch (helm-ls-git--branch))
            ;; A `C-g' in helm-comp-read will quit function as well.
            (switches (if current-prefix-arg
                          (append (list command)
@@ -1113,10 +1114,10 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                                                (helm-ls-git-remotes)
                                                "\n")
                                               :allow-nest t)))
-                                 (list (helm-ls-git--branch)))
+                                 (list branch))
                        (append (list command) args)))
            (pr (make-progress-reporter
-                (format "%sing from `%s' " pcommand remote)))
+                (format "%sing from `%s/%s' " pcommand remote branch)))
            (tm (run-at-time 1 0.1 (lambda () (progress-reporter-update pr))))
            process-connection-type
            proc)
