@@ -1610,7 +1610,11 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 (defun helm-ls-git-run-stage-marked-and-commit ()
   (interactive)
   (with-helm-alive-p
-    (helm-exit-and-execute-action 'helm-ls-git-stage-marked-and-commit)))
+    (condition-case _err
+        ;; Fail when helm-ls-git-stage-marked-and-commit is not in
+        ;; action list because file is already staged.
+        (helm-exit-and-execute-action 'helm-ls-git-stage-marked-and-commit)
+      (error (helm-exit-and-execute-action 'helm-ls-git-commit) nil))))
 (put 'helm-ls-git-run-stage-marked-and-commit 'no-helm-mx t)
 
 (defun helm-ls-git-stage-marked-and-extend-commit (candidate)
