@@ -198,7 +198,7 @@ When non nil this disable `helm-move-to-line-cycle-in-source'."
 
 (defface helm-ls-git-branches-name-current
   '((t :foreground "green"))
-  "Color of branches names."
+  "Color of current branch name."
   :group 'helm-ls-git)
 
 
