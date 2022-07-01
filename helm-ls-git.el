@@ -188,11 +188,16 @@ When non nil this disable `helm-move-to-line-cycle-in-source'."
 
 (defface helm-ls-git-branches-current
   '((t :foreground "gold"))
-  "Color of the start prefixing current branch."
+  "Color of the star prefixing current branch."
   :group 'helm-ls-git)
 
 (defface helm-ls-git-branches-name
   '((t :foreground "red"))
+  "Color of branches names."
+  :group 'helm-ls-git)
+
+(defface helm-ls-git-branches-name-current
+  '((t :foreground "green"))
   "Color of branches names."
   :group 'helm-ls-git)
 
@@ -1065,7 +1070,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                                   (propertize (match-string 1 c)
                                               'face 'helm-ls-git-branches-current)
                                   (propertize (match-string 2 c)
-                                              'face 'helm-ls-git-branches-name)
+                                              'face 'helm-ls-git-branches-name-current)
                                   (make-string (- maxlen (length c)) ? )
                                   log)
                         (format "%s: %s%s"
