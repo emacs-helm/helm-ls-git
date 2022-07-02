@@ -548,8 +548,6 @@ See docstring of `helm-ls-git-ls-switches'.
                       "Git grep files (`C-u' only current directory)"
                       'helm-ls-git-grep
                       "Gid" 'helm-ff-gid
-                      "Search in Git log (C-u show patch)"
-                      'helm-ls-git-search-log
                       "Switch to shell" 'helm-ls-git-switch-to-shell)
    1))
 
@@ -663,20 +661,6 @@ increasing it to %s" (+ wlines helm-candidate-number-limit))
             (with-helm-buffer
               (setq-local helm-candidate-number-limit
                           (+ wlines helm-candidate-number-limit)))))))))
-
-;; Not related to git log source.
-(defun helm-ls-git-search-log (_candidate)
-  (let* ((query (helm-read-string "Search log: "))
-         (coms (if helm-current-prefix-arg
-                   (list "log" "-p" "--grep" query)
-                 (list "log" "--grep" query))))
-    (with-current-buffer (get-buffer-create "*helm ls log*")
-      (set (make-local-variable 'buffer-read-only) nil)
-      (erase-buffer)
-      (apply #'process-file "git" nil (list t nil) nil coms)))
-  (pop-to-buffer "*helm ls log*")
-  (goto-char (point-min))
-  (diff-mode))
 
 (defun helm-ls-git-log (&optional branch num)
   (when (and branch (string-match "->" branch))
