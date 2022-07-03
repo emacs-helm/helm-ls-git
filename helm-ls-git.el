@@ -678,7 +678,8 @@ See docstring of `helm-ls-git-ls-switches'.
                      "-n" ,commits-number
                      "--skip" ,(helm-stringify
                                 helm-ls-git-log--last-number-commits)
-                     ,(or branch ""))))
+                     ,(or branch "")))
+         output)
     (setq helm-ls-git-log--last-number-commits
           (number-to-string
            (+ last-number-commits
@@ -692,12 +693,15 @@ See docstring of `helm-ls-git-ls-switches'.
             (concat helm-ls-git-log--last-log
                     ;; Avoid adding a newline at first run.
                     (unless (zerop last-number-commits) "\n")
-                    (with-output-to-string
-                      (with-current-buffer standard-output
-                        (prog1
-                            (apply #'process-file "git" nil t nil switches)
-                          (message "Git log on `%s' updating to `%s' commits done"
-                                   branch helm-ls-git-log--last-number-commits)))))))))
+                    (setq output
+                          (with-output-to-string
+                            (with-current-buffer standard-output
+                              (apply #'process-file "git" nil t nil switches)))))))
+    (if (and (stringp output) (not (string= output "")))
+        (message "Git log on `%s' updating to `%s' commits done"
+                 branch helm-ls-git-log--last-number-commits)
+      (message "No more commits on `%s' branch" branch))
+    helm-ls-git-log--last-log))
 
 (defun helm-ls-git-show-log (branch)
   (let ((name    (replace-regexp-in-string "[ *]" "" branch))
