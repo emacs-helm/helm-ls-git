@@ -653,19 +653,9 @@ See docstring of `helm-ls-git-ls-switches'.
                  (string= helm-pattern "")
                  (eq this-command 'helm-next-line))
         (let ((current-prefix-arg wlines))
-          (if (<= (+ (string-to-number
-                      helm-ls-git-log--last-number-commits)
-                     wlines)
-                  helm-candidate-number-limit)
-              (progn
-                (with-helm-after-update-hook
-                  (setq unread-command-events nil))
-                (helm-force-update))
-            (message "Candidate number limit reached,\
-increasing it to %s" (+ wlines helm-candidate-number-limit))
-            (with-helm-buffer
-              (setq-local helm-candidate-number-limit
-                          (+ wlines helm-candidate-number-limit)))))))))
+          (with-helm-after-update-hook
+            (setq unread-command-events nil))
+          (helm-force-update))))))
 
 (defun helm-ls-git-log (&optional branch num)
   (when (and branch (string-match "->" branch))
@@ -687,6 +677,8 @@ increasing it to %s" (+ wlines helm-candidate-number-limit))
           (number-to-string
            (+ last-number-commits
               (string-to-number commits-number))))
+    (helm-set-attr 'candidate-number-limit
+                   (string-to-number helm-ls-git-log--last-number-commits))
     (message "Git log on `%s' updating to `%s' commits..."
              branch helm-ls-git-log--last-number-commits)
     (with-helm-default-directory (helm-ls-git-root-dir)
