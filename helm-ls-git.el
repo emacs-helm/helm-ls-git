@@ -646,6 +646,7 @@ See docstring of `helm-ls-git-ls-switches'.
   "Cache for git log during the helm-ls-git-log session.")
 (defvar helm-ls-git-log--last-number-commits "0"
   "The number of commits actually displayed in this session.")
+(defvar helm-ls-git-log--is-full nil)
 
 (defun helm-ls-git-auto-refresh-and-scroll ()
   "Increase git log by `window-height' lines."
@@ -680,27 +681,30 @@ See docstring of `helm-ls-git-ls-switches'.
                                 helm-ls-git-log--last-number-commits)
                      ,(or branch "")))
          output)
-    (setq helm-ls-git-log--last-number-commits
-          (number-to-string
-           (+ last-number-commits
-              (string-to-number commits-number))))
-    (helm-set-attr 'candidate-number-limit
-                   (string-to-number helm-ls-git-log--last-number-commits))
-    (message "Git log on `%s' updating to `%s' commits..."
-             branch helm-ls-git-log--last-number-commits)
-    (with-helm-default-directory (helm-ls-git-root-dir)
-      (setq helm-ls-git-log--last-log
-            (concat helm-ls-git-log--last-log
-                    ;; Avoid adding a newline at first run.
-                    (unless (zerop last-number-commits) "\n")
-                    (setq output
-                          (with-output-to-string
-                            (with-current-buffer standard-output
-                              (apply #'process-file "git" nil t nil switches)))))))
-    (if (and (stringp output) (not (string= output "")))
-        (message "Git log on `%s' updating to `%s' commits done"
-                 branch helm-ls-git-log--last-number-commits)
-      (message "No more commits on `%s' branch" branch))
+    (unless helm-ls-git-log--is-full
+      (setq helm-ls-git-log--last-number-commits
+            (number-to-string
+             (+ last-number-commits
+                (string-to-number commits-number))))
+      (helm-set-attr 'candidate-number-limit
+                     (string-to-number helm-ls-git-log--last-number-commits))
+      (message "Git log on `%s' updating to `%s' commits..."
+               branch helm-ls-git-log--last-number-commits)
+      (with-helm-default-directory (helm-ls-git-root-dir)
+        (setq helm-ls-git-log--last-log
+              (concat helm-ls-git-log--last-log
+                      ;; Avoid adding a newline at first run.
+                      (unless (zerop last-number-commits) "\n")
+                      (setq output
+                            (with-output-to-string
+                              (with-current-buffer standard-output
+                                (apply #'process-file "git" nil t nil switches)))))))
+      (when (and (stringp output) (string= output ""))
+        (setq helm-ls-git-log--is-full t)))
+    (if helm-ls-git-log--is-full
+        (message "No more commits on `%s' branch" branch)
+      (message "Git log on `%s' updating to `%s' commits done"
+               branch helm-ls-git-log--last-number-commits))
     helm-ls-git-log--last-log))
 
 (defun helm-ls-git-show-log (branch)
@@ -723,7 +727,8 @@ See docstring of `helm-ls-git-ls-switches'.
                      :marked-with-props 'withprop
                      :cleanup (lambda ()
                                 (setq helm-ls-git-log--last-log ""
-                                      helm-ls-git-log--last-number-commits "0"))
+                                      helm-ls-git-log--last-number-commits "0"
+                                      helm-ls-git-log--is-full nil))
                      :help-message 'helm-ls-git-help-message
                      :action '(("Show commit" . helm-ls-git-log-show-commit)
                                ("Find file at rev" . helm-ls-git-log-find-file)
