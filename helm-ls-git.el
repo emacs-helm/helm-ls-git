@@ -135,7 +135,7 @@ This happen only when deleting a remote branch e.g. remotes/origin/foo."
   :type 'boolean
   :group 'helm-ls-git)
 
-(defcustom helm-ls-git-auto-refresh-at-eob nil
+(defcustom helm-ls-git-auto-refresh-at-eob t
   "Increase git log by `window-height' lines when non nil.
 When non nil this disable `helm-move-to-line-cycle-in-source'."
   :group 'helm-ls-git
