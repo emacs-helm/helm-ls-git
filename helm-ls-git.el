@@ -660,18 +660,21 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-log (&optional branch num)
   (when (and branch (string-match "->" branch))
     (setq branch (car (last (split-string branch "->")))))
-  (let* ((last-number-commits (string-to-number helm-ls-git-log--last-number-commits))
+  (let* ((last-number-commits (string-to-number
+                               helm-ls-git-log--last-number-commits))
          (commits-number (if num
-                             (if (> num last-number-commits)
-                                 (number-to-string (- num last-number-commits))
-                               (number-to-string num))
+                             (number-to-string
+                              (if (> num last-number-commits)
+                                  (- num last-number-commits)
+                                num))
                            helm-ls-git-log-max-commits))
          (switches `("log" "--color"
                      "--date=local"
                      "--pretty=format:%C(yellow)%h%Creset \
  %C(green)%ad%Creset %<(60,trunc)%s %Cred%an%Creset %C(auto)%d%Creset"
                      "-n" ,commits-number
-                     "--skip" ,(helm-stringify helm-ls-git-log--last-number-commits)
+                     "--skip" ,(helm-stringify
+                                helm-ls-git-log--last-number-commits)
                      ,(or branch ""))))
     (setq helm-ls-git-log--last-number-commits
           (number-to-string
