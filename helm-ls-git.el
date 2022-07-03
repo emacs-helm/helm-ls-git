@@ -642,16 +642,21 @@ See docstring of `helm-ls-git-ls-switches'.
 
 ;;; Git log
 ;;
+(defvar helm-ls-git-log--last-log "")
+(defvar helm-ls-git-log--last-number-commits "0")
+
 (defun helm-ls-git-auto-refresh-and-scroll ()
   "Increase git log by `window-height' lines."
   (with-helm-window
-    (let ((wlines      (window-height))
-          (cand-number (helm-get-candidate-number t)))
+    (let ((wlines (window-height)))
       (when (and (helm-end-of-source-p)
                  (string= helm-pattern "")
                  (eq this-command 'helm-next-line))
-        (let ((current-prefix-arg (+ cand-number wlines)))
-          (if (<= current-prefix-arg helm-candidate-number-limit)
+        (let ((current-prefix-arg wlines))
+          (if (<= (+ (string-to-number
+                      helm-ls-git-log--last-number-commits)
+                     wlines)
+                  helm-candidate-number-limit)
               (progn
                 (with-helm-after-update-hook
                   (setq unread-command-events nil))
@@ -665,22 +670,36 @@ increasing it to %s" (+ wlines helm-candidate-number-limit))
 (defun helm-ls-git-log (&optional branch num)
   (when (and branch (string-match "->" branch))
     (setq branch (car (last (split-string branch "->")))))
-  (let* ((commits-number (if num
-                             (number-to-string num)
+  (let* ((last-number-commits (string-to-number helm-ls-git-log--last-number-commits))
+         (commits-number (if num
+                             (if (> num last-number-commits)
+                                 (number-to-string (- num last-number-commits))
+                               (number-to-string num))
                            helm-ls-git-log-max-commits))
          (switches `("log" "--color"
                      "--date=local"
                      "--pretty=format:%C(yellow)%h%Creset \
  %C(green)%ad%Creset %<(60,trunc)%s %Cred%an%Creset %C(auto)%d%Creset"
                      "-n" ,commits-number
+                     "--skip" ,(helm-stringify helm-ls-git-log--last-number-commits)
                      ,(or branch ""))))
-    (message "Running git log `%s' `%s'..." branch commits-number)
+    (setq helm-ls-git-log--last-number-commits
+          (number-to-string
+           (+ last-number-commits
+              (string-to-number commits-number))))
+    (message "Git log on `%s' updating to `%s' commits..."
+             branch helm-ls-git-log--last-number-commits)
     (with-helm-default-directory (helm-ls-git-root-dir)
-      (with-output-to-string
-        (with-current-buffer standard-output
-          (prog1
-              (apply #'process-file "git" nil t nil switches)
-            (message "Running git log `%s' `%s' done" branch commits-number)))))))
+      (setq helm-ls-git-log--last-log
+            (concat helm-ls-git-log--last-log
+                    ;; Avoid adding a newline at first run.
+                    (unless (zerop last-number-commits) "\n")
+                    (with-output-to-string
+                      (with-current-buffer standard-output
+                        (prog1
+                            (apply #'process-file "git" nil t nil switches)
+                          (message "Git log on `%s' updating to `%s' commits done"
+                                   branch helm-ls-git-log--last-number-commits)))))))))
 
 (defun helm-ls-git-show-log (branch)
   (let ((name    (replace-regexp-in-string "[ *]" "" branch))
@@ -700,6 +719,9 @@ increasing it to %s" (+ wlines helm-candidate-number-limit))
                              (setq prefarg nil))
                      :get-line 'buffer-substring
                      :marked-with-props 'withprop
+                     :cleanup (lambda ()
+                                (setq helm-ls-git-log--last-log ""
+                                      helm-ls-git-log--last-number-commits "0"))
                      :help-message 'helm-ls-git-help-message
                      :action '(("Show commit" . helm-ls-git-log-show-commit)
                                ("Find file at rev" . helm-ls-git-log-find-file)
