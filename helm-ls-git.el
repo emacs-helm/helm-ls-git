@@ -642,8 +642,10 @@ See docstring of `helm-ls-git-ls-switches'.
 
 ;;; Git log
 ;;
-(defvar helm-ls-git-log--last-log "")
-(defvar helm-ls-git-log--last-number-commits "0")
+(defvar helm-ls-git-log--last-log ""
+  "Cache for git log during the helm-ls-git-log session.")
+(defvar helm-ls-git-log--last-number-commits "0"
+  "The number of commits actually displayed in this session.")
 
 (defun helm-ls-git-auto-refresh-and-scroll ()
   "Increase git log by `window-height' lines."
@@ -658,6 +660,7 @@ See docstring of `helm-ls-git-ls-switches'.
           (helm-force-update))))))
 
 (defun helm-ls-git-log (&optional branch num)
+  "Run git log branch -n num and return the resulting string."
   (when (and branch (string-match "->" branch))
     (setq branch (car (last (split-string branch "->")))))
   (let* ((last-number-commits (string-to-number
