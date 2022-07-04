@@ -1672,6 +1672,9 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("/COMMIT_EDITMSG$" . helm-ls-git-commit-mode))
 
+(defvar helm-ls-git-author-name-history nil)
+(defvar helm-ls-git-author-email-history nil)
+
 (defun helm-ls-git-with-editor (&rest args)
   "Binds GIT_EDITOR env var to emacsclient and run git with ARGS.
 Bound `default-directory' to the root dir of project determining value
@@ -1685,8 +1688,10 @@ context i.e. use it in helm actions."
         (bname (format "*helm-ls-git %s*" (car args)))
         (alt-auth (and helm-current-prefix-arg
                        (string= (car args) "commit")
-                       (list (read-string "Author name: ")
-                             (read-string "Author email: ")))))
+                       (list (read-string "Author name: "
+                                          nil 'helm-ls-git-author-name-history)
+                             (read-string "Author email: "
+                                          nil 'helm-ls-git-author-email-history)))))
     ;; It seems git once it knows GIT_EDITOR reuse the same value
     ;; along its whole process e.g. when squashing in a rebase
     ;; process, so even if the env setting goes away after initial
