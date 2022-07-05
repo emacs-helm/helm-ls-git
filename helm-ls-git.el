@@ -1151,7 +1151,6 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                     (progn (progress-reporter-done pr)
                            (when helm-alive-p
                              (with-helm-window (helm-force-update "^\\*"))))
-                  (and tm (cancel-timer tm))
                   (message "Failed %sing from %s: Process exited with code %s"
                            command remote status))
                 (and tm (cancel-timer tm))))))))
