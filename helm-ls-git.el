@@ -1095,20 +1095,20 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 (defun helm-ls-git-push (_candidate)
   (with-helm-default-directory (helm-default-directory)
     (let ((branch (helm-ls-git--branch)))
-      (message "Pushing branch `%s' on remote..." branch)
-      (let ((proc (start-file-process
-                   "git" "*helm-ls-git push*" "git" "push" "origin" "HEAD")))
-        (set-process-sentinel
-         proc (lambda (_process event)
-                (if (string= event "finished\n")
-                    (message "Pushing branch `%s' on remote done" branch)
-                  (error "Failed to push branch `%s' on remote" branch))))))))
+      (when (y-or-n-p (format "Really push branch `%s' on remote ?" branch))
+        (message "Pushing branch `%s' on remote..." branch)
+        (let ((proc (start-file-process
+                     "git" "*helm-ls-git push*" "git" "push" "origin" "HEAD")))
+          (set-process-sentinel
+           proc (lambda (_process event)
+                  (if (string= event "finished\n")
+                      (message "Pushing branch `%s' on remote done" branch)
+                    (error "Failed to push branch `%s' on remote" branch)))))))))
 
 (defun helm-ls-git-run-push ()
   (interactive)
   (with-helm-alive-p
-    (when (y-or-n-p "Push on remote ?")
-      (helm-exit-and-execute-action #'helm-ls-git-push))))
+    (helm-exit-and-execute-action #'helm-ls-git-push)))
 (put 'helm-ls-git-run-push 'no-helm-mx t)
 
 (defun helm-ls-git-remotes ()
