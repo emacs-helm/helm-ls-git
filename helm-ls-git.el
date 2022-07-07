@@ -1140,7 +1140,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                                  (list branch))
                        (append (list command) args)))
            (pr (make-progress-reporter
-                (format "%sing from `%s/%s' " pcommand remote branch)))
+                (format "%sing from `%s/%s'..." pcommand remote branch)))
            (tm (run-at-time 1 0.1 (lambda () (progress-reporter-update pr))))
            process-connection-type
            proc)
