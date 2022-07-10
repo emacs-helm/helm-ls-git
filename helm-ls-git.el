@@ -59,7 +59,6 @@ It can be build explicitly with function
 (defcustom helm-ls-git-show-abs-or-relative 'relative
   "Show full path or relative path to repo when using `helm-ff-toggle-basename'.
 Valid values are symbol 'absolute or 'relative (default)."
-  :group 'helm-ls-git
   :type  '(radio :tag "Show full path or relative path to Git repo when toggling"
                  (const :tag "Show full path" absolute)
                  (const :tag "Show relative path" relative)))
@@ -69,12 +68,10 @@ Valid values are symbol 'absolute or 'relative (default)."
 
 If you want to use magit use `magit-status-setup-buffer' and not
 `magit-status' which is working only interactively."
-  :group 'helm-ls-git
   :type 'symbol)
 
 (defcustom helm-ls-git-fuzzy-match nil
   "Enable fuzzy matching in `helm-source-ls-git-status' and `helm-source-ls-git'."
-  :group 'helm-ls-git
   :set (lambda (var val)
          (set var val)
          (setq helm-source-ls-git nil
@@ -95,13 +92,11 @@ If you want to use magit use `magit-status-setup-buffer' and not
                                          helm-ls-git-stashes-source
                                          helm-ls-git-create-branch-source)
   "Default sources for `helm-ls-git-ls'."
-  :group 'helm-ls-git
   :type '(repeat symbol))
 
 (defcustom helm-ls-git-format-glob-string "'%s'"
   "String to format globs in `helm-grep-get-file-extensions'.
 Glob are enclosed in single quotes by default."
-  :group 'helm-ls-git
   :type 'string)
 
 (defcustom helm-ls-git-ls-switches '("ls-files" "--full-name" "--")
@@ -110,13 +105,11 @@ To see files in submodules add the option \"--recurse-submodules\".
 If you have problems displaying  unicode filenames use
 \'(\"-c\" \"core.quotePath=false\" \"ls-files\" \"--full-name\" \"--\").
 See Issue #52."
-  :type '(repeat string)
-  :group 'helm-ls-git)
+  :type '(repeat string))
 
 (defcustom helm-ls-git-auto-checkout nil
   "Stash automatically uncommited changes before checking out a branch."
-  :type 'boolean
-  :group 'helm-ls-git)
+  :type 'boolean)
 
 (defcustom helm-ls-git-log-max-commits "100"
   "Max number of commits to show in git log (git log -n option).
@@ -126,80 +119,72 @@ the number of candidates displayed which is relative to
 == 500 and `helm-ls-git-log-max-commits' == 600, only 500 candidates
 will be displayed but if you search for a candidate which is in the
 range 500/600 you will find it."
-  :type 'string
-  :group 'helm-ls-git)
+  :type 'string)
 
 (defcustom helm-ls-git-delete-branch-on-remote nil
   "Delete remote branch without asking when non nil.
 This happen only when deleting a remote branch e.g. remotes/origin/foo."
-  :type 'boolean
-  :group 'helm-ls-git)
+  :type 'boolean)
 
 (defcustom helm-ls-git-auto-refresh-at-eob t
   "Increase git log by `window-height' lines when non nil.
 When non nil this disable `helm-move-to-line-cycle-in-source'."
-  :group 'helm-ls-git
   :type 'boolean)
+
 
+(defgroup helm-ls-git-faces nil
+  "Customize the appearance of helm-files."
+  :prefix "helm-ls-git-"
+  :group 'helm-ls-git
+  :group 'helm-faces)
+
 (defface helm-ls-git-modified-not-staged-face
   '((t :foreground "yellow"))
-  "Files which are modified but not yet staged."
-  :group 'helm-ls-git)
+  "Files which are modified but not yet staged.")
 
 (defface helm-ls-git-modified-and-staged-face
   '((t :foreground "Goldenrod"))
-  "Files which are modified and already staged."
-  :group 'helm-ls-git)
+  "Files which are modified and already staged.")
 
 (defface helm-ls-git-renamed-modified-face
   '((t :foreground "Goldenrod"))
-  "Files which are renamed or renamed and modified."
-  :group 'helm-ls-git)
+  "Files which are renamed or renamed and modified.")
 
 (defface helm-ls-git-untracked-face
   '((t :foreground "red"))
-  "Files which are not yet tracked by git."
-  :group 'helm-ls-git)
+  "Files which are not yet tracked by git.")
 
 (defface helm-ls-git-added-copied-face
   '((t :foreground "green"))
-  "Files which are newly added or copied."
-  :group 'helm-ls-git)
+  "Files which are newly added or copied.")
 
 (defface helm-ls-git-added-modified-face
   '((t :foreground "blue"))
-  "Files which are newly added and have unstaged modifications."
-  :group 'helm-ls-git)
+  "Files which are newly added and have unstaged modifications.")
 
 (defface helm-ls-git-deleted-not-staged-face
   '((t :foreground "Darkgoldenrod3"))
-  "Files which are deleted but not staged."
-  :group 'helm-ls-git)
+  "Files which are deleted but not staged.")
 
 (defface helm-ls-git-deleted-and-staged-face
   '((t :foreground "DimGray"))
-  "Files which are deleted and staged."
-  :group 'helm-ls-git)
+  "Files which are deleted and staged.")
 
 (defface helm-ls-git-conflict-face
   '((t :foreground "MediumVioletRed"))
-  "Files which contain rebase/merge conflicts."
-  :group 'helm-ls-git)
+  "Files which contain rebase/merge conflicts.")
 
 (defface helm-ls-git-branches-current
   '((t :foreground "gold"))
-  "Color of the star prefixing current branch."
-  :group 'helm-ls-git)
+  "Color of the star prefixing current branch.")
 
 (defface helm-ls-git-branches-name
   '((t :foreground "red"))
-  "Color of branches names."
-  :group 'helm-ls-git)
+  "Color of branches names.")
 
 (defface helm-ls-git-branches-name-current
   '((t :foreground "green"))
-  "Color of current branch name."
-  :group 'helm-ls-git)
+  "Color of current branch name.")
 
 
 (defvar helm-ls-git-map
