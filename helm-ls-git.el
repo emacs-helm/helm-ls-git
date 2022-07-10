@@ -30,6 +30,12 @@
 (defvaralias 'helm-c-source-ls-git-status 'helm-source-ls-git-status)
 (make-obsolete-variable 'helm-c-source-ls-git-status 'helm-source-ls-git-status "1.5.1")
 
+;; Now the git-grep command is defined in helm-grep.el,
+;; alias it for backward compatibility.
+(defvar helm-ls-git-grep-command)
+(defvaralias 'helm-ls-git-grep-command 'helm-grep-git-grep-command)
+(make-obsolete-variable 'helm-ls-git-grep-command 'helm-grep-git-grep-command "1.8.0")
+
 (defvar server-clients)
 (declare-function helm-comp-read "ext:helm-mode.el")
 (declare-function server-running-p "server.el")
@@ -78,12 +84,6 @@ If you want to use magit use `magit-status-setup-buffer' and not
                helm-source-ls-git-status nil
                helm-source-ls-git-buffers nil))
   :type 'boolean)
-
-;; Now the git-grep command is defined in helm-grep.el,
-;; alias it for backward compatibility.
-(defvar helm-ls-git-grep-command)
-(defvaralias 'helm-ls-git-grep-command 'helm-grep-git-grep-command)
-(make-obsolete-variable 'helm-ls-git-grep-command 'helm-grep-git-grep-command "1.8.0")
 
 (defcustom helm-ls-git-default-sources '(helm-source-ls-git-status
                                          helm-ls-git-branches-source
