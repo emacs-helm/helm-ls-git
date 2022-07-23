@@ -64,7 +64,7 @@ It can be build explicitly with function
 
 (defcustom helm-ls-git-show-abs-or-relative 'relative
   "Show full path or relative path to repo when using `helm-ff-toggle-basename'.
-Valid values are symbol 'absolute or 'relative (default)."
+Valid values are symbol \\='absolute' or \\='relative' (default)."
   :type  '(radio :tag "Show full path or relative path to Git repo when toggling"
                  (const :tag "Show full path" absolute)
                  (const :tag "Show relative path" relative)))
