@@ -836,7 +836,7 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-log-revert-continue (_candidate)
   (helm-ls-git-with-editor "revert" "--continue"))
 
-(defun helm-ls-git-revert-abort (_candidate)
+(defun helm-ls-git-log-revert-abort (_candidate)
   (with-helm-default-directory (helm-default-directory)
     (process-file "git" nil nil nil "revert" "--abort")))
 
