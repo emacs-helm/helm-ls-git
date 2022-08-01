@@ -223,6 +223,7 @@ When non nil this disable `helm-move-to-line-cycle-in-source'."
     (define-key map (kbd "C-c e") 'helm-ls-git-run-stage-marked-and-extend-commit)
     (define-key map (kbd "C-c z") 'helm-ls-git-run-stash)
     (define-key map (kbd "C-c Z") 'helm-ls-git-run-stash-snapshot)
+    (define-key map (kbd "C-c R") 'helm-ls-git-run-status-revert-files)
     (define-key map (kbd "M-e") 'helm-ls-git-run-switch-to-shell)
     map))
 
@@ -1419,15 +1420,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
   (let ((disp (helm-get-selection nil t))
         (mofified-actions
          (helm-make-actions "Diff file" 'helm-ls-git-diff
-                            "Revert file(s)"
-                            (lambda (_candidate)
-                              (let ((marked (helm-marked-candidates)))
-                                (cl-loop for f in marked do
-                                         (progn
-                                           (vc-git-revert f)
-                                           (helm-aif (get-file-buffer f)
-                                               (with-current-buffer it
-                                                 (revert-buffer t t)))))))
+                            "Revert file(s)" 'helm-ls-git-status-revert-files
                             "Copy file(s) `C-u to follow'" 'helm-find-files-copy
                             "Rename file(s) `C-u to follow'" 'helm-find-files-rename)))
     ;; Unregistered files
@@ -1566,6 +1559,23 @@ object will be passed git rebase i.e. git rebase -i <hash>."
   (with-helm-alive-p
     (helm-exit-and-execute-action 'helm-ls-git-switch-to-shell)))
 (put 'helm-ls-git-run-switch-to-shell 'no-helm-mx t)
+
+(defun helm-ls-git-status-revert-files (_candidate)
+  (let ((marked (helm-marked-candidates)))
+    (cl-loop for f in marked do
+             (progn
+               (vc-git-revert f)
+               (helm-aif (get-file-buffer f)
+                   (with-current-buffer it
+                     (revert-buffer t t)))))
+    (when helm-in-persistent-action (helm-force-update))))
+
+(defun helm-ls-git-run-status-revert-files ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-set-attr 'revert 'helm-ls-git-status-revert-files)
+    (helm-execute-persistent-action 'revert)))
+(put 'helm-ls-git-run-status-revert-files 'no-helm-mx t)
 
 
 ;;; Stage and commit
