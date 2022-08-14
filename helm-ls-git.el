@@ -582,7 +582,8 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-revert-buffers-in-project ()
   (cl-loop for buf in (helm-browse-project-get-buffers (helm-ls-git-root-dir))
-           when (buffer-file-name (get-buffer buf))
+           for fname = (buffer-file-name (get-buffer buf))
+           when (and fname (file-exists-p fname))
            do (with-current-buffer buf (revert-buffer nil t))))
 
 (defun helm-ls-git-diff (candidate)
