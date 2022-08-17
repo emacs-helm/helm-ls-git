@@ -882,14 +882,18 @@ See docstring of `helm-ls-git-ls-switches'.
   (helm-ls-git-log-find-file-1 (helm-get-selection nil 'withprop)))
 
 (defun helm-ls-git-ediff-file-at-revs (_candidate)
-  (let ((marked (helm-marked-candidates))
-        buf1 buf2 file)
-    (cl-assert (= (length marked) 2) nil "Wrong number of revisions to ediff")
+  (let* ((marked (helm-marked-candidates))
+         (tip (unless (cdr marked)
+                (helm-ls-git-oneline-log (helm-ls-git--branch))))
+         buf1 buf2 file)
     (setq file (helm :sources (helm-build-in-buffer-source "Git cat-file"
                                 :data (helm-ls-git-list-files))
                      :buffer "*helm-ls-git cat-file*"))
-    (setq buf1 (helm-ls-git-log-find-file-1 (car marked) file :buffer-only)
-          buf2 (helm-ls-git-log-find-file-1 (cadr marked) file :buffer-only))
+    (setq buf1 (helm-ls-git-log-find-file-1 (or tip (car marked)) file :buffer-only)
+          buf2 (helm-ls-git-log-find-file-1 (if tip (car marked) (cadr marked))
+                                            file :buffer-only))
+    (cl-assert (not (eql buf1 buf2))
+               nil (format "Can't ediff file `%s' at same revision" file))
     (ediff-buffers buf1 buf2)))
 
 (defun helm-ls-git-log-cherry-pick (_candidate)
