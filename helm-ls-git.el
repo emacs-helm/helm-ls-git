@@ -725,6 +725,7 @@ See docstring of `helm-ls-git-ls-switches'.
                      :help-message 'helm-ls-git-help-message
                      :action '(("Show commit" . helm-ls-git-log-show-commit)
                                ("Find file at rev" . helm-ls-git-log-find-file)
+                               ("Ediff file at revs" . helm-ls-git-ediff-file-at-revs)
                                ("Kill rev as short hash" .
                                 helm-ls-git-log-kill-short-hash)
                                ("Kill rev as long hash" .
@@ -854,25 +855,42 @@ See docstring of `helm-ls-git-ls-switches'.
       (kill-buffer "*git log diff*")
     (helm-ls-git-log-show-commit-1 candidate)))
 
-(defun helm-ls-git-log-find-file (_candidate)
+(defun helm-ls-git-log-find-file-1 (candidate &optional file buffer-only)
   (with-helm-default-directory (helm-default-directory)
-    (let* ((rev (car (split-string (helm-get-selection nil 'withprop))))
-           (file (helm :sources (helm-build-in-buffer-source "Git cat-file"
-                                  :data (helm-ls-git-list-files))
-                       :buffer "*helm-ls-git cat-file*"))
+    (let* ((rev (car (split-string candidate)))
+           (file (or file
+                     (helm :sources (helm-build-in-buffer-source "Git cat-file"
+                                      :data (helm-ls-git-list-files))
+                           :buffer "*helm-ls-git cat-file*")))
            (fname (concat rev ":" file))
            (path (expand-file-name fname))
-           str status)
+           str status buf)
       (setq str (with-output-to-string
                   (with-current-buffer standard-output
                     (setq status (process-file "git" nil t nil "cat-file" "-p" fname)))))
       (if (zerop status)
           (progn
-            (with-current-buffer (find-file-noselect path)
+            (with-current-buffer (setq buf (find-file-noselect path))
               (insert str)
-              (save-buffer))
-            (find-file path))
+              (set-buffer-modified-p (not buffer-only))
+              (unless buffer-only
+                (save-buffer)))
+            (if buffer-only buf (find-file path)))
         (error "No such file %s at %s" file rev)))))
+
+(defun helm-ls-git-log-find-file (_candidate)
+  (helm-ls-git-log-find-file-1 (helm-get-selection nil 'withprop)))
+
+(defun helm-ls-git-ediff-file-at-revs (_candidate)
+  (let ((marked (helm-marked-candidates))
+        buf1 buf2 file)
+    (cl-assert (= (length marked) 2) nil "Wrong number of revisions to ediff")
+    (setq file (helm :sources (helm-build-in-buffer-source "Git cat-file"
+                                :data (helm-ls-git-list-files))
+                     :buffer "*helm-ls-git cat-file*"))
+    (setq buf1 (helm-ls-git-log-find-file-1 (car marked) file :buffer-only)
+          buf2 (helm-ls-git-log-find-file-1 (cadr marked) file :buffer-only))
+    (ediff-buffers buf1 buf2)))
 
 (defun helm-ls-git-log-cherry-pick (_candidate)
   (let* ((commits (cl-loop for c in (helm-marked-candidates)
