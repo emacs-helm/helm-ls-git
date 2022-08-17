@@ -69,8 +69,11 @@ Valid values are symbol \\='absolute' or \\='relative' (default)."
                  (const :tag "Show full path" absolute)
                  (const :tag "Show relative path" relative)))
 
-(defcustom helm-ls-git-status-command 'vc-dir
+(defcustom helm-ls-git-status-command nil
   "Favorite git-status command for emacs.
+
+When set, you will have an additional action allowing to
+switch to a git status buffer e.g. `vc-dir' or `magit-status'.
 
 If you want to use magit use `magit-status-setup-buffer' and not
 `magit-status' which is working only interactively."
@@ -241,8 +244,8 @@ helm-ls-hg is no more maintained).
 
 *** Git status command
 
-By default helm-ls-git is using emacs `vc-dir' as `helm-ls-git-status-command',
-but perhaps you want to use something better like `magit-status'.
+By default `helm-ls-git-status-command' is nil,
+but you can set it if needed to `magit-status', `vc-dir' or whatever.
 
 However helm-ls-git provides most of what you need to basically
 manage your git repo so you may not need to use another tool,
@@ -527,14 +530,15 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-actions-list (&optional actions)
   (helm-append-at-nth
    actions
-   (helm-make-actions "Git status"
+   (helm-make-actions (lambda ()
+                        (and helm-ls-git-status-command "Git status"))
                       (lambda (_candidate)
                         (funcall helm-ls-git-status-command
                                  (helm-default-directory)))
+                      "Switch to shell" 'helm-ls-git-switch-to-shell
                       "Git grep files (`C-u' only current directory)"
                       'helm-ls-git-grep
-                      "Gid" 'helm-ff-gid
-                      "Switch to shell" 'helm-ls-git-switch-to-shell)
+                      "Gid" 'helm-ff-gid)
    1))
 
 (defun helm-ls-git-match-part (candidate)
@@ -574,9 +578,11 @@ See docstring of `helm-ls-git-ls-switches'.
    (action :initform
            (helm-make-actions
             "Find file" 'helm-find-many-files
-            "Git status" (lambda (_candidate)
-                           (funcall helm-ls-git-status-command
-                                    (helm-default-directory)))
+            (lambda ()
+              (and helm-ls-git-status-command "Git status"))
+            (lambda (_candidate)
+              (funcall helm-ls-git-status-command
+                       (helm-default-directory)))
             "Switch to shell" #'helm-ls-git-switch-to-shell))
    (group :initform 'helm-ls-git)))
 
@@ -1246,11 +1252,14 @@ object will be passed git rebase i.e. git rebase -i <hash>."
     :persistent-action (lambda (candidate)
                          (helm-ls-git-checkout candidate)
                          (helm-force-update "^\\*"))
-    :action '(("Git status" . (lambda (_candidate)
-                                (funcall helm-ls-git-status-command
-                                         (helm-default-directory))))
-              ("Git log (M-L)" . helm-ls-git-show-log)
-              ("Switch to shell" . helm-ls-git-switch-to-shell))
+    :action (helm-make-actions
+             (lambda ()
+               (and helm-ls-git-status-command "Git status"))
+             (lambda (_candidate)
+                            (funcall helm-ls-git-status-command
+                                     (helm-default-directory)))
+             "Switch to shell" #'helm-ls-git-switch-to-shell
+              "Git log (M-L)" #'helm-ls-git-show-log)
     :keymap 'helm-ls-git-branches-map
     :group 'helm-ls-git))
 
@@ -1866,7 +1875,8 @@ Commands:
       (setf (slot-value source 'action)
             (helm-append-at-nth
              helm-type-buffer-actions
-             (helm-make-actions "Git status"
+             (helm-make-actions (lambda ()
+                                  (and helm-ls-git-status-command "Git status"))
                                 (lambda (_candidate)
                                   (funcall helm-ls-git-status-command
                                            (helm-default-directory))))
