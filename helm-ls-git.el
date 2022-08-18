@@ -857,29 +857,36 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-log-find-file-1 (candidate &optional file buffer-only)
   (with-helm-default-directory (helm-default-directory)
-    (let* ((rev (car (split-string candidate)))
+    (let* ((rev (substring-no-properties (car (split-string candidate))))
            (file (or file
                      (helm :sources (helm-build-in-buffer-source "Git cat-file"
                                       :data (helm-ls-git-list-files))
                            :buffer "*helm-ls-git cat-file*")))
+           ;; Git command line needs 1234:lisp/foo.
            (fname (concat rev ":" file))
-           (path (expand-file-name fname))
+           ;; Whereas the file created will be lisp/1234:foo.
+           (path (expand-file-name
+                  (concat (helm-basedir file) rev ":" (helm-basename file))
+                  (helm-ls-git-root-dir)))
            str status buf)
       (setq str (with-output-to-string
                   (with-current-buffer standard-output
-                    (setq status (process-file "git" nil t nil "cat-file" "-p" fname)))))
+                    (setq status (process-file
+                                  "git" nil t nil "cat-file" "-p" fname)))))
       (if (zerop status)
           (progn
             (with-current-buffer (setq buf (find-file-noselect path))
               (insert str)
+              ;; Prevent kill-buffer asking after ediff ends.
               (set-buffer-modified-p (not buffer-only))
+              (goto-char (point-min))
               (unless buffer-only
                 (save-buffer)))
             (if buffer-only buf (find-file path)))
         (error "No such file %s at %s" file rev)))))
 
-(defun helm-ls-git-log-find-file (_candidate)
-  (helm-ls-git-log-find-file-1 (helm-get-selection nil 'withprop)))
+(defun helm-ls-git-log-find-file (candidate)
+  (helm-ls-git-log-find-file-1 candidate))
 
 (defun helm-ls-git-ediff-file-at-revs (_candidate)
   (let* ((marked (helm-marked-candidates))
