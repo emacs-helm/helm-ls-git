@@ -893,14 +893,16 @@ See docstring of `helm-ls-git-ls-switches'.
          (tip (unless (cdr marked)
                 (helm-ls-git-oneline-log (helm-ls-git--branch))))
          buf1 buf2 file)
+    (when tip
+      (cl-assert (not (string= (car (split-string tip))
+                               (car (split-string (car marked)))))
+                 nil "Can't ediff a file at same revision"))
     (setq file (helm :sources (helm-build-in-buffer-source "Git cat-file"
                                 :data (helm-ls-git-list-files))
                      :buffer "*helm-ls-git cat-file*"))
     (setq buf1 (helm-ls-git-log-find-file-1 (or tip (car marked)) file :buffer-only)
           buf2 (helm-ls-git-log-find-file-1 (if tip (car marked) (cadr marked))
                                             file :buffer-only))
-    (cl-assert (not (eql buf1 buf2))
-               nil (format "Can't ediff file `%s' at same revision" file))
     (ediff-buffers buf1 buf2)))
 
 (defun helm-ls-git-log-cherry-pick (_candidate)
