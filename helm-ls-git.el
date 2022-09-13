@@ -1500,7 +1500,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                                                      do (insert (concat bname "\n"))
                                                      do (setq last-bname bname))
                                             (save-buffer)))))))
-          ((string-match "^A " disp)
+          ((string-match "^AM? " disp)
            (append actions '(("Commit staged file(s)"
                               . helm-ls-git-commit)
                              ("Extend commit"
@@ -1556,9 +1556,14 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                                  '("Stage file(s)"
                                    . helm-ls-git-stage-files))))
           ;; Deleted and staged
-          ((string-match "^D +" disp)
+          ((string-match "^A?D +" disp)
            (append actions (list '("Commit staged file(s)"
                                    . helm-ls-git-commit)
+                                 '("Update index"
+                                   . (lambda (_candidate)
+                                       (let ((default-directory (helm-default-directory)))
+                                         (process-file "git" nil nil nil
+                                                       "add" "-u"))))
                                  '("Stage marked file(s) and commit"
                                    . helm-ls-git-stage-marked-and-commit))))
           ;; Conflict
