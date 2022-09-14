@@ -146,11 +146,11 @@ When non nil this disable `helm-move-to-line-cycle-in-source'."
   "Files which are modified but not yet staged.")
 
 (defface helm-ls-git-modified-and-staged-face
-  '((t :foreground "Goldenrod"))
+  '((t :foreground "goldenrod"))
   "Files which are modified and already staged.")
 
 (defface helm-ls-git-renamed-modified-face
-  '((t :foreground "Goldenrod"))
+  '((t :foreground "goldenrod"))
   "Files which are renamed or renamed and modified.")
 
 (defface helm-ls-git-untracked-face
@@ -162,11 +162,11 @@ When non nil this disable `helm-move-to-line-cycle-in-source'."
   "Files which are newly added or copied.")
 
 (defface helm-ls-git-added-modified-face
-  '((t :foreground "blue"))
+  '((t :foreground "LightSkyBlue"))
   "Files which are newly added and have unstaged modifications.")
 
 (defface helm-ls-git-deleted-not-staged-face
-  '((t :foreground "Darkgoldenrod3"))
+  '((t :foreground "DarkGoldenrod3"))
   "Files which are deleted but not staged.")
 
 (defface helm-ls-git-deleted-and-staged-face
