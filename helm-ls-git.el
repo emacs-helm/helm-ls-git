@@ -1559,6 +1559,8 @@ object will be passed git rebase i.e. git rebase -i <hash>."
           ((string-match "^A?D +" disp)
            (append actions (list '("Commit staged file(s)"
                                    . helm-ls-git-commit)
+                                 '("Unstage file(s)"
+                                   . helm-ls-git-unstage-files)
                                  '("Update index"
                                    . (lambda (_candidate)
                                        (let ((default-directory (helm-default-directory)))
