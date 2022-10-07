@@ -701,7 +701,9 @@ See docstring of `helm-ls-git-ls-switches'.
     helm-ls-git-log--last-log))
 
 (defun helm-ls-git-show-log (branch)
-  (let ((name    (replace-regexp-in-string "[ *]" "" branch))
+  (let ((name (if (helm-ls-git-detached-state-p)
+                  (helm-ls-git--branch)
+                (replace-regexp-in-string "[ *]" "" branch)))
         ;; Use helm-current-prefix-arg only on first call
         ;; of init function.
         (prefarg helm-current-prefix-arg))
@@ -1097,10 +1099,20 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                      "-n" "1" "--oneline")))))
     (replace-regexp-in-string "\n" "" output)))
 
+(defun helm-ls-git-detached-state-p ()
+  (with-temp-buffer
+    (let* ((default-directory (helm-default-directory))
+           (proc (process-file
+                  "git" nil t nil
+                  "symbolic-ref" "HEAD" "--short")))
+      (null (= proc 0)))))
+
 (defun helm-ls-git-branches-transformer (candidates)
   (cl-loop for c in candidates
            for maxlen = (cl-loop for i in candidates maximize (length i))
-           for name = (replace-regexp-in-string "[ *]" "" c)
+           for name = (if (helm-ls-git-detached-state-p)
+                          (helm-ls-git--branch)
+                        (replace-regexp-in-string "[ *]" "" c))
            for log = (helm-ls-git-oneline-log name)
            for disp = (if (string-match "\\`\\([*]\\)\\(.*\\)" c)
                           (format "%s%s: %s%s"
