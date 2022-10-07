@@ -738,7 +738,8 @@ See docstring of `helm-ls-git-ls-switches'.
                                ("Git interactive rebase" . helm-ls-git-log-interactive-rebase)
                                ("Hard reset" . helm-ls-git-log-hard-reset)
                                ("Soft reset" . helm-ls-git-log-soft-reset)
-                               ("Git revert" . helm-ls-git-log-revert))
+                               ("Git revert" . helm-ls-git-log-revert)
+                               ("Checkout" . helm-ls-git-log-checkout))
                      :candidate-transformer
                      (lambda (candidates)
                        (cl-loop for c in candidates
@@ -850,6 +851,10 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-log-revert-abort (_candidate)
   (with-helm-default-directory (helm-default-directory)
     (process-file "git" nil nil nil "revert" "--abort")))
+
+(defun helm-ls-git-log-checkout (_candidate)
+  (let ((rev (car (split-string (helm-get-selection nil 'withprop)))))
+    (helm-ls-git-checkout rev)))
 
 (defun helm-ls-git-log-show-commit (candidate)
   (if (and (eq last-command 'helm-execute-persistent-action)
