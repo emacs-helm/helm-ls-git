@@ -1851,27 +1851,26 @@ Commands:
     map)
   "Keymap used in `helm-ls-git-rebase-todo-mode' buffers.")
 
-(defun helm-ls-git-rebase-todo-move-down ()
-  "Move commit line one line down."
-  (interactive)
+(defun helm-ls-git-rebase-todo-move-1 (arg)
+  "Move commit line one line down or up according to ARG.
+ARG can be 1 for down or -1 for up."
   (beginning-of-line)
   (let* ((next (+ 1 (line-end-position)))
          (line (buffer-substring (point) next)))
     (delete-region (point) next)
-    (forward-line 1)
+    (forward-line arg)
     (insert line)
     (forward-line -1)))
+
+(defun helm-ls-git-rebase-todo-move-down ()
+  "Move commit line one line down."
+  (interactive)
+  (helm-ls-git-rebase-todo-move-1 1))
 
 (defun helm-ls-git-rebase-todo-move-up ()
   "Move commit line on line up."
   (interactive)
-  (beginning-of-line)
-  (let* ((next (+ 1 (line-end-position)))
-         (line (buffer-substring (point) next)))
-    (delete-region (point) next)
-    (forward-line -1)
-    (insert line)
-    (forward-line -1)))
+  (helm-ls-git-rebase-todo-move-1 -1))
 
 (defun helm-ls-git-rebase-action (action)
   "Replace the current rebase command at bol by ACTION.
