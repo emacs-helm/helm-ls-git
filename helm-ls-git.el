@@ -535,6 +535,7 @@ See docstring of `helm-ls-git-ls-switches'.
                       (lambda (_candidate)
                         (funcall helm-ls-git-status-command
                                  (helm-default-directory)))
+                      "Git Log" 'helm-ls-git-show-log-for-file
                       "Switch to shell" 'helm-ls-git-switch-to-shell
                       "Git grep files (`C-u' only current directory)"
                       'helm-ls-git-grep
@@ -653,7 +654,7 @@ See docstring of `helm-ls-git-ls-switches'.
             (setq unread-command-events nil))
           (helm-force-update))))))
 
-(defun helm-ls-git-log (&optional branch num)
+(defun helm-ls-git-log (&optional branch num file)
   "Run git log branch -n num and return the resulting string."
   (when (and branch (string-match "->" branch))
     (setq branch (car (last (split-string branch "->")))))
@@ -674,6 +675,7 @@ See docstring of `helm-ls-git-ls-switches'.
                                 helm-ls-git-log--last-number-commits)
                      ,(or branch "")))
          output)
+    (when file (setq switches (append switches `("--follow" ,file))))
     (unless helm-ls-git-log--is-full
       (setq helm-ls-git-log--last-number-commits
             (number-to-string
@@ -700,7 +702,10 @@ See docstring of `helm-ls-git-ls-switches'.
                branch helm-ls-git-log--last-number-commits))
     helm-ls-git-log--last-log))
 
-(defun helm-ls-git-show-log (branch)
+(defun helm-ls-git-show-log-for-file (file)
+  (helm-ls-git-show-log (helm-ls-git--branch) file))
+
+(defun helm-ls-git-show-log (branch &optional file)
   (let ((name (if (helm-ls-git-detached-state-p)
                   (helm-ls-git--branch)
                 (replace-regexp-in-string "[ *]" "" branch)))
@@ -713,10 +718,12 @@ See docstring of `helm-ls-git-ls-switches'.
                      :header-name (lambda (sname) (format "%s (%s)" sname name))
                      :init (lambda ()
                              (helm-init-candidates-in-buffer 'global
-                               (helm-ls-git-log name (helm-aif (or prefarg
-                                                                   ;; for force-update.
-                                                                   current-prefix-arg)
-                                                         (prefix-numeric-value it))))
+                               (helm-ls-git-log
+                                name (helm-aif (or prefarg
+                                                   ;; for force-update.
+                                                   current-prefix-arg)
+                                         (prefix-numeric-value it))
+                                file))
                              (setq prefarg nil))
                      :get-line 'buffer-substring
                      :marked-with-props 'withprop
