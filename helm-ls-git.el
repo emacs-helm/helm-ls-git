@@ -197,7 +197,9 @@ When non nil this disable `helm-move-to-line-cycle-in-source'."
     (define-key map (kbd "M-g g") 'helm-ls-git-run-grep)
     (define-key map (kbd "C-c g") 'helm-ff-run-gid)
     (define-key map (kbd "C-c i") 'helm-ls-git-ls-files-show-others)
-    (define-key map (kbd "M-e") 'helm-ls-git-run-switch-to-shell)
+    (define-key map (kbd "M-e")   'helm-ls-git-run-switch-to-shell)
+    (define-key map (kbd "M-L")   'undefined)
+    (define-key map (kbd "M-L")   'helm-ls-git-run-file-log)
     map))
 
 (defvar helm-ls-git-buffer-map
@@ -704,6 +706,10 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-show-log-for-file (file)
   (helm-ls-git-show-log (helm-ls-git--branch) file))
+
+(helm-make-command-from-action helm-ls-git-run-file-log
+    "Git log for candidate FILE."
+  'helm-ls-git-show-log-for-file)
 
 (defun helm-ls-git-show-log (branch &optional file)
   (let ((name (if (helm-ls-git-detached-state-p)
