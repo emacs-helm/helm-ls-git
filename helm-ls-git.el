@@ -580,7 +580,9 @@ See docstring of `helm-ls-git-ls-switches'.
    (action-transformer :initform 'helm-ls-git-status-action-transformer)
    (action :initform
            (helm-make-actions
-            "Find file" 'helm-find-many-files
+            "Find file" (lambda (_candidate)
+                          (let ((helm--reading-passwd-or-string t))
+                            (mapc 'find-file (helm-marked-candidates))))
             (lambda ()
               (and helm-ls-git-status-command "Git status"))
             (lambda (_candidate)
