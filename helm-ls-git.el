@@ -244,6 +244,14 @@ You can start with `helm-ls-git' but you can also use the generic
 a git project (actually supported backends are git and hg though
 helm-ls-hg is no more maintained).
 
+Using the browse project action from `helm-find-files' allow
+you to switch to another project easily (\\<helm-find-files-map>\\[helm-ff-run-browse-project]) .
+
+See also the command `helm-projects-history' bound to
+\\[helm-projects-history] to switch to one project to the other.
+
+Also using bookmarks to switch projects is a good alternative.
+
 *** Git status command
 
 By default `helm-ls-git-status-command' is nil,
@@ -278,6 +286,13 @@ etc...
 Of course all these features are not enhanced as what you could
 find in a Git specialized tool like Magit but it may fit most of
 your needs.
+
+*** Git branches
+
+From this source you can see all locals branches and switch to them as needed.
+The current branch is prefixed with a star.
+You can toggle branches view (locales and remotes) with \\<helm-ls-git-branches-map>\\[helm-ls-git-branches-toggle-show-all].
+See the action menu to see other available actions.
 
 *** Git log
 
@@ -404,6 +419,8 @@ and launch git-grep from there.
 See docstring of `helm-ls-git-ls-switches'.
 
 ** Commands
+*** List files source
+
 \\<helm-ls-git-map>
 |Keys|Description
 |-----------+----------|
@@ -430,8 +447,42 @@ See docstring of `helm-ls-git-ls-switches'.
 |\\[helm-yank-text-at-point]|Yank text at point.
 |\\[helm-ff-run-open-file-externally]|Open file with external program (C-u to choose).
 |\\[helm-ff-run-open-file-with-default-tool]|Open file externally with default tool.
-|\\[helm-ff-run-insert-org-link]|Insert org link.")
+|\\[helm-ff-run-insert-org-link]|Insert org link.
 
+*** Buffers source
+
+\\<helm-ls-git-buffer-map>
+|Keys|Description
+|-----------+----------|
+|\\[helm-ls-git-ls-files-show-others]|Toggle view of tracked/not tracked files.
+
+*** Status source
+
+\\<helm-ls-git-status-map>
+|Keys|Description
+|-----------+----------|
+|\\[helm-ls-git-run-stage-marked-and-commit]|Commit marked files.
+|\\[helm-ls-git-run-stage-marked-and-amend-commit]|Stage marked files and amend.
+|\\[helm-ls-git-run-stage-files]|Stage files.
+|\\[helm-ls-git-run-stage-marked-and-extend-commit]|Stage marked files and extend commit.
+|\\[helm-ls-git-run-stash]|Stash.
+|\\[helm-ls-git-run-stash-snapshot]|Stash snapshot (no revert).
+|\\[helm-ls-git-run-status-revert-files]|Revert marked files.
+|\\[helm-ls-git-run-switch-to-shell]|Switch to shell.
+
+*** Branches source
+
+\\<helm-ls-git-branches-map>
+|Keys|Description
+|-----------+----------|
+|\\[helm-ls-git-branches-toggle-show-all]|Show all branches locales and remotes.
+|\\[helm-ls-git-run-show-log]|Show log.
+|\\[helm-ls-git-run-push]|Push.
+|\\[helm-ls-git-run-pull]|Pull.
+|\\[helm-ls-git-run-fetch]|Fetch.
+|\\[helm-ls-git-run-switch-to-shell]|Switch to shell.
+
+")
 
 
 ;; Append visited files from `helm-source-ls-git' to `file-name-history'.
