@@ -728,7 +728,7 @@ See docstring of `helm-ls-git-ls-switches'.
                      "-n" ,commits-number
                      "--skip" ,(helm-stringify
                                 helm-ls-git-log--last-number-commits)
-                     ,(or branch "")))
+                     ,(or branch "") "--"))
          output)
     (when file (setq switches (append switches `("--follow" ,file))))
     (unless helm-ls-git-log--is-full
@@ -1167,7 +1167,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                     (process-file
                      "git" nil t nil
                      "log" (car (split-string branch "->"))
-                     "-n" "1" "--oneline")))))
+                     "-n" "1" "--oneline" "--")))))
     (replace-regexp-in-string "\n" "" output)))
 
 (defun helm-ls-git-detached-state-p ()
