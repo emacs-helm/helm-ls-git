@@ -1091,32 +1091,34 @@ object will be passed git rebase i.e. git rebase -i <hash>."
     (process-file "git" nil nil nil
                   "checkout" "-B" candidate "-t" (helm-ls-git--branch))))
 
+(defun helm-ls-git-delete-remote-branch (branch)
+  (let ((proc (start-file-process
+               "git" "*helm-ls-git branch delete*"
+               "git" "push" "origin" "--delete"
+               (car (last (split-string branch "/" t))))))
+    (set-process-sentinel
+     proc
+     (lambda (_process event)
+       (if (string= event "finished\n")
+           (message "Remote branch %s deleted successfully" branch)
+         (message "Failed to delete remote branch %s" branch))))))
+
 (defun helm-ls-git-branches-delete (candidate)
   (with-helm-default-directory (helm-ls-git-root-dir)
-    (let* ((branch (helm-ls-git-normalize-branch-name candidate))
-           (remote (string-match "remotes/" candidate))
-           (switches (if remote
-                         `("-D" "-r" ,branch)
-                       `("-D" ,branch))))
+    (let* ((branch   (helm-ls-git-normalize-branch-name candidate))
+           (remote   (string-match "remotes/" candidate))
+           (switches `("-D" ,branch)))
       (cl-assert (not (string-match "\\`[*]" candidate))
                  nil "Can't delete current branch")
-      (if (= (apply #'process-file "git" nil nil nil "branch" switches) 0)
-          (progn
-            (when (and remote
-                       (or helm-ls-git-delete-branch-on-remote
-                           (y-or-n-p (format "Delete `%s' branch on remote as well ?" branch))))
-              (let ((proc (start-file-process
-                           "git" "*helm-ls-git branch delete*"
-                           "git" "push" "origin" "--delete"
-                           (car (last (split-string branch "/" t))))))
-                (set-process-sentinel
-                 proc
-                 (lambda (_process event)
-                   (if (string= event "finished\n")
-                       (message "Remote branch %s deleted successfully" branch)
-                     (message "Failed to delete remote branch %s" branch))))))
-            (message "Local branch %s deleted successfully" branch))
-        (message "failed to delete branch %s" branch)))))
+      ;; Delete remote branch async.
+      (if (and remote
+               (or helm-ls-git-delete-branch-on-remote
+                   (y-or-n-p (format "Really delete `%s' branch on remote ?" branch))))
+          (helm-ls-git-delete-remote-branch branch)
+        ;; Delete local branch synchronously.
+        (if (= (apply #'process-file "git" nil nil nil "branch" switches) 0)
+            (message "Local branch %s deleted successfully" branch)
+          (message "failed to delete branch %s" branch))))))
 
 (defun helm-ls-git-normalize-branch-names (names)
   (cl-loop for name in names collect
