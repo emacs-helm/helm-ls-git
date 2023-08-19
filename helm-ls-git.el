@@ -765,17 +765,18 @@ See docstring of `helm-ls-git-ls-switches'.
   'helm-ls-git-show-log-for-file)
 
 (defun helm-ls-git-show-log (branch &optional file)
-  (let (;; Use helm-current-prefix-arg only on first call
+  (let ((name (helm-ls-git-normalize-branch-name branch))
+        ;; Use helm-current-prefix-arg only on first call
         ;; of init function.
         (prefarg helm-current-prefix-arg))
     (when (buffer-live-p "*git log diff*")
       (kill-buffer "*git log diff*"))
     (helm :sources (helm-build-in-buffer-source "Git log"
-                     :header-name (lambda (sname) (format "%s (%s)" sname branch))
+                     :header-name (lambda (sname) (format "%s (%s)" sname name))
                      :init (lambda ()
                              (helm-init-candidates-in-buffer 'global
                                (helm-ls-git-log
-                                branch (helm-aif (or prefarg
+                                name (helm-aif (or prefarg
                                                    ;; for force-update.
                                                    current-prefix-arg)
                                          (prefix-numeric-value it))
@@ -1184,7 +1185,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
            for disp = (ansi-color-apply c)
            for split = (split-string disp)
            for real = (if (string= (car split) "*")
-                          (cadr split)
+                          (concat "* " (cadr split))
                         (car split))
            collect (cons disp real)))
 
