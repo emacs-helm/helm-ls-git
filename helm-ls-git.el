@@ -106,7 +106,7 @@ Glob are enclosed in single quotes by default."
   "A list of arguments to pass to `git-ls-files'.
 To see files in submodules add the option \"--recurse-submodules\".
 If you have problems displaying  unicode filenames use
-\'(\"-c\" \"core.quotePath=false\" \"ls-files\" \"--full-name\" \"--\").
+    \\='(\"-c\" \"core.quotePath=false\" \"ls-files\" \"--full-name\" \"--\").
 See Issue #52."
   :type '(repeat string))
 
