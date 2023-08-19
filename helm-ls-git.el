@@ -1050,9 +1050,11 @@ object will be passed git rebase i.e. git rebase -i <hash>."
           (with-current-buffer standard-output
             (cond ((null arg)
                    ;; Only local branches.
-                   (apply #'process-file "git" nil t nil '("branch")))
+                   (apply #'process-file "git" nil t nil
+                          '("branch" "-v" "--color=always")))
                   (t
-                   (apply #'process-file "git" nil t nil '("branch" "-a")))))))
+                   (apply #'process-file "git" nil t nil
+                          '("branch" "-a" "-v" "--color=always")))))))
     ""))
 
 (defun helm-ls-git-branches-toggle-show-all ()
@@ -1181,28 +1183,13 @@ object will be passed git rebase i.e. git rebase -i <hash>."
       (null (= proc 0)))))
 
 (defun helm-ls-git-branches-transformer (candidates)
-  (cl-loop with maxlen = (cl-loop for i in candidates maximize (length i))
-           with detached = (helm-ls-git-detached-state-p)
-           with branch = (and detached (helm-ls-git--branch))
-           for c in candidates
-           for name = (if detached
-                          branch
-                        (replace-regexp-in-string "[ *]" "" c))
-           for log = (if (string-match "\\`remote" name)
-                         "" (helm-ls-git-oneline-log name))
-           for disp = (if (string-match "\\`\\([*]\\)\\(.*\\)" c)
-                          (format "%s%s: %s%s"
-                                  (propertize (match-string 1 c)
-                                              'face 'helm-ls-git-branches-current)
-                                  (propertize (match-string 2 c)
-                                              'face 'helm-ls-git-branches-name-current)
-                                  (make-string (- maxlen (length c)) ? )
-                                  log)
-                        (format "%s: %s%s"
-                                (propertize c 'face 'helm-ls-git-branches-name)
-                                (make-string (- maxlen (length c)) ? )
-                                log))
-           collect (cons disp c)))
+  (cl-loop for c in candidates
+           for disp = (ansi-color-apply c)
+           for split = (split-string disp)
+           for real = (if (string= (car split) "*")
+                          (cadr split)
+                        (car split))
+           collect (cons disp real)))
 
 (defun helm-ls-git-push (_candidate)
   (with-helm-default-directory (helm-default-directory)
