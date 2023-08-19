@@ -765,20 +765,17 @@ See docstring of `helm-ls-git-ls-switches'.
   'helm-ls-git-show-log-for-file)
 
 (defun helm-ls-git-show-log (branch &optional file)
-  (let ((name (if (helm-ls-git-detached-state-p)
-                  (helm-ls-git--branch)
-                (replace-regexp-in-string "[ *]" "" branch)))
-        ;; Use helm-current-prefix-arg only on first call
+  (let (;; Use helm-current-prefix-arg only on first call
         ;; of init function.
         (prefarg helm-current-prefix-arg))
     (when (buffer-live-p "*git log diff*")
       (kill-buffer "*git log diff*"))
     (helm :sources (helm-build-in-buffer-source "Git log"
-                     :header-name (lambda (sname) (format "%s (%s)" sname name))
+                     :header-name (lambda (sname) (format "%s (%s)" sname branch))
                      :init (lambda ()
                              (helm-init-candidates-in-buffer 'global
                                (helm-ls-git-log
-                                name (helm-aif (or prefarg
+                                branch (helm-aif (or prefarg
                                                    ;; for force-update.
                                                    current-prefix-arg)
                                          (prefix-numeric-value it))
