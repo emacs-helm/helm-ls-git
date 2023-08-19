@@ -774,7 +774,9 @@ See docstring of `helm-ls-git-ls-switches'.
     (when (buffer-live-p "*git log diff*")
       (kill-buffer "*git log diff*"))
     (helm :sources (helm-build-in-buffer-source "Git log"
-                     :header-name (lambda (sname) (format "%s (%s)" sname name))
+                     :header-name (lambda (sname)
+                                    (format "%s (%s)"
+                                            sname (substring-no-properties name)))
                      :init (lambda ()
                              (helm-init-candidates-in-buffer 'global
                                (helm-ls-git-log
