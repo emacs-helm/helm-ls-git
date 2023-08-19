@@ -765,7 +765,9 @@ See docstring of `helm-ls-git-ls-switches'.
   'helm-ls-git-show-log-for-file)
 
 (defun helm-ls-git-show-log (branch &optional file)
-  (let ((name (helm-ls-git-normalize-branch-name branch))
+  (let ((name (if (helm-ls-git-detached-state-p)
+                  (helm-ls-git--branch)
+                (helm-ls-git-normalize-branch-name branch)))
         ;; Use helm-current-prefix-arg only on first call
         ;; of init function.
         (prefarg helm-current-prefix-arg))
