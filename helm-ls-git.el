@@ -1953,10 +1953,10 @@ ACTION is the cdr entry of one of `helm-ls-git-rebase-actions'."
                           concat (concat v (if (= count len) "" "\\|")) into str
                           finally return (concat "^\\(" str "\\) +")))
          (inhibit-read-only t))
-    (goto-char (point-at-bol))
+    (goto-char (pos-bol))
     (save-excursion
-      (when (re-search-forward regexp (point-at-eol) t)
-        (delete-region (point-at-bol) (match-end 1))))
+      (when (re-search-forward regexp (pos-eol) t)
+        (delete-region (pos-bol) (match-end 1))))
     (insert (cdr (rassoc action assocs)))
     (forward-line 1)))
 
