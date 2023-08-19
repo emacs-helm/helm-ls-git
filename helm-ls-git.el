@@ -1181,12 +1181,15 @@ object will be passed git rebase i.e. git rebase -i <hash>."
       (null (= proc 0)))))
 
 (defun helm-ls-git-branches-transformer (candidates)
-  (cl-loop for c in candidates
-           for maxlen = (cl-loop for i in candidates maximize (length i))
-           for name = (if (helm-ls-git-detached-state-p)
-                          (helm-ls-git--branch)
+  (cl-loop with maxlen = (cl-loop for i in candidates maximize (length i))
+           with detached = (helm-ls-git-detached-state-p)
+           with branch = (and detached (helm-ls-git--branch))
+           for c in candidates
+           for name = (if detached
+                          branch
                         (replace-regexp-in-string "[ *]" "" c))
-           for log = (helm-ls-git-oneline-log name)
+           for log = (if (string-match "\\`remote" name)
+                         "" (helm-ls-git-oneline-log name))
            for disp = (if (string-match "\\`\\([*]\\)\\(.*\\)" c)
                           (format "%s%s: %s%s"
                                   (propertize (match-string 1 c)
