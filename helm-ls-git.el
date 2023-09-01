@@ -904,7 +904,8 @@ See docstring of `helm-ls-git-ls-switches'.
                                 (helm-ls-git--branch)))))))
 
 (defun helm-ls-git-log-hard-reset (_candidate)
-  (helm-ls-git-log-reset-1 'hard))
+  (helm-ls-git-log-reset-1 'hard)
+  (helm-ls-git-revert-buffers-in-project))
 
 (defun helm-ls-git-log-soft-reset (_candidate)
   (helm-ls-git-log-reset-1 'soft))
