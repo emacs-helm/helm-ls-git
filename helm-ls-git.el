@@ -1983,7 +1983,7 @@ Commands:
 
 ;;; Build sources
 ;;
-;; Overhide the actions of helm-type-buffer.
+;; Override the actions of helm-type-buffer.
 (cl-defmethod helm--setup-source :after ((source helm-source-buffers))
   (let ((name (slot-value source 'name)))
     (when (string= name "Buffers in git project")
