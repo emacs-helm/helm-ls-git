@@ -251,6 +251,7 @@ When non nil this disable `helm-move-to-line-cycle-in-source'."
     (define-key map (kbd "C-c F") 'helm-ls-git-run-pull)
     (define-key map (kbd "C-c f") 'helm-ls-git-run-fetch)
     (define-key map (kbd "M-e") 'helm-ls-git-run-switch-to-shell)
+    (define-key map (kbd "C-c i") 'helm-ls-git-status-toggle-ignored)
     map))
 
 (defvar helm-ls-git-status-map
@@ -264,6 +265,7 @@ When non nil this disable `helm-move-to-line-cycle-in-source'."
     (define-key map (kbd "C-c Z") 'helm-ls-git-run-stash-snapshot)
     (define-key map (kbd "C-c R") 'helm-ls-git-run-status-revert-files)
     (define-key map (kbd "M-e") 'helm-ls-git-run-switch-to-shell)
+    (define-key map (kbd "C-c i") 'helm-ls-git-status-toggle-ignored)
     map))
 
 (defvar helm-ls-git-help-message
@@ -1519,6 +1521,8 @@ object will be passed git rebase i.e. git rebase -i <hash>."
     :group 'helm-ls-git))
 
 ;;; Git status
+(defvar helm-ls-git--status-ignored-behavior "no")
+
 (defun helm-ls-git-status (&optional ignore-untracked)
   (when (and helm-ls-git-log-file
              (file-exists-p helm-ls-git-log-file))
@@ -1534,7 +1538,17 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                      nil (list t helm-ls-git-log-file) nil
                      (if ignore-untracked
                          (list "status" "-uno" "--porcelain")
-                       (list "status" "--porcelain")))))))))
+                       (list "status"
+                             (format "--ignored=%s" helm-ls-git--status-ignored-behavior)
+                             "--porcelain")))))))))
+
+(defun helm-ls-git-status-toggle-ignored ()
+  (interactive)
+  (setq helm-ls-git--status-ignored-behavior
+        (helm-acase helm-ls-git--status-ignored-behavior
+          ("traditional" "no")
+          ("no" "traditional")))
+  (with-helm-window (helm-force-update)))
 
 (defun helm-ls-git-status-transformer (candidates _source)
   (cl-loop with root = (helm-ls-git-root-dir)
@@ -1546,7 +1560,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                  ((string-match "^\\(M+ *\\)\\(.*\\)" i) ; modified and staged.
                   (cons (propertize i 'face 'helm-ls-git-modified-and-staged-face)
                         (expand-file-name (match-string 2 i) root)))
-                 ((string-match "^\\([?]\\{2\\} \\)\\(.*\\)" i)
+                 ((string-match "^\\([?!]\\{2\\} \\)\\(.*\\)" i)
                   (cons (propertize i 'face 'helm-ls-git-untracked-face)
                         (expand-file-name (match-string 2 i) root)))
                  ((string-match "^\\(AC? +\\)\\(.*\\)" i)
