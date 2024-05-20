@@ -1503,13 +1503,16 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 
 (defun helm-ls-git-apply-patch (_candidate)
   (with-helm-default-directory (helm-default-directory)
-    (let ((patchs (helm-marked-candidates)))
-      (with-current-buffer-window "*git apply*" '(display-buffer-below-selected
-                                                  (window-height . fit-window-to-buffer)
-                                                  (preserve-size . (nil . t)))
+    (let ((patchs (helm-marked-candidates))
+          (buf "*git apply*")
+          status)
+      (with-current-buffer-window buf '(display-buffer-below-selected
+                                        (window-height . fit-window-to-buffer)
+                                        (preserve-size . (nil . t)))
           nil
-        (apply #'process-file "git" nil t t "apply" patchs)
-        (helm-ls-git-revert-buffers-in-project)))))
+          (setq status (apply #'process-file "git" nil t t "apply" patchs)))
+      (helm-ls-git-revert-buffers-in-project)
+      (when (zerop status) (quit-window nil (get-buffer-window buf))))))
 
 (defvar helm-ls-git-stashes-source
   (helm-build-in-buffer-source "Stashes"
