@@ -341,6 +341,15 @@ When scrolling down with an empty pattern, helm can increase
 automatically the number of candidates displayed when you reach
 end of buffer if `helm-ls-git-auto-refresh-at-eob' is non nil.
 
+If you search a specific commit by narrowing candidates list as usual
+but want to show all candidates around the selection you are interested
+in, you will have a problem because if you delete minibuffer input to
+show whole list you will loose your position, to solve this problem you
+have two solutions:
+- With cursor at end of minibuffer use C-u C-k.
+- Mark the selection and then delete minibuffer contents and find back the
+selection by hitting M-).
+
 NOTE: When searching in git log, Helm search in the candidates
 computed initially, this mean that when you have 100 candidates
 displayed (see `helm-ls-git-log-max-commits') and you search for
