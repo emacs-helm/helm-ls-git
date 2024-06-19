@@ -1691,6 +1691,10 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                                                     (let ((mkd (helm-marked-candidates)))
                                                       (cl-loop for c in mkd
                                                                do (helm-ls-git-rm c)))))
+                                 '("Git restore" . (lambda (_candidate)
+                                                    (let ((mkd (helm-marked-candidates)))
+                                                      (cl-loop for c in mkd
+                                                               do (helm-ls-git-restore c)))))
                                  '("Stage file(s)"
                                    . helm-ls-git-stage-files))))
           ;; Deleted and staged
@@ -1734,6 +1738,11 @@ object will be passed git rebase i.e. git rebase -i <hash>."
   (with-helm-default-directory (helm-default-directory)
     (let ((files (helm-marked-candidates)))
     (apply #'process-file "git" nil nil nil "rm" files))))
+
+(defun helm-ls-git-restore (_candidate)
+  (with-helm-default-directory (helm-default-directory)
+    (let ((files (helm-marked-candidates)))
+    (apply #'process-file "git" nil nil nil "restore" files))))
 
 (defun helm-ls-git-switch-to-shell (_candidate)
   (let ((helm-ff-default-directory
