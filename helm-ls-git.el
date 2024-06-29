@@ -1901,11 +1901,10 @@ context i.e. use it in helm actions."
     (apply #'start-file-process "git" bname "git" args)))
 
 (defun helm-ls-git-server-edit ()
+  "Prevent server asking to save file when done."
   (interactive)
-  (cl-assert server-clients nil "No server editing buffers exist")
-  ;; Prevent server asking to save file when done.
-  (helm-aif buffer-file-name
-      (save-buffer it))
+  (cl-assert server-clients nil "No server editing buffers exists")
+  (when buffer-file-name (save-buffer 0))
   (server-edit))
 
 ;; Same as `server-edit-abort' from emacs-28 but kill edit buffer as well.
