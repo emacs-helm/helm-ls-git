@@ -168,6 +168,9 @@ This happen only when deleting a remote branch e.g. remotes/origin/foo."
 When non nil this disable `helm-move-to-line-cycle-in-source'."
   :type 'boolean)
 
+(defcustom helm-ls-git-with-editor-fill-column 70
+  "The `fill-column' value used in commits."
+  :type 'integer)
 
 (defgroup helm-ls-git-faces nil
   "Customize the appearance of helm-files."
@@ -1937,7 +1940,7 @@ Commands:
   (helm-ls-git-with-editor-setup))
 
 (defun helm-ls-git-with-editor-setup ()
-  (setq fill-column 70)
+  (setq fill-column helm-ls-git-with-editor-fill-column)
   ;; For some reasons, using (setq buffer-read-only nil) in emacs-29
   ;; doesn't work anymore.
   (read-only-mode -1)
