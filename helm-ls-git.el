@@ -150,12 +150,7 @@ See Issue #52."
 
 (defcustom helm-ls-git-log-max-commits "100"
   "Max number of commits to show in git log (git log -n option).
-NOTE: This reflects the number of candidates fetched and stored, not
-the number of candidates displayed which is relative to
-`helm-candidate-number-limit'.  IOW if `helm-candidate-number-limit'
-== 500 and `helm-ls-git-log-max-commits' == 600, only 500 candidates
-will be displayed but if you search for a candidate which is in the
-range 500/600 you will find it."
+This can be increased later with C-u <n> C-c C-u."
   :type 'string)
 
 (defcustom helm-ls-git-delete-branch-on-remote nil
