@@ -862,8 +862,11 @@ See docstring of `helm-ls-git-ls-switches'.
                                           (default-value 'helm-move-to-line-cycle-in-source))
           :buffer "*helm-ls-git log*")))
 
+(defun helm-ls-git-log-get-rev (candidate)
+  (car (split-string candidate)))
+
 (defun helm-ls-git-log-show-commit-1 (candidate)
-  (let ((sha (car (split-string candidate))))
+  (let ((sha (helm-ls-git-log-get-rev candidate)))
     (with-current-buffer (get-buffer-create "*git log diff*")
       (let ((inhibit-read-only t))
         (erase-buffer)
@@ -879,7 +882,7 @@ See docstring of `helm-ls-git-ls-switches'.
       (display-buffer (current-buffer)))))
 
 (defun helm-ls-git-log-kill-short-hash (candidate)
-  (kill-new (car (split-string candidate))))
+  (kill-new (helm-ls-git-log-get-rev candidate)))
 
 (defun helm-ls-git-log-kill-long-hash (_candidate)
   (helm-ls-git-log-get-long-hash 'kill))
@@ -887,7 +890,7 @@ See docstring of `helm-ls-git-ls-switches'.
 (defun helm-ls-git-log-get-long-hash (&optional kill)
   (with-helm-buffer
     (let* ((cand (helm-get-selection nil 'withprop))
-           (short-hash (car (split-string cand)))
+           (short-hash (helm-ls-git-log-get-rev cand))
            str)
       (setq str
             (replace-regexp-in-string
@@ -904,7 +907,7 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-log-format-patch-1 (&optional am)
   (let ((commits (cl-loop for c in (helm-marked-candidates)
-                          collect (car (split-string c))))
+                          collect (helm-ls-git-log-get-rev c)))
         range switches)
     (cond ((= 2 (length commits))
            ;; Using "..." makes a range from top marked (included) to
@@ -934,7 +937,7 @@ See docstring of `helm-ls-git-ls-switches'.
         (apply #'process-file "git" nil "*git format-patch*" nil switches)))))
 
 (defun helm-ls-git-log-reset-1 (hard-or-soft)
-  (let ((rev (car (split-string (helm-get-selection nil 'withprop))))
+  (let ((rev (helm-ls-git-log-get-rev (helm-get-selection nil 'withprop)))
         (arg (cl-case hard-or-soft
                (hard "--hard")
                (soft "--soft"))))
@@ -954,7 +957,7 @@ See docstring of `helm-ls-git-ls-switches'.
   (helm-ls-git-log-reset-1 'soft))
 
 (defun helm-ls-git-log-revert (_candidate)
-  (let ((rev (car (split-string (helm-get-selection nil 'withprop)))))
+  (let ((rev (helm-ls-git-log-get-rev (helm-get-selection nil 'withprop))))
     (helm-ls-git-with-editor "revert" rev)))
 
 (defun helm-ls-git-log-revert-continue (_candidate)
@@ -965,7 +968,7 @@ See docstring of `helm-ls-git-ls-switches'.
     (process-file "git" nil nil nil "revert" "--abort")))
 
 (defun helm-ls-git-log-checkout (_candidate)
-  (let ((rev (car (split-string (helm-get-selection nil 'withprop)))))
+  (let ((rev (helm-ls-git-log-get-rev (helm-get-selection nil 'withprop))))
     (helm-ls-git-checkout rev)))
 
 (defun helm-ls-git-log-show-commit (candidate)
@@ -976,7 +979,7 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-log-find-file-1 (candidate &optional file buffer-only)
   (with-helm-default-directory (helm-default-directory)
-    (let* ((rev (substring-no-properties (car (split-string candidate))))
+    (let* ((rev (substring-no-properties (helm-ls-git-log-get-rev candidate)))
            (file (or file
                      (helm :sources (helm-build-in-buffer-source "Git cat-file"
                                       :data (helm-ls-git-list-files))
@@ -1013,8 +1016,8 @@ See docstring of `helm-ls-git-ls-switches'.
                 (helm-ls-git-oneline-log (helm-ls-git--branch))))
          buf1 buf2 file)
     (when tip
-      (cl-assert (not (string= (car (split-string tip))
-                               (car (split-string (car marked)))))
+      (cl-assert (not (string= (helm-ls-git-log-get-rev tip)
+                               (helm-ls-git-log-get-rev (car marked))))
                  nil "Can't ediff a file at same revision"))
     (setq file (helm :sources (helm-build-in-buffer-source "Git cat-file"
                                 :data (helm-ls-git-list-files))
@@ -1026,7 +1029,7 @@ See docstring of `helm-ls-git-ls-switches'.
 
 (defun helm-ls-git-log-cherry-pick (_candidate)
   (let* ((commits (cl-loop for c in (helm-marked-candidates)
-                           collect (car (split-string c)) into revs
+                           collect (helm-ls-git-log-get-rev c) into revs
                            finally return (sort revs #'string-greaterp))))
     (with-helm-default-directory (helm-ls-git-root-dir
                                   (helm-default-directory))
