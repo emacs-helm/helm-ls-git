@@ -631,7 +631,7 @@ See docstring of `helm-ls-git-ls-switches'.
                       (lambda (_candidate)
                         (funcall helm-ls-git-status-command
                                  (helm-default-directory)))
-                      "Git Log" 'helm-ls-git-show-log-for-file
+                      "Git Log for file" 'helm-ls-git-show-log-for-file
                       "Switch to shell" 'helm-ls-git-switch-to-shell
                       "Git grep files (`C-u' only current directory)"
                       'helm-ls-git-grep
