@@ -1363,6 +1363,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                          helm-ls-git-branches-show-all)))
               (helm-init-candidates-in-buffer 'global data)))
     :candidate-transformer 'helm-ls-git-branches-transformer
+    :follow 'never
     :action-transformer (lambda (actions candidate)
                           (cond ((string-match "\\`[*] ?(?detached\\|(.*)" candidate)
                                  (append
