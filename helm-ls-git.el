@@ -1867,6 +1867,9 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 ;;
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("/COMMIT_EDITMSG$" . helm-ls-git-commit-mode))
+;; Prevent errors when commit contains modifications to local variables.
+;;;###autoload
+(add-to-list 'inhibit-local-variables-regexps "/COMMIT_EDITMSG$")
 
 (defvar helm-ls-git-author-name-history nil)
 (defvar helm-ls-git-author-email-history nil)
@@ -1956,6 +1959,8 @@ Commands:
 ;;
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("/git-rebase-todo$" . helm-ls-git-rebase-todo-mode))
+;;;###autoload
+(add-to-list 'inhibit-local-variables-regexps "/git-rebase-todo$")
 
 (defconst helm-ls-git-rebase-actions
   '(("p" . "pick")
