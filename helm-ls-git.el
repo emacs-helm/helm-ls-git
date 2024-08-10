@@ -1805,16 +1805,28 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 
 (defun helm-ls-git-commit-sentinel (process event)
   (let ((default-directory (with-current-buffer (process-buffer process)
-                             default-directory)))
-    (when (string= event "finished\n")
-      (let ((commit (helm-ls-git-oneline-log (helm-ls-git--branch))))
-        (when (string-match "\\`\\([^ ]+\\)+ +\\(.*\\)" commit)
-          (add-face-text-property 0 (match-end 1)
-                                  'font-lock-type-face nil commit)
-          (add-face-text-property (1+ (match-end 1))
-                                  (match-end 2)
-                                  'font-lock-function-name-face nil commit))
-        (message "Commit done, now at `%s'" commit)))))
+                             default-directory))
+        (status (process-exit-status process)))
+    (if (string= event "finished\n")
+        (let ((commit (helm-ls-git-oneline-log (helm-ls-git--branch))))
+          (when (string-match "\\`\\([^ ]+\\)+ +\\(.*\\)" commit)
+            (add-face-text-property 0 (match-end 1)
+                                    'font-lock-type-face nil commit)
+            (add-face-text-property (1+ (match-end 1))
+                                    (match-end 2)
+                                    'font-lock-function-name-face nil commit))
+          (message "Commit done, now at `%s'" commit))
+      ;; Something went wrong but it is not an abort from user (which
+      ;; exit with code 1 as well).
+      (when (and (not helm-ls-git--server-edit-aborted)
+                 (eql status 1))
+        (pop-to-buffer (process-buffer process) '(display-buffer-at-bottom
+                                                  (window-height . fit-window-to-buffer)
+	                                          (preserve-size . (nil . t))))
+        (process-file "git" nil nil nil "reset" "HEAD")
+        (goto-char (point-min))
+        (special-mode)))
+      (setq helm-ls-git--server-edit-aborted nil)))
 
 (defun helm-ls-git-run-stage-marked-and-commit ()
   (interactive)
@@ -1912,6 +1924,8 @@ context i.e. use it in helm actions."
   (when buffer-file-name (save-buffer 0))
   (server-edit))
 
+(defvar helm-ls-git--server-edit-aborted nil)
+
 ;; Same as `server-edit-abort' from emacs-28 but kill edit buffer as well.
 (defun helm-ls-git-server-edit-abort ()
   "Abort editing the current client buffer."
@@ -1924,6 +1938,7 @@ context i.e. use it in helm actions."
                               (server-quote-arg "Aborted by the user"))))
               server-clients)
         (set-buffer-modified-p nil) ; Don't ask to save buffer.
+        (setq helm-ls-git--server-edit-aborted t)
         ;; Unstage all on commit but not on rebase.
         (when (string= "COMMIT_EDITMSG" (buffer-name))
           (process-file "git" nil nil nil "reset" "HEAD"))
