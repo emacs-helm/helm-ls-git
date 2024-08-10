@@ -1823,9 +1823,10 @@ object will be passed git rebase i.e. git rebase -i <hash>."
       ;; exit with code 1 as well).
       (when (and (not helm-ls-git--server-edit-aborted)
                  (eql status 1))
-        (pop-to-buffer (process-buffer process) '(display-buffer-at-bottom
-                                                  (window-height . fit-window-to-buffer)
-	                                          (preserve-size . (nil . t))))
+        (pop-to-buffer (process-buffer process)
+                       '(display-buffer-at-bottom
+                         (window-height . fit-window-to-buffer)
+	                 (preserve-size . (nil . t))))
         (process-file "git" nil nil nil "reset" "HEAD")
         (goto-char (point-min))
         (special-mode)))
