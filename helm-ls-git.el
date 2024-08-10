@@ -1730,7 +1730,9 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                                              (window-height . fit-window-to-buffer)
                                              (preserve-size . (nil . t)))
         nil
-      (apply #'process-file "git" nil t nil "am" files))))
+      (apply #'process-file "git" nil t nil "am" files)
+      (helm-ls-git-revert-buffers-in-project))
+    (with-current-buffer "*git am*" (special-mode))))
 
 (defun helm-ls-git-am-abort (_candidate)
   (with-helm-default-directory (helm-default-directory)
