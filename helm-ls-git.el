@@ -1777,6 +1777,9 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 
 ;;; Stage and commit
 ;;
+(defvar helm-ls-git--server-edit-aborted nil
+  "Flag set when user abort a commit.")
+
 (defun helm-ls-git-stage-files (_candidate)
   "Stage marked files."
   (let* ((files (helm-marked-candidates))
@@ -1923,8 +1926,6 @@ context i.e. use it in helm actions."
   (cl-assert server-clients nil "No server editing buffers exists")
   (when buffer-file-name (save-buffer 0))
   (server-edit))
-
-(defvar helm-ls-git--server-edit-aborted nil)
 
 ;; Same as `server-edit-abort' from emacs-28 but kill edit buffer as well.
 (defun helm-ls-git-server-edit-abort ()
