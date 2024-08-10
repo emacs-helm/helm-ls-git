@@ -1923,6 +1923,10 @@ context i.e. use it in helm actions."
                  proc (concat "-error "
                               (server-quote-arg "Aborted by the user"))))
               server-clients)
+        (set-buffer-modified-p nil) ; Don't ask to save buffer.
+        ;; Unstage all on commit but not on rebase.
+        (when (string= "COMMIT_EDITMSG" (buffer-name))
+          (process-file "git" nil nil nil "reset" "HEAD"))
         (kill-buffer))
     (message "This buffer has no clients")))
 
