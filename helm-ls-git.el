@@ -1605,7 +1605,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                             "Copy file(s) `C-u to follow'" 'helm-find-files-copy
                             "Rename file(s) `C-u to follow'" 'helm-find-files-rename)))
     ;; Unregistered files
-    (cond ((string-match "^[?]\\{2\\}" disp)
+    (cond ((string-match "^[?!]\\{2\\}" disp)
            (append actions
                    (helm-make-actions "Add file(s)"
                                       (lambda (candidate)
@@ -1616,11 +1616,11 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                                       "Delete file(s)"
                                       'helm-ff-delete-files
                                       (lambda ()
-                                        (and (string-match "\\`[?]\\{2\\}.*\\.patch\\|diff" disp)
+                                        (and (string-match "\\`[?!]\\{2\\}.*\\.patch\\|diff" disp)
                                              "Apply patch"))
                                       'helm-ls-git-apply-patch
                                       (lambda ()
-                                        (and (string-match "\\`[?]\\{2\\}.*\\.patch" disp)
+                                        (and (string-match "\\`[?!]\\{2\\}.*\\.patch" disp)
                                              "Git AM patches"))
                                       'helm-ls-git-am-files
                                       "Copy bnames to .gitignore"
