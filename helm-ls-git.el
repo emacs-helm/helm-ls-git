@@ -1521,8 +1521,9 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                                         (window-height . fit-window-to-buffer)
                                         (preserve-size . (nil . t)))
           nil
-          (setq status (apply #'process-file "git" nil t t "apply" patchs)))
-      (helm-ls-git-revert-buffers-in-project)
+          (setq status (apply #'process-file "git" nil t t "apply" patchs))
+          (helm-ls-git-revert-buffers-in-project)
+          (special-mode))
       (when (zerop status) (quit-window nil (get-buffer-window buf))))))
 
 (defvar helm-ls-git-stashes-source
@@ -1722,17 +1723,19 @@ object will be passed git rebase i.e. git rebase -i <hash>."
           (t actions))))
 
 (defun helm-ls-git-am-files (_candidate)
-  (let ((files (helm-marked-candidates)))
-    (cl-assert (cl-loop for f in files
-                        for ext = (file-name-extension f)
-                        always (and ext (string= ext "patch"))))
-    (with-current-buffer-window "*git am*" '(display-buffer-below-selected
-                                             (window-height . fit-window-to-buffer)
-                                             (preserve-size . (nil . t)))
-        nil
-      (apply #'process-file "git" nil t nil "am" files)
-      (helm-ls-git-revert-buffers-in-project))
-    (with-current-buffer "*git am*" (special-mode))))
+  (with-helm-default-directory (helm-default-directory)
+    (let ((files (helm-marked-candidates))
+          (buf "*git am*"))
+      (cl-assert (cl-loop for f in files
+                          for ext = (file-name-extension f)
+                          always (and ext (string= ext "patch"))))
+      (with-current-buffer-window buf '(display-buffer-below-selected
+                                               (window-height . fit-window-to-buffer)
+                                               (preserve-size . (nil . t)))
+          nil
+        (apply #'process-file "git" nil t nil "am" files)
+        (special-mode)
+        (helm-ls-git-revert-buffers-in-project)))))
 
 (defun helm-ls-git-am-abort (_candidate)
   (with-helm-default-directory (helm-default-directory)
