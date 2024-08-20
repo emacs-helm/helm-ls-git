@@ -1,4 +1,4 @@
-;;; helm-ls-git.el --- list git files. -*- lexical-binding: t -*-
+;;; helm-ls-git.el --- The git project manager for helm. -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2012 ~ 2023 Thierry Volpiatto
 
