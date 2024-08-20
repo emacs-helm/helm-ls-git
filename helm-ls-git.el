@@ -5,6 +5,7 @@
 ;; Package-Requires: ((helm "3.9.5") (emacs "25.3"))
 ;; URL: https://github.com/emacs-helm/helm-ls-git
 ;; Version: 1.9.4
+;; Keywords: helm, convenience, vc, files, buffers, completion, diff, log, git
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
