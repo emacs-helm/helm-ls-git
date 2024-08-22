@@ -1,6 +1,7 @@
 <p><a href="http://www.gnu.org/licenses/gpl-3.0.txt"><img src="https://img.shields.io/badge/license-GPL_3-green.svg" alt="License GPL 3" /></a>
 <a href="http://melpa.org/#/helm-ls-git"><img src="http://melpa.org/packages/helm-ls-git-badge.svg" alt="MELPA" title="" /></a>
-<a href="http://stable.melpa.org/#/helm-ls-git"><img src="http://stable.melpa.org/packages/helm-ls-git-badge.svg" alt="MELPA Stable" title="" /></a></p>
+<a href="http://stable.melpa.org/#/helm-ls-git"><img src="http://stable.melpa.org/packages/helm-ls-git-badge.svg" alt="MELPA Stable" title="" /></a>
+<iframe src="https://github.com/sponsors/emacs-helm/button" title="Sponsor emacs-helm" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe></p>
 
 # helm-ls-git
 
