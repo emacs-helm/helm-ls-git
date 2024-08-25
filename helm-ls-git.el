@@ -1366,7 +1366,8 @@ object will be passed git rebase i.e. git rebase -i <hash>."
     :candidate-transformer 'helm-ls-git-branches-transformer
     :follow 'never
     :action-transformer (lambda (actions candidate)
-                          (cond ((string-match "\\`[*] ?(?detached\\|(.*)" candidate)
+                          (message "CANDIDATE == %S" candidate)
+                          (cond ((string-match "\\`\\* (.*" candidate)
                                  (append
                                   actions
                                   '(("Git rebase continue" .
