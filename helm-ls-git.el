@@ -1204,7 +1204,8 @@ object will be passed git rebase i.e. git rebase -i <hash>."
         (if (= (process-file "git" nil nil nil "merge" branch) 0)
             (progn (message "Branch %s merged successfully into %s" branch current)
                    (helm-ls-git-revert-buffers-in-project))
-          (message "failed to merge branch %s" branch))))))
+          (message "failed to merge branch %s" branch)))
+      (when helm-in-persistent-action (helm-force-update)))))
 
 (helm-make-persistent-command-from-action helm-ls-git-merge-branches
     "Merge branches without quitting."
