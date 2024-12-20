@@ -1206,6 +1206,10 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                    (helm-ls-git-revert-buffers-in-project))
           (message "failed to merge branch %s" branch))))))
 
+(helm-make-persistent-command-from-action helm-ls-git-merge-branches
+    "Merge branches without quitting."
+  'merge-branches 'helm-ls-git-branches-merge)
+
 (defvar helm-ls-git-create-branch-source
   (helm-build-dummy-source "Create branch"
     :filtered-candidate-transformer
