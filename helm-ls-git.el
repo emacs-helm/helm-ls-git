@@ -251,6 +251,7 @@ When non nil this disable `helm-move-to-line-cycle-in-source'."
     (define-key map (kbd "C-c f") 'helm-ls-git-run-fetch)
     (define-key map (kbd "M-e") 'helm-ls-git-run-switch-to-shell)
     (define-key map (kbd "C-c i") 'helm-ls-git-status-toggle-ignored)
+    (define-key map (kbd "C-c M") 'helm-ls-git-merge-branches)
     map))
 
 (defvar helm-ls-git-status-map
