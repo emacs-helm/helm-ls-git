@@ -251,7 +251,7 @@ When non nil this disable `helm-move-to-line-cycle-in-source'."
     (define-key map (kbd "C-c f") 'helm-ls-git-run-fetch)
     (define-key map (kbd "M-e") 'helm-ls-git-run-switch-to-shell)
     (define-key map (kbd "C-c i") 'helm-ls-git-status-toggle-ignored)
-    (define-key map (kbd "C-c M") 'helm-ls-git-merge-branches)
+    (define-key map (kbd "C-c M") 'helm-ls-git-persistent-merge-branches)
     map))
 
 (defvar helm-ls-git-status-map
@@ -1208,7 +1208,7 @@ object will be passed git rebase i.e. git rebase -i <hash>."
           (message "failed to merge branch %s" branch)))
       (when helm-in-persistent-action (helm-force-update)))))
 
-(helm-make-persistent-command-from-action helm-ls-git-merge-branches
+(helm-make-persistent-command-from-action helm-ls-git-persistent-merge-branches
     "Merge branches without quitting."
   'merge-branches 'helm-ls-git-branches-merge)
 
