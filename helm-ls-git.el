@@ -1673,7 +1673,8 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                               ("Stash snapshot (C-c Z)" . helm-ls-git-stash-snapshot))
                             1)))
           ;; Modified and staged
-          ((string-match "^M+ +" disp)
+          ((or (string-match "^M+ +" disp)
+               (string-match "^R+ +" disp))
            (append actions (helm-append-at-nth
                             mofified-actions
                             '(("Commit staged file(s)"
