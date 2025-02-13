@@ -463,6 +463,10 @@ and launch git-grep from there.
 
 See docstring of `helm-ls-git-ls-switches'.
 
+*** Show/disable icons in ls-git source
+
+Icons are displayed like in `helm-find-files' when `helm-ff-icon-mode' is enabled.
+
 ** Commands
 *** List files source
 
@@ -577,15 +581,15 @@ See docstring of `helm-ls-git-ls-switches'.
            with untracking = (member "-o" helm-ls-git-ls-switches)
            for file in candidates
            for abs = (expand-file-name file root)
-           for disp = (if (and helm-ff-transformer-show-only-basename
-                               (not (string-match "[.]\\{1,2\\}\\'" file)))
-                          (helm-basename file) file)
+           for fname = (if (and helm-ff-transformer-show-only-basename
+                                (not (string-match "[.]\\{1,2\\}\\'" file)))
+                           (helm-basename file) file)
+           for disp = (propertize (if untracking (concat "? " fname) fname)
+                                  'face (if untracking
+                                            'helm-ls-git-untracked-face
+                                          'helm-ff-file))
            collect
-           (cons (propertize (if untracking (concat "? " disp) disp)
-                             'face (if untracking
-                                       'helm-ls-git-untracked-face
-                                     'helm-ff-file))
-                 abs)))
+           (cons (helm-ff-prefix-filename disp abs) abs)))
 
 (defun helm-ls-git-sort-fn (candidates _source)
   "Transformer for sorting candidates."
