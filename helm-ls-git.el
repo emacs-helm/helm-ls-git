@@ -1701,36 +1701,35 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                             1)))
           ;; Deleted
           ((string-match "^ D " disp)
-           (append actions (list '("Git delete" . (lambda (_candidate)
-                                                    (let ((mkd (helm-marked-candidates)))
-                                                      (cl-loop for c in mkd
-                                                               do (helm-ls-git-rm c)))))
-                                 '("Git restore" . (lambda (_candidate)
-                                                    (let ((mkd (helm-marked-candidates)))
-                                                      (cl-loop for c in mkd
-                                                               do (helm-ls-git-restore c)))))
-                                 '("Stage file(s)"
-                                   . helm-ls-git-stage-files))))
+           (append actions (helm-make-actions
+                            "Git delete" (lambda (_candidate)
+                                           (let ((mkd (helm-marked-candidates)))
+                                             (cl-loop for c in mkd
+                                                      do (helm-ls-git-rm c))))
+                            "Git restore" (lambda (_candidate)
+                                            (let ((mkd (helm-marked-candidates)))
+                                              (cl-loop for c in mkd
+                                                       do (helm-ls-git-restore c))))
+                            "Stage file(s)" 'helm-ls-git-stage-files)))
           ;; Deleted and staged
           ((string-match "^A?D +" disp)
-           (append actions (list '("Commit staged file(s)"
-                                   . helm-ls-git-commit)
-                                 '("Unstage file(s)"
-                                   . helm-ls-git-unstage-files)
-                                 '("Update index"
-                                   . (lambda (_candidate)
-                                       (let ((default-directory (helm-default-directory)))
-                                         (process-file "git" nil nil nil
-                                                       "add" "-u"))))
-                                 '("Stage marked file(s) and commit"
-                                   . helm-ls-git-stage-marked-and-commit))))
+           (append actions (helm-make-actions
+                            "Commit staged file(s)" 'helm-ls-git-commit
+                            "Unstage file(s)" 'helm-ls-git-unstage-files
+                            "Update index" (lambda (_candidate)
+                                             (let ((default-directory (helm-default-directory)))
+                                               (process-file "git" nil nil nil
+                                                             "add" "-u")))
+                            "Stage marked file(s) and commit"
+                            'helm-ls-git-stage-marked-and-commit)))
           ;; Conflict
           ((string-match "^U+ +" disp)
-           (append actions (list '("Git cherry-pick abort" . helm-ls-git-cherry-pick-abort)
-                                 '("Git rebase abort" . helm-ls-git-rebase-abort)
-                                 '("Git AM abort" . helm-ls-git-am-abort)
-                                 '("Git merge abort" . helm-ls-git-merge-abort)
-                                 '("Git revert abort" . helm-ls-git-log-revert-abort))))
+           (append actions (helm-make-actions
+                            "Git cherry-pick abort" 'helm-ls-git-cherry-pick-abort
+                            "Git rebase abort" 'helm-ls-git-rebase-abort
+                            "Git AM abort" 'helm-ls-git-am-abort
+                            "Git merge abort" 'helm-ls-git-merge-abort
+                            "Git revert abort" 'helm-ls-git-log-revert-abort)))
           (t actions))))
 
 (defun helm-ls-git-am-files (_candidate)
