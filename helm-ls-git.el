@@ -1261,6 +1261,10 @@ object will be passed git rebase i.e. git rebase -i <hash>."
               tm (run-at-time 1 0.1 #'progress-reporter-update pr))
         (let ((proc (start-file-process
                      "git" "*helm-ls-git push*" "git" "push" "origin" "HEAD")))
+          (with-current-buffer (process-buffer proc) (erase-buffer))
+          (set-process-filter proc 'helm-ls-git--filter-process)
+          (save-selected-window
+            (display-buffer (process-buffer proc)))
           (set-process-sentinel
            proc (lambda (_process event)
                   (if (string= event "finished\n")
