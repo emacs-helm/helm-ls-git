@@ -1271,7 +1271,8 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                     (if (string= event "finished\n")
                         (progress-reporter-done pr)
                       (message "Failed to push branch `%s' on remote" branch))
-                    (when (= status 0) (kill-buffer (process-buffer process)))
+                    (when (= status 0)
+                      (quit-window t (get-buffer-window (process-buffer process))))
                     (cancel-timer tm)))))))))
 
 (defun helm-ls-git-run-push ()
