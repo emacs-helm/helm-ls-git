@@ -1266,11 +1266,13 @@ object will be passed git rebase i.e. git rebase -i <hash>."
           (save-selected-window
             (display-buffer (process-buffer proc)))
           (set-process-sentinel
-           proc (lambda (_process event)
-                  (if (string= event "finished\n")
-                      (progress-reporter-done pr)
-                    (message "Failed to push branch `%s' on remote" branch))
-                  (cancel-timer tm))))))))
+           proc (lambda (process event)
+                  (let ((status (process-exit-status process)))
+                    (if (string= event "finished\n")
+                        (progress-reporter-done pr)
+                      (message "Failed to push branch `%s' on remote" branch))
+                    (when (= status 0) (kill-buffer (process-buffer process)))
+                    (cancel-timer tm)))))))))
 
 (defun helm-ls-git-run-push ()
   (interactive)
