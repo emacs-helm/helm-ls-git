@@ -996,27 +996,28 @@ Icons are displayed like in `helm-find-files' when `helm-ff-icon-mode' is enable
                                       :data (helm-ls-git-list-files))
                            :buffer "*helm-ls-git cat-file*")))
            ;; Git command line needs 1234:lisp/foo.
-           (fname (concat rev ":" file))
+           (fname (and file (concat rev ":" file)))
            ;; Whereas the file created will be lisp/1234:foo.
-           (path (expand-file-name
-                  (concat (helm-basedir file) rev ":" (helm-basename file))
-                  (helm-ls-git-root-dir)))
+           (path (and file (expand-file-name
+                            (concat (helm-basedir file) rev ":" (helm-basename file))
+                            (helm-ls-git-root-dir))))
            str status buf)
-      (setq str (with-output-to-string
-                  (with-current-buffer standard-output
-                    (setq status (process-file
-                                  "git" nil t nil "cat-file" "-p" fname)))))
-      (if (zerop status)
-          (progn
-            (with-current-buffer (setq buf (find-file-noselect path))
-              (insert str)
-              ;; Prevent kill-buffer asking after ediff ends.
-              (set-buffer-modified-p (not buffer-only))
-              (goto-char (point-min))
-              (unless buffer-only
-                (save-buffer)))
-            (if buffer-only buf (find-file path)))
-        (error "No such file %s at %s" file rev)))))
+      (when file
+        (setq str (with-output-to-string
+                    (with-current-buffer standard-output
+                      (setq status (process-file
+                                    "git" nil t nil "cat-file" "-p" fname)))))
+        (if (zerop status)
+            (progn
+              (with-current-buffer (setq buf (find-file-noselect path))
+                (insert str)
+                ;; Prevent kill-buffer asking after ediff ends.
+                (set-buffer-modified-p (not buffer-only))
+                (goto-char (point-min))
+                (unless buffer-only
+                  (save-buffer)))
+              (if buffer-only buf (find-file path)))
+          (error "No such file %s at %s" file rev))))))
 
 (defun helm-ls-git-ediff-file-at-revs (_candidate)
   (let* ((marked (helm-marked-candidates))
