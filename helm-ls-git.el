@@ -845,8 +845,10 @@ Icons are displayed like in `helm-find-files' when `helm-ff-icon-mode' is enable
                                       helm-ls-git-log--last-number-commits "0"
                                       helm-ls-git-log--is-full nil))
                      :help-message 'helm-ls-git-help-message
-                     :action '(("Show commit" . helm-ls-git-log-show-commit)
-                               ("Find file at rev" . helm-ls-git-log-find-file)
+                     :action `(("Show commit" . helm-ls-git-log-show-commit)
+                               ("Find file at rev" . ,(lambda (candidate)
+                                                        (helm-ls-git-log-find-file-1
+                                                         candidate (and file (file-relative-name file)))))
                                ("Ediff file at revs" . helm-ls-git-ediff-file-at-revs)
                                ("Kill rev as short hash" .
                                 helm-ls-git-log-kill-short-hash)
@@ -1015,9 +1017,6 @@ Icons are displayed like in `helm-find-files' when `helm-ff-icon-mode' is enable
                 (save-buffer)))
             (if buffer-only buf (find-file path)))
         (error "No such file %s at %s" file rev)))))
-
-(defun helm-ls-git-log-find-file (candidate)
-  (helm-ls-git-log-find-file-1 candidate))
 
 (defun helm-ls-git-ediff-file-at-revs (_candidate)
   (let* ((marked (helm-marked-candidates))
