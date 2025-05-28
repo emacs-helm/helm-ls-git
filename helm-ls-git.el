@@ -824,8 +824,11 @@ Icons are displayed like in `helm-find-files' when `helm-ff-icon-mode' is enable
       (kill-buffer "*git log diff*"))
     (helm :sources (helm-build-in-buffer-source "Git log"
                      :header-name (lambda (sname)
-                                    (format "%s (%s)"
-                                            sname (substring-no-properties name)))
+                                    (format "%s (%s:%s)"
+                                            sname (substring-no-properties name)
+                                            (if file
+                                                (file-relative-name file)
+                                              "All files")))
                      :init (lambda ()
                              (helm-init-candidates-in-buffer 'global
                                (helm-ls-git-log
