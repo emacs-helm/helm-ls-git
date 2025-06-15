@@ -247,6 +247,7 @@ When non nil this disable `helm-move-to-line-cycle-in-source'."
     (define-key map (kbd "C-c b") 'helm-ls-git-branches-toggle-show-all)
     (define-key map (kbd "M-L") 'helm-ls-git-run-show-log)
     (define-key map (kbd "C-c P") 'helm-ls-git-run-push)
+    (define-key map (kbd "C-c p") 'helm-ls-git-persistent-push)
     (define-key map (kbd "C-c F") 'helm-ls-git-run-pull)
     (define-key map (kbd "C-c f") 'helm-ls-git-run-fetch)
     (define-key map (kbd "M-e") 'helm-ls-git-run-switch-to-shell)
@@ -1282,6 +1283,11 @@ object will be passed git rebase i.e. git rebase -i <hash>."
     "Run `helm-ls-git-push' action."
   'helm-ls-git-push)
 (put 'helm-ls-git-run-push 'no-helm-mx t)
+
+(helm-make-persistent-command-from-action helm-ls-git-persistent-push
+    "Run `helm-ls-git-push' persistently."
+  'push-persistent 'helm-ls-git-push)
+(put 'helm-ls-git-persistent-push 'no-helm-mx t)
 
 (defun helm-ls-git-remotes ()
   (with-helm-default-directory (helm-default-directory)
