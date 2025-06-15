@@ -1278,10 +1278,9 @@ object will be passed git rebase i.e. git rebase -i <hash>."
                       (quit-window t (get-buffer-window (process-buffer process))))
                     (cancel-timer tm)))))))))
 
-(defun helm-ls-git-run-push ()
-  (interactive)
-  (with-helm-alive-p
-    (helm-exit-and-execute-action #'helm-ls-git-push)))
+(helm-make-command-from-action helm-ls-git-run-push
+    "Run `helm-ls-git-push' action."
+  'helm-ls-git-push)
 (put 'helm-ls-git-run-push 'no-helm-mx t)
 
 (defun helm-ls-git-remotes ()
