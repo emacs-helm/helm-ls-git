@@ -1256,14 +1256,17 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 
 (defun helm-ls-git-push (_candidate)
   (with-helm-default-directory (helm-default-directory)
-    (let ((branch (helm-ls-git--branch))
-          pr tm)
-      (when (y-or-n-p (format "Really push branch `%s' on remote ?" branch))
+    (let* ((branch (helm-ls-git--branch))
+           (force (and helm-current-prefix-arg "FORCE "))
+           pr tm)
+      (when (y-or-n-p (format "Really %spush branch `%s' on remote ?"
+                              (if force force "") branch))
         (setq pr (make-progress-reporter
                   (format "Pushing branch `%s' on remote..." branch))
               tm (run-at-time 1 0.1 #'progress-reporter-update pr))
         (let ((proc (start-file-process
-                     "git" "*helm-ls-git push*" "git" "push" "-q" "origin" "HEAD")))
+                     "git" "*helm-ls-git push*" "git" "push" "-q" "origin"
+                     (format "%sHEAD" (if force "+" "")))))
           (with-current-buffer (process-buffer proc) (erase-buffer))
           (set-process-filter proc 'helm-ls-git--filter-process)
           (save-selected-window
