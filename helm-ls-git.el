@@ -1294,22 +1294,21 @@ object will be passed git rebase i.e. git rebase -i <hash>."
 
 (defun helm-ls-git--pull-or-fetch (command &rest args)
   (with-helm-default-directory (helm-default-directory)
-    (let* ((remote "origin")
-           (pcommand (capitalize command))
+    (let* ((pcommand (capitalize command))
+           (remote (if current-prefix-arg
+                       (helm-comp-read
+                        (format "%s from: " pcommand)
+                        (split-string
+                         (helm-ls-git-remotes)
+                         "\n")
+                        :allow-nest t)
+                     "origin"))
            (branch (helm-ls-git--branch))
            ;; A `C-g' in helm-comp-read will quit function as well.
-           (switches (if current-prefix-arg
-                         (append (list command)
-                                 args
-                                 (list (setq remote
-                                             (helm-comp-read
-                                              (format "%s from: " pcommand)
-                                              (split-string
-                                               (helm-ls-git-remotes)
-                                               "\n")
-                                              :allow-nest t)))
-                                 (list branch))
-                       (append (list command) args)))
+           (switches (append (list command)
+                             args
+                             (list remote)
+                             (list branch)))
            (pr (make-progress-reporter
                 (format "%sing from `%s/%s'..." pcommand remote branch)))
            (tm (run-at-time 1 0.1 (lambda () (progress-reporter-update pr))))
