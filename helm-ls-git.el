@@ -534,10 +534,6 @@ Icons are displayed like in `helm-find-files' when `helm-ff-icon-mode' is enable
 ")
 
 
-;; Append visited files from `helm-source-ls-git' to `file-name-history'.
-(add-to-list 'helm-files-save-history-extra-sources "Git files")
-
-
 (defvar helm-ls-git-log-file nil) ; Set it for debugging.
 
 
