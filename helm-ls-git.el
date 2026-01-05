@@ -1,6 +1,6 @@
 ;;; helm-ls-git.el --- The git project manager for helm. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2025 Thierry Volpiatto
+;; Copyright (C) 2012 ~ 2026 Thierry Volpiatto
 
 ;; Package-Requires: ((helm "3.9.5") (emacs "25.3"))
 ;; URL: https://github.com/emacs-helm/helm-ls-git
