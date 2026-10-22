@@ -727,11 +727,9 @@ Icons are displayed like in `helm-find-files' when `helm-ff-icon-mode' is enable
                                       (helm-ls-git-root-dir))))
     (helm-do-grep-1 files)))
 
-(defun helm-ls-git-run-grep ()
-  "Run Git Grep action from helm-ls-git."
-  (interactive)
-  (with-helm-alive-p
-    (helm-exit-and-execute-action 'helm-ls-git-grep)))
+(helm-make-command-from-action helm-ls-git-run-grep
+    "Run Git Grep action from helm-ls-git."
+  'helm-ls-git-grep)
 (put 'helm-ls-git-run-grep 'no-helm-mx t)
 
 ;;; Git log
@@ -1086,10 +1084,9 @@ object will be passed git rebase i.e. git rebase -i <hash>."
   (let ((hash (helm-ls-git-log-get-long-hash)))
     (helm-ls-git-with-editor "rebase" "-i" hash))))
 
-(defun helm-ls-git-run-show-log ()
-  (interactive)
-  (with-helm-alive-p
-    (helm-exit-and-execute-action #'helm-ls-git-show-log)))
+(helm-make-command-from-action helm-ls-git-run-show-log
+    "Interactively run `helm-ls-git-show-log' action."
+  'helm-ls-git-show-log)
 (put 'helm-ls-git-run-show-log 'no-helm-mx t)
 
 
@@ -1496,19 +1493,17 @@ object will be passed git rebase i.e. git rebase -i <hash>."
   (let ((name (read-string "Stash name: ")))
     (helm-ls-git-stash-1 name)))
 
-(defun helm-ls-git-run-stash ()
-  (interactive)
-  (with-helm-alive-p
-    (helm-exit-and-execute-action 'helm-ls-git-stash)))
+(helm-make-command-from-action helm-ls-git-run-stash
+    "Interactively run `helm-ls-git-stash' action."
+  'helm-ls-git-stash)
 (put 'helm-ls-git-run-stash 'no-helm-mx t)
 
 (defun helm-ls-git-stash-snapshot (_candidate)
   (vc-git-stash-snapshot))
 
-(defun helm-ls-git-run-stash-snapshot ()
-  (interactive)
-  (with-helm-alive-p
-    (helm-exit-and-execute-action 'helm-ls-git-stash-snapshot)))
+(helm-make-command-from-action helm-ls-git-run-stash-snapshot
+    "Interactively run `helm-ls-git-stash-snapshot' action."
+  'helm-ls-git-stash-snapshot)
 (put 'helm-ls-git-run-stash-snapshot 'no-helm-mx t)
 
 (defun helm-ls-git-stash-drop (candidate)
@@ -1773,10 +1768,9 @@ object will be passed git rebase i.e. git rebase -i <hash>."
          (helm-ls-git-root-dir)))
     (helm-ff-switch-to-shell nil)))
 
-(defun helm-ls-git-run-switch-to-shell ()
-  (interactive)
-  (with-helm-alive-p
-    (helm-exit-and-execute-action 'helm-ls-git-switch-to-shell)))
+(helm-make-command-from-action helm-ls-git-run-switch-to-shell
+    "Interactively run `helm-ls-git-switch-to-shell' action."
+  'helm-ls-git-switch-to-shell)
 (put 'helm-ls-git-run-switch-to-shell 'no-helm-mx t)
 
 (defun helm-ls-git-status-revert-files (_candidate)
@@ -1808,12 +1802,11 @@ object will be passed git rebase i.e. git rebase -i <hash>."
          (default-directory (helm-default-directory)))
     (apply #'process-file "git" nil nil nil "stage" files)))
 
-(defun helm-ls-git-run-stage-files (arg)
-  (interactive "P")
-  (with-helm-alive-p
-    (helm-exit-and-execute-action (if arg
-                                      'helm-ls-git-unstage-files
-                                    'helm-ls-git-stage-files))))
+(helm-make-command-from-action helm-ls-git-run-stage-files
+    "Interactively run `helm-ls-git-run-stage-files' action."
+  (if current-prefix-arg
+      'helm-ls-git-unstage-files
+    'helm-ls-git-stage-files))
 (put 'helm-ls-git-run-stage-files 'no-helm-mx t)
 
 (defun helm-ls-git-unstage-files (_candidate)
@@ -1869,10 +1862,9 @@ object will be passed git rebase i.e. git rebase -i <hash>."
   (helm-ls-git-stage-files nil)
   (helm-ls-git-extend-commit candidate))
 
-(defun helm-ls-git-run-stage-marked-and-extend-commit ()
-  (interactive)
-  (with-helm-alive-p
-    (helm-exit-and-execute-action 'helm-ls-git-stage-marked-and-extend-commit)))
+(helm-make-command-from-action helm-ls-git-run-stage-marked-and-extend-commit
+    "Interactively run `helm-ls-git-stage-marked-and-extend-commit' action."
+  'helm-ls-git-stage-marked-and-extend-commit)
 (put 'helm-ls-git-run-stage-marked-and-extend-commit 'no-helm-mx t)
 
 (defun helm-ls-git-stage-marked-and-amend-commit (candidate)
@@ -1880,10 +1872,9 @@ object will be passed git rebase i.e. git rebase -i <hash>."
   (helm-ls-git-stage-files nil)
   (helm-ls-git-amend-commit candidate))
 
-(defun helm-ls-git-run-stage-marked-and-amend-commit ()
-  (interactive)
-  (with-helm-alive-p
-    (helm-exit-and-execute-action 'helm-ls-git-stage-marked-and-amend-commit)))
+(helm-make-command-from-action helm-ls-git-run-stage-marked-and-amend-commit
+    "Interactively run `helm-ls-git-stage-marked-and-amend-commit' action."
+  'helm-ls-git-stage-marked-and-amend-commit)
 (put 'helm-ls-git-run-stage-marked-and-amend-commit 'no-helm-mx t)
 
 (defun helm-ls-git-extend-commit (candidate)
